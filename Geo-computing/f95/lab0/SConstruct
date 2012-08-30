@@ -1,0 +1,12 @@
+# I compiled with gfortran, with -O3 flag
+env = Environment(F90='gfortran',F90FLAGS='-O3')
+
+# sources go here.
+sources = ['lab0.f90','stopwatch.f90','dsp.f90']
+
+# 
+objs = env.Program('lab0', sources)
+
+# I think the program runs a little bit faster in the 
+# command line without scons.
+Command('lab_output.txt','lab0','./${SOURCES[0]} >$TARGET' )

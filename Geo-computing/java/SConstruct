@@ -1,0 +1,3 @@
+import os
+env = Environment(ENV={'PATH':os.environ['PATH']})
+env.Java(".",".",JAVAVERSION="1.6")

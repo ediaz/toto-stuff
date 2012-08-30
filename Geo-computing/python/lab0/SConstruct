@@ -1,0 +1,1 @@
+Command('lab0_output.txt','lab0.py','./${SOURCES[0]} ')
