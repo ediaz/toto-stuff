@@ -36,18 +36,12 @@ end subroutine
 function mean_dsp(x) result(m)
     real :: m
     real, dimension(:),intent(in) :: x
-    integer :: i,n 
+    integer :: n 
     
     n= SIZE(x) 
     m=0.0 
 
     m=sum(x)/n
-    !do i=1,n
-    !    m = m +x(i) 
-    !enddo
-
-    !m = m/n
-
 end function
 
 

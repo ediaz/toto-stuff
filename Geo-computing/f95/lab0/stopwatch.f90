@@ -3,7 +3,7 @@ implicit none
    
 logical, private :: running 
 real    :: time_ , start_
-integer, private, allocatable, dimension(:) :: time_array
+!integer, private, allocatable, dimension(:) :: time_array
 
 contains
 
@@ -14,12 +14,12 @@ subroutine stopwatch_init()
 running = .FALSE.
 time_ = 0.0 
 start_ = 0.0 
-allocate(time_array(8))
+!allocate(time_array(8))
 
 end subroutine
 
 subroutine stopwatch_close()
-    deallocate(time_array)
+  !  deallocate(time_array)
 end subroutine
 
 
@@ -27,7 +27,6 @@ end subroutine
 function get_time_sw() result (t) 
     real :: t
 
-    call DATE_AND_TIME(values=time_array)
 
     ! The way I measure time is not error-save.
     ! This won't work if I use the sw for long runs
@@ -35,9 +34,10 @@ function get_time_sw() result (t)
     
     ! Beware of using this sofware at midnight, or even
     ! worse, at new year's evening.
-
-    t = (time_array(5)*60*60 + time_array(6)*60 &
-             + time_array(7) +time_array(8)*1d-03) 
+    
+    call cpu_time(t)
+!    t  = (time_array(5)*60*60 + time_array(6)*60 &
+!             + time_array(7) +time_array(8)*1d-03) 
 end function
 
 subroutine start_sw()

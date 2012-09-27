@@ -1,0 +1,27 @@
+import commands
+
+
+def shared_f2py(lib,sources):
+    x=lib.replace(".so","")
+    if x == lib:
+        lib=lib+'.so'
+
+    f2py=commands.getoutput('which f2py')
+    Command(lib,sources,'%s -c -m %s ${SOURCES[0:%d]} '%(f2py,x,len(sources)))
+
+
+
+
+
+
+
+
+
+sources=['dsp.f90'] 
+
+
+# Here I build the shared libraries using f2py,
+# this implementation seems to be plataform 
+# dependant.  
+shared_f2py('lab1.so',sources)
+

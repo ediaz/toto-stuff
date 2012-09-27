@@ -1,0 +1,3 @@
+#!/bin/sh
+export CLASSPATH=../../java:../jython.jar
+java -cp $CLASSPATH org.python.util.jython $*

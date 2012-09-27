@@ -14,7 +14,7 @@ n = 1001 ! number of samples
 
 allocate ( x(n),y(n)) ! memory allocation
 
-x(1:n) =0.0 ! array initialization.
+x =0.0 ! array initialization.
 y = x 
 
 ! ---------------------
@@ -27,11 +27,10 @@ x(1) = x(n)
 a = 0.99  ! smoothing parameter.
 
 call stopwatch_init()
-call start_sw()
-
-
 maxtime=2.0 ! time for benchmark
 nsmooth=0
+
+call start_sw()
 do while (time_sw() < maxtime ) 
     call smooth_dsp(a,x,y)
     nsmooth =nsmooth +1

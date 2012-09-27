@@ -1,0 +1,36 @@
+\documentclass{beamer}
+
+
+\begin{document}
+\title{My research }   
+\author{Esteban D\'{i}az} 
+\date{\today} 
+
+\frame{\titlepage} 
+
+
+\frame{\frametitle{Migration Velocity Analysis (MVA)}
+\begin{itemize}
+\item I deal with seismic wavefields: $u_s(x,y,z,t)$
+\item Images: $R(\mathbf{x}) = \sum_t  u_s(x,y,z,t)u_r(x,y,z,t)$
+\item Extended images: $R(\mathbf{x},{\mathbf\lambda},\tau) = \sum_t   u_s({\mathbf x}+{\mathbf \lambda},t+\tau)u_r({\mathbf x}-{\mathbf \lambda},t-\tau) $
+\end{itemize}
+
+From which I define optimization problems for some type of data (diving waves, backscattered waves, head waves,etc)\\
+\begin{equation}
+J({\mathbf m } )= \frac{1}{2} \left |\left | P(\tau) R({\mathbf x},\tau) \right | \right |^2_2
+\end{equation}
+
+Adjoint source implementation:
+
+\begin{equation}
+a_s({\mathbf x},t)=\frac{\partial J({\mathbf m })}{\partial u_s({\mathbf x},t)} = \sum_\tau P(\tau)^2 R({\mathbf x},\tau)u_r({\mathbf x},t-2\tau) 
+\end{equation}
+
+
+
+
+}
+
+\end{document}
+

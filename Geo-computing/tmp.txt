@@ -1,0 +1,4 @@
+9.8 1.1 1.1
+ 9.8 1.1 1.1
+n1=3 n2=2 in=tmp.txt data_format=ascii_float
+esize=4

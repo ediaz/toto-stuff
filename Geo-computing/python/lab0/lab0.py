@@ -15,16 +15,17 @@ except:
 
 print "Python"
 
-n = 1001
+n = 100001
 maxtime = 2.0 
-a =0.99 
+a =0.9999 
 
-x= np.zeros(n, dtype=float)
+x= np.zeros(n, dtype='Float32')
 
-x[0]=x[int(n/2)]= x[n-1]= 1.0 
+x[int(n/2)]= 1.0 
+#x[0]=x[int(n/2)]= x[n-1]= 1.0 
 
 nsmooth=0
-y= np.zeros(n, dtype=float)
+y= np.zeros(n, dtype='Float32')
 
 sw.start()
 while sw.time() < maxtime :
