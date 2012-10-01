@@ -73,31 +73,41 @@ def goBenchmark():
   a = 0.9
 
   def benchmarkP(method,name,thread=1):
+      '''
+      benchmark parallel code, if 
+      thread=1 assumes it will benchmark
+      sequential code
+      '''
       Dsp.nthread =thread
       sw = Stopwatch() #JTK stopwatch 
       sw.start()
-      nsmooth=0
-      while (sw.time()<10.0):
-        y = method(a,x)    
+      nsmooth = 0
+      y = like(x)
+      maxtime = .001
+      while (sw.time()<maxtime):
+        method(a,x,y)    
         nsmooth +=1
       sw.stop()
       rate=int(6.0e-6*n1*n2*nsmooth/sw.time())
     
-      if thread ==1:
-        print name+': mflops=','%4d'%rate,'mean=',Dsp.mean(y),'sequential'
-      else :
-        print name+': mflops=','%4d'%rate,'mean=',Dsp.mean(y),'threads=',thread
-
-  #benchmark(smooth1 ,'smooth1 ' )
-
-  
-  benchmarkP(smooth2S,'smooth2S')
-  for i in range(2,9,1):
-    benchmarkP(smooth2SP,'smooth2SP',i )
+      print ' '+name+': mflops=','%4d'%rate,'mean=',Dsp.mean(y),'threads=',thread
 
 
+  def benchmark2(methodS,nameS,methodP,nameP):
+    '''
+    Compare sequential implementation with parallel
+    for different number of cores
+    ''' 
+    max_threads = 2 #Dsp.nthread
+    print '========================================================='
+    print 'benchmarking methods %s and %s'%(nameS,nameP)
+    benchmarkP(methodS,nameS,1)
+    for i in range(2,max_threads+1,1):
+      benchmarkP(methodP,nameP,i )
 
-  
+
+  benchmark2(Dsp.smooth2,'smooth2 ',Dsp.smooth2P,'smooth2P')
+
 
 
 #############################################################################

@@ -73,11 +73,12 @@ def goBenchmark():
   a = 0.9
 
   def benchmark(method,name):
+      y = like(x)
       sw = Stopwatch() #JTK stopwatch 
       sw.start()
       nsmooth=0
       while (sw.time()<2.0):
-        y = method(a,x)    
+        method(a,x,y)    
         nsmooth +=1
       sw.stop()
       rate=int(6.0e-6*n1*n2*nsmooth/sw.time())
@@ -85,10 +86,10 @@ def goBenchmark():
       print name+': mflops=','%4d'%rate,'mean=',Dsp.mean(y)
 
 
-  benchmark(smooth1 ,'smooth1 ' )
-  benchmark(smooth2 ,'smooth2 ' )
-  benchmark(smooth2S,'smooth2S')
-  benchmark(smooth2T,'smooth2T')
+  benchmark(Dsp.smooth1 ,'smooth1 ' )
+  benchmark(Dsp.smooth2 ,'smooth2 ' )
+  benchmark(Dsp.smooth2S,'smooth2S')
+  benchmark(Dsp.smooth2T,'smooth2T')
 
 
   

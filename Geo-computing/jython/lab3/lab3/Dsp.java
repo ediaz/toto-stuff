@@ -4,7 +4,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Digital signal processing.
- * @author Dave Hale, Colorado School of Mines
+ * @author Esteban D\'{i}az (from Dave Hale's code)
+ *         Colorado School of Mines
  * @version 2012.09.23
  */
 public class Dsp {
@@ -73,7 +74,7 @@ public class Dsp {
     final int n2=x.length;
     final int n1=x[0].length;
     final float[][] y1=new float[n1][n2]; // intermediate array to
-                                    // keep the transpose
+                                          // keep the transpose
     transpose(x,y1);
     smooth1(a,y1,y1);
     transpose(y1,y);
@@ -171,18 +172,18 @@ public class Dsp {
 
     for (int i1=0;i1<n1; ++i1)
         y[0][i1] = x[0][i1]; //first 
-
     for (int i2=1;i2<n2-1; ++i2)
         for (int i1=0;i1<n1;++i1)
            y[i2][i1] = a*y[i2-1][i1]+b*x[i2][i1]; //forward
     
+/*
     for (int i1=0;i1<n1; ++i1)
         y[n2-1][i1] = (a*y[n2-2][i1]+x[n2-1][i1])/(1.0f+a); //last
     
     for (int i2=n2-2;i2>=0; --i2)
         for (int i1=0;i1<n1;++i1)
            y[i2][i1] = a*y[i2+1][i1]+b*y[i2][i1]; //reverse
-
+*/
   }
 
   /**
@@ -193,20 +194,20 @@ public class Dsp {
     final int   n2 = x.length;
     final int   n1 = x[0].length;
     final float  b = 1.0f-a;
+
     final AtomicInteger ai = new AtomicInteger();
     final AtomicInteger aj = new AtomicInteger();
-
-
     Thread[] threads = new Thread[nthread];
- 
+
+
     for (int ithread=0; ithread<nthread; ++ithread) {
-      threads[ithread] = new Thread() {
-        public void run() {
-          for (int i1=ai.getAndIncrement(); i1<n1; i1=ai.getAndIncrement()){
-            y[0][i1] = x[0][i1]; //first 
-        }
-      };
-      };
+        threads[ithread] = new Thread() {
+            public void run() {
+                for (int i1=aj.getAndIncrement(); i1<n1; i1=aj.getAndIncrement()){
+                  y[0][i1] = x[0][i1]; //first 
+                }
+            }
+        };
     }
     startAndJoin(threads);
 
@@ -214,50 +215,51 @@ public class Dsp {
 
     for (int ithread=0; ithread<nthread; ++ithread) {
         threads[ithread] = new Thread() {
-          public void run() {
-            for (int i2=aj.getAndIncrement(); i2<n2; i2=aj.getAndIncrement()){
-              for (int i1=ai.getAndIncrement(); i1<n1; i1=ai.getAndIncrement())
-                 y[i2][i1] = a*y[i2-1][i1]+b*x[i2][i1]; //forward
-          };
+            public synchronized void run() {
+                for (int i2=ai.getAndIncrement(); i2<n2; i2=ai.getAndIncrement()){
+                  for (int i1=aj.getAndIncrement(); i1<n1; i1=aj.getAndIncrement()){
+                    y[i2][i1] = a*y[i2-1][i1]+b*x[i2][i1]; //forward
+                  }
+                }
+            }
         };
-      };
     }
     startAndJoin(threads);
+/*
 
-
-
-
-    for (int ithread=0; ithread<nthread; ++ithread) {
-      threads[ithread] = new Thread() {
-        public void run() {
-          for (int i1=ai.getAndIncrement(); i1<n1; i1=ai.getAndIncrement()){
-            y[n2-1][i1] = (a*y[n2-2][i1]+x[n2-1][i1])/(1.0f+a); //last
-        }
-      };
-      };
-    }
-    startAndJoin(threads);
-
-
-    final int i2=n2-2;
+    aj.set(0);
     for (int ithread=0; ithread<nthread; ++ithread) {
         threads[ithread] = new Thread() {
-          public void run() {
-            for (int i2=aj.getAndDecrement(); i2>=0; i2=aj.getAndDecrement()){
-              for (int i1=ai.getAndIncrement(); i1<n1; i1=ai.getAndIncrement())
-                 y[i2][i1] = a*y[i2+1][i1]+b*y[i2][i1]; //reverse
-          };
+            public synchronized void run() {
+                for (int i1=aj.getAndIncrement(); i1<n1; i1=aj.getAndIncrement()){
+                  y[n2-1][i1] = (a*y[n2-2][i1]+x[n2-1][i1])/(1.0f+a); //last
+                }
+            }
         };
-      };
     }
     startAndJoin(threads);
 
-
+    ai.set(n2-2);
+    aj.set(0);
+    for (int ithread=0; ithread<nthread; ++ithread) {
+        threads[ithread] = new Thread() {
+            public synchronized void run() {
+                for (int i2=ai.getAndDecrement(); i2>=0; i2=ai.getAndDecrement()){
+                  for (int i1=aj.getAndIncrement(); i1<n1; i1=aj.getAndIncrement()){
+                    y[i2][i1] = a*y[i2+1][i1]+b*y[i2][i1]; //reverse
+                  }
+                }
+            }
+        };
+    }
+    startAndJoin(threads);
+*/
   }
 
 
 
-
+  
+  
 
 
   public static float mean(float[] x) {
