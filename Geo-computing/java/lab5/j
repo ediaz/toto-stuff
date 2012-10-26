@@ -1,0 +1,18 @@
+#!/bin/sh
+
+
+# If Mac OS X, which version of Java should we use?
+export JAVA_VERSION=1.6.0
+
+export CLASSPATH=$CLASSPATH:../edu_mines_jtk.jar:./
+
+
+rm *.class
+javac *.java
+
+# Run a server 64-bit VM with assertions enabled and a 4GB max Java heap.
+# Modify these flags and properties as necessary for your system.
+java -server -d64 -ea -Xmx4g \
+-Djava.util.logging.config.file=$HOME/.java_logging_config \
+-Dapple.awt.graphicsUseQuartz=true \
+$*

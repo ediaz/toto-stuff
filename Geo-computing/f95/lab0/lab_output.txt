@@ -1,5 +1,5 @@
 Fortran
-nsmooth =    395041
+nsmooth =    392829
    mean = 0.10139040
-   time = 2.000001907
- mflops =      1186
+   time = 2.000004053
+ mflops =      1179

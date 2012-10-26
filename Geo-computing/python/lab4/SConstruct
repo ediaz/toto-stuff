@@ -1,0 +1,9 @@
+# I compiled with gfortran, with -O3 flag
+env = Environment(F90='gfortran',F90FLAGS='-O3')
+env.Append(LINKFLAGS=["-fopenmp"])
+# sources go here.
+sources = ['lab4.f90','dsp.f90','stopwatch.f90','random.f90']
+
+# 
+objs = env.Program('lab4', sources)
+

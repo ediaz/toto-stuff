@@ -1,0 +1,9 @@
+9.8 1.1 1.1
+ 9.8 1.1 1.1
+n1=3 n2=2 in=tmp.txt data_format=ascii_float
+esize=4
+1.4-svn	sfdd	Desktop/toto-stuff/Geo-computing:	ediaz@wl-dhcp202-242.mines.edu	Fri Sep  7 14:51:46 2012
+
+	data_format="xdr_float"
+	esize=4
+	in="/var/tmp/test.rsf@"

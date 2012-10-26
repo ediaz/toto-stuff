@@ -1,0 +1,15 @@
+env = Environment(LINK='gfortran',
+                  LINKFLAGS='-fopenmp ',
+                  F90FLAGS='-O3  -fopenmp -lgomp')
+
+
+sources = ['lab4.f90','dsp.f90','stopwatch.f90','random.f90']
+
+
+objs = env.Program('lab4', sources)
+
+
+
+
+
+

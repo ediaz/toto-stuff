@@ -1,0 +1,247 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic,subfig}
+\usepackage{setspace,enumerate}
+\doublespacing
+
+
+
+
+\author{Esteban D\'{i}az}
+\title{Homework 3}{}
+
+\begin{document}
+\maketitle
+
+\section{Exercise 1}
+
+Given the following joint distribution:
+\begin{tabular}{c | c  c c }
+
+ $P_{XY}$ & 0     & 1     &  2   \\ \hline
+    0     & 0.15  & 0.05  & 0.01 \\ 
+    1     & 0.10  & 0.08  & 0.01 \\ 
+    2     & 0.10  & 0.14  & 0.02 \\ 
+    3     & 0.10  & 0.08  & 0.03 \\ 
+    4     & 0.05  & 0.05  & 0.03 \\ 
+\end{tabular}
+
+\begin{enumerate}[a.]
+  \item Find the marginal probability functions for X and Y. 
+        In this case we have to integrate $P_{XY}$ in the $X$ or $Y$
+        direction:
+        \[
+        P(X=x) = \sum_{Y=y} P_{XY} = \begin{pmatrix} 0.21 & 0.19 & 0.26 & 0.21 & 0.13 \end{pmatrix} 
+       \]
+       and 
+        \[
+        P(Y=y) = \sum_{X=x} P_{XY} = \begin{pmatrix} 0.5 & 0.4 & 0.1\end{pmatrix} 
+       \]
+
+  \item Are $X$ and $Y$ independent? $X$ and $Y$ are not independent since:
+      \[
+        P(X,Y) \neq P(X) P (Y) 
+      \]
+
+  \item Find the mean and variance of $X$ and $Y$:
+        \[  
+        \mu_X = \sum_{x} P(X=x)x  = 1.86
+        \] 
+        \[
+        var(X) = \sum_{x} P(X=x) (x-\mu_X)^2 = 1.7404
+        \]
+        \[
+        var(Y) = \sum_{y} P(Y=y) (y-\mu_Y)^2 = 0.44 
+        \]
+        \[  
+        \mu_Y = \sum_{y} P(Y=y)y  = 0.6
+        \] 
+
+    \item Compute the correlation coefficient:
+        \[
+        \rho_{XY}  = Corr(X,Y) = \frac{Cov(X,Y)}{\sqrt{var(X)var(Y)}} = \frac{\sum_x \sum_y (x-\mu_x)(y-\mu-y)P(x,y)}{\sqrt{var(X)var(Y)}} = 0.23312
+        \]
+
+    \item Find the conditional probability of $X$ given that the are no major circuit pack failures. What is the mean of this 
+          conditional distribution?
+
+          This amounts to find: 
+         \[P(X | Y=0) = \frac{P(X,Y=0)}{P(Y=0)} = \begin{pmatrix} 0.3 & 0.2 & 0.2 & 0.2 & 0.1 \end{pmatrix}\] 
+          The mean on the conditional is:
+          \[\mu_c = \sum_{x} \frac{P(X,Y=0)}{P(Y=0)}x = 1.6 \]
+
+    \item For the demerits assignment given by $D = 5Y+X$ find the mean value of D.
+         \[
+          \mu_D = 5\mu_Y +\mu_X = 4.86
+          \]
+    \item Find $P(D \leq 7)$. 
+          \[
+          P(D \leq 7) = \sum_{5Y + X \leq 7} P(x,y) = 0.77
+          \]
+    \item On the average, how many of these devices will have to be inspected in order to find 
+          one that scores 7 or less demerits? 
+    
+          One would need to inspect $2 = \lceil1/P(D\leq7)\rceil+1 $ devices to find one that has a Demerit lower than 8.
+         
+\end{enumerate}
+
+
+\section{Exercise 2}
+  One can model the c.d.f in terms of the Binomial sample $X \sim B(n,p)$ with $p$ being the failure rate $p=0.01$, and $n$, the number
+of realizations of $X$. In terms of the binomial solution:
+
+\[
+P_{B}(X > 5) = 1 - P_{B}(X \leq 5) = 1 - \sum_{k=0}^5 \begin{pmatrix} n \\ k \end{pmatrix} p^n (1-p)^{n-k} = 0.0330353 
+\]
+
+We can approximate $X$ to a Poisson distribution: $X \sim Pois(\lambda)$ with $\lambda=np = 6$. Therefore,
+
+\[
+P_{P}(X > 5) = 1- P_{P}(X \leq 5) = 1 -  \sum_{k=0}^5 \frac{ e^{-\lambda}\lambda^k}{k!} = 0.0362612 
+\]
+
+For the Gaussian distribution, one can do:
+\[
+ P (X > 5) = P\left( \frac{X -\mu}{\sigma} > \frac{5-\mu}{\sigma}     \right) 
+\]
+
+Given that this problem is explained by a binomial distribution, we know $\mu = np =6 $ and $\sigma = \sqrt{np(1-p)}=.244949$. Therefore,
+once normalized the distribution it amounts to
+
+\[
+P (X >5) = 1 - \phi\left(\frac{5-\mu}{\sigma}\right) = 0.6592089
+\]
+
+One can see that the Poisson approximation is relatively good, whereas the Gaussian is not. One reason of the error in the Gaussian
+could be the limited number of trials ($n=600$).
+
+\section {Exercise 2.49} 
+
+  Let $X_1$, $X_2$ be uncorrelated r.v.'s each with variance $\sigma^2$. Show that $Y_1 = X_1+X_2$ and $Y_2 =X_1 -X_2$ are 
+  uncorrelated.
+
+  $Y_1$ and $Y_2$ are uncorrelated if $Cov(Y_1,Y_2) =0$:
+
+  \[
+    Cov(Y_1,Y_2) = Cov(X_1 +X_2, X_1 -X_2) = 
+  \]
+  \[
+Cov(X_1,X_1)+Cov(X_2,X_1) -Cov(X_1,X_2) -Cov(X_2,X_2) = \sigma^2 + 0 + 0 -\sigma^2 = 0 \qed
+  \]
+
+
+\section{Exercise 2.55}
+
+Given the joint distribution: $ f(x,y) = 8xy $ for $0\leq x < y \leq 1$: 
+
+\begin{enumerate}[a.]
+    \item Find the marginal probabilities. Are $X$ and $Y$ independent?  
+
+          Similarly as in Exercise 1.a:
+          \[
+          g(x) = \int_x^1 f(x,y) dy = 4x - 4x^2 
+          \]
+          and
+          \[
+          h(y) = \int_0^y f(x,y) dx = 4y^3
+          \]
+
+          $X$ and $Y$ are not independent since:
+          \[
+          f(x,y) \neq g(x)h(y)
+          \]
+
+    \item Find the conditional probability of Y given X:
+        \[
+          P (y|x) =\frac{f(x,y)}{g(x)} = \frac{8xy}{4x-4x^2} = \frac{2y}{1-x^2}
+        \]
+    
+    \item Find Cov(X,Y) :
+
+        \[
+         Cov (X,Y) = E(XY) -\mu_x \mu_y 
+        \]
+
+        \[
+        \mu_x = \int_0^1 x(4x-4x^2) dx = \frac{1}{3} 
+        \]
+        \[
+        \mu_y = \int_0^1 y(4y^3) dy = \frac{4}{5} 
+        \]
+
+
+        \[
+          E(XY) = \int_0^1 \int_0^y xy(f(x,y))dxdy = \int_0^1 \int_0^y 8x^2y^2 dxdy = \int_0^1 \frac{8}{3}y^5 dy = \frac{8}{18}
+        \]
+
+        \[
+          Cov(X,Y) = \frac{8}{18} - \frac{4}{5}\frac{1}{3} =0.1777
+        \]
+
+\end{enumerate}
+
+
+
+\section{Exercise 2.74}
+  
+  Let $X$ be the time to failure of a light bulb. Assume that $X$ is exponentially distributed:
+    \begin{enumerate}[a.]
+      \item If the mean time to failure is $10,000h$, which is the median time to failure? 
+            For an exponential distribution the mean $E(x)=\frac{1}{\lambda}$, where $\lambda$ is the
+            rate between two events. Therefore $\lambda=1/10000 h^-1$.
+    
+            \[
+             F(x) = 1-e^{-\lambda x} = 0.5 
+            \]
+
+            Where $F(x)$ is the c.d.f. of the exponential distribution.
+  
+            This implies $ \tilde{x} = \frac{-\ln(0.5)}{\lambda}=6,931.48h$ 
+    
+      \item What is the probability that a bulb will last for at least 1,000h?:
+  
+            This is $P(x \leq 1000h)$. Thefore,
+            \[
+            P(x \leq 1000h) = F(1000h) = 1-e^{-\lambda x} = 1-e^{-0.1} = 0.0952
+            \]
+  
+      \item What is the probability that the bulb will burn for 1000h extra hours
+            given that it burned already for 1000h? 
+
+            The probability is the same as before because of the memoryless property
+            of the exponential distribution.
+
+    \end{enumerate}
+
+\section{Exercise 2.80}
+    The weight in a can is normally distributed with $\mu=16.1oz$ and $\sigma=0.5oz$:
+
+  \begin{enumerate}[a.]
+    \item What is the probability that the can contains less than 16oz?
+          This is:
+          \[
+          P(x < 16oz) = P(\frac{x-\mu}{\sigma} < \frac{16-\mu}{\sigma}=\alpha) = 1 - \phi(\alpha) = 0.4207
+          \]
+    \item Probability of the weight between 16 and 16.5oz? 
+          \[
+          P(16 < x <16.5) = \phi( \frac{16.5-\mu}{\sigma}) -\phi( \frac{16-\mu}{\sigma}) = 0.420604
+          \]
+
+    \item What is the 10th percentile of the distribution?
+
+          Following table A.3 from the book, we find that for a normal distribution
+          \[
+            \phi(Z=-1.115 ) =0.10
+          \]
+
+            Then :
+          \[
+            Z = \frac{x-\mu}{\sigma} = -1.115 
+          \]
+
+          Then $x = {-1.115 \sigma +\mu} = 15.5425 $
+
+  \end{enumerate}
+  
+  
+\end{document}

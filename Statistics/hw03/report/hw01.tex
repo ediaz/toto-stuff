@@ -1,0 +1,163 @@
+\documentclass[10pt]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic,subfig}
+\usepackage{setspace,enumerate}
+\doublespacing
+
+
+
+
+\author{Esteban D\'{i}az}
+\title{Homework 1}{}
+
+\begin{document}
+\maketitle
+
+\section{Problem 1}
+
+Some bacteria testing data is given, we want to know the reliability 
+of the test. The sample space $\mathbf{S}=\{A,B,T+,T-\}$ consist of four events:\\
+A : event of water being free of bacteria. \\
+B : event of water containing bacteria. \\
+T+: event of test resulting positive. \\
+T-: event of test resulting negative.
+
+We know that the water is free of bacteria 99\% of the time. Therefore, $P(A)=0.99$. 
+ We also know that the test is positive ($T+$) when the water is free of bacteria 5\% of the 
+time, this implies $P(T+|A)=0.05$. Finally, the test is positive 99\% of the time when the water
+is contaminated, $P(T+|B)=0.99$. 
+
+In order to test the reliability of the method we would like to know $P(A|T+)$. This means, that
+given that the test is positive, what are the chances that the water is free of bacteria, which
+implies a false positive.
+
+\[
+P(A|T+) =\frac{P(T+|A)P(A)}{P(T+|A)P(A)+P(T+|B)P(B)} = 0.833
+\]
+with $P(B)=1-P(A)$.
+
+
+\section{Problem 2.16}
+Given that:
+
+\begin{tabular}{ c c c }
+  $P(A)=0.5$       & $P(B)=0.6$        & $P(C)=0.6$ \\
+  $P(A\cap B)=0.3$ & $P(A\cap C)=0.2$  & $P(B\cap C)=0.3$ \\
+  $P(A\cap B \cap C)=0.1$ &  &  \\
+\end{tabular}
+
+find the conditional probabilities $P(A|B)$, $P(B|C)$, $P(A|B^C)$ and \\ $P(B^C|A\cap C)$
+
+\[
+P(A|B)=\frac{P(A\cap B)}{P(A)} = 0.6 
+\]
+
+\[
+P(B|C)=\frac{P(B\cap C)}{P(B)} = 0.18
+\]
+
+\[
+P(A|B^C) = \frac{P(A\cap B^C)}{P(B^C)} = \frac{P(A)-P(A\cap B)}{1-P(B)} = 0.5
+\]
+
+\[
+P(B^C|A\cap C) = \frac{P(A\cap C| B^C)P(B^C)}{P(A\cap C)}
+\]
+with 
+\[
+P(A\cap C|B^C)=\frac{P(A\cap C \cap B^C)}{P(B^C)}=\frac{P(A\cap C)-P(A\cap B\cap C)}{P(B^C)},
+\] 
+therefore,
+\[
+P(B^C|A\cap C) = 0.5
+\]
+
+\section{Problem 2.17}
+Let $P(A)=0.4$, $P(B)=p$, and $P(A\cup B)=0.8$.
+
+
+\begin{enumerate}[a)] % a), b), c), ...
+\item  Find $p$ such that A and B are mutually exclusive.
+\item  Find $p$ such that A and B are independent
+\end{enumerate}
+
+a) For A and B be mutually exclusive if $A\cup B=0$. Therefore, \\  $p=P(A\cap B)-P(A)=0.4$. 
+
+
+b) Two variables are independent if $P(A\cap B)=P(A)P(B)$. Therefore,
+ $p=P(B) = \frac{P(A\cup B)-P(A)}{P(A^C)}= 0.6667$ 
+
+
+\section{Problem 2.22}
+1000 adults from the city, the suburb and the country were asked if they agreed with a tax increase. 
+The results are shown in the following table. Do the results indicate that the place of recidence 
+and the opinion about tax increase are independant?
+
+
+\begin{tabular}{c |c c| c }
+
+          & Yes   & No    & Total \\ \hline
+  City    & 100   & 300   & 400 \\ 
+  Suburb  & 250   & 150   & 400 \\
+  Country & 50    & 150   & 200 \\ \hline
+          & 400   & 600   & 1000 \\
+\end{tabular}
+
+
+
+
+
+
+Now, I write the normalized version of the table:
+\begin{tabular}{c |c c| c }
+
+          & Yes    & No    & Total \\ \hline
+  City    & 0.1    & 0.3   & 0.4 \\ 
+  Suburb  & 0.25   & 0.15  & 0.4 \\
+  Country & 0.05   & 0.15  & 0.2 \\ \hline
+          & 0.4    & 0.6   & 1 \\
+\end{tabular}
+
+
+To demonstrate independance or not we need to show 
+\[
+P(City \cap Yes) = P(City) P(Yes)
+\]
+\[
+P(Suburb \cap Yes) = P(Suburb) P(Yes)
+\]
+\[
+P(Country \cap Yes) = P(Country) P(Yes)
+\]
+
+the table shows that this equality does not hold in any of the cases. Therefore, it indicates no independence.
+
+
+\section{Problem 2.23}
+Suppose that $n\geq2$ components are connected in parallel. The components operate independently of each other, 
+ and the reliability of each one is $p$. Let $A_i$ denote the event that the $ith$ component functions. Show that
+the system reliability is given by:
+    \[
+        P(A_1 \cup A_2 \cup \dots \cup A_n)=1-(1-p)^n
+    \]
+
+Demonstration:
+\[
+P(A_1 \cup A_2) = 1 - P(A_1^C \cap A_2^C)
+\]
+by adding events to the union:
+\[
+P(A_1 \cup A_2 \cup \dots \cup A_n) = 1 - P(A_1^C \cap A_2^C \cap \dots \cap A_n^C)
+\]
+Finally, provided that the events $A_i$ are independent:
+\[
+P(A_1 \cup A_2 \cup \dots \cup A_n) = 1 - (1-p)^n
+\]
+
+
+
+If $p=0.9$ and $n=2,3,4$ one can see that the reliability increases as we add components
+to the system. Let $c$ be the number of components, then: $P(c=2) = 0.99$, $P(c=3)=0.999$ and
+$P(c=4)=0.9999$. 
+\end{document}
