@@ -1,0 +1,175 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,subfig}
+\usepackage{setspace,enumerate}
+\doublespacing
+
+
+
+
+\usepackage{algorithmic}
+
+
+
+
+
+\def\der#1#2#3{
+\frac{\partial #1}{\partial #2}\bigg|_{#3}
+}
+\def\ders#1#2{
+\frac{\partial #1}{\partial #2}
+}
+
+\def\dters#1#2{
+\frac{\partial^2 #1}{\partial #2^2}
+}
+
+\author{Esteban D\'{i}az}
+\title{Homework 5}{}
+
+\begin{document}
+\maketitle
+
+\section{Problem 1}
+Suppose $X$ and $Y$ are independent random variables of means $\mu_x=1$ and
+$mu_y=2$, respectively. A random variable $Z$ is defined as:
+
+    \[
+      Z = \frac{1}{X^2 +Y^2 +1}
+    \]
+
+What is the condition on $\sigma_X$ and $\sigma_Y$ that ensures that most 
+of the variability of $Z$ is due to the random variable $X$?
+
+\subsection{Solution}
+
+Using a Taylor expansion, we can approximate $\sigma_Z$ around its mean 
+using the information from the random variables $X$ and $Y$:
+
+    \[
+    \sigma_Z^2 \approx \der{Z}{X}{\mu_X,\mu_Y}^2\sigma_X^2 + \der{Z}{Y}{\mu_X,\mu_Y}^2 \sigma_Y^2 
+    \]
+
+
+For this problem we can write the following:
+
+    \[
+    \sigma_Z^2 \approx \left(\frac{-2\mu_X}{\left(\mu_X^2+4\mu_Y^2+1\right)^2}\right)^2 \sigma_X^2 +\left(\frac{-8\mu_Y}{\left(\mu_X^2+4\mu_Y^2+1\right)^2}\right)^2 \sigma_X^2
+    \]
+
+    \[
+    \sigma_Z^2 = \frac{1}{18^4} \left[ 4\sigma_X^2 +16^2\sigma_Y^2  \right]
+    \]
+
+    Then, for ensuring a mayor influence of $X$ on the variable $Z$ we have to ensure:
+
+    \[
+    \sigma_X > 64\sigma_Y
+    \]
+
+\section{Problem 1}
+
+\subsection{Parametric bootstrap}
+If we assume that $X$ and $Y$ are independent and Russian, then we can 
+sample our distributions assuming $X\sim N(1.0,0.05)$ and $Y~N(2.0,0.1)$. 
+To do so, we do simulations for $R$ bootstrapping samples. 
+
+  \begin{algorithmic}
+  \FORALL{R}
+    \STATE{$X\sim N(\mu_x,\sigma_x)$}
+    \STATE{$Y\sim N(\mu_x,\sigma_x)$}
+    \STATE{$\hat{d}(i) = \sqrt{X^2+Y^2}$}
+  \ENDFOR
+  \STATE{$BIAS= \bar{\hat{d}} -\bar{d}$}
+  \end{algorithmic}
+
+In this case for 50 bootstrapping samples the results are: $bias = 0.02015(ud)$, where $ud$ is units of distance,
+and an standard deviation $\hat{\sigma} = 0.02702(ud)$.
+
+
+\subsection{Bias and bootstrapping as R goes to infinity}
+For the parametric bootstrapping the bias and standard deviation won't converge to the correct
+one as $R\rightarrow \infty$. The estimates will converge to the ones of the plug-in (i.e. the ones 
+of the assumed model).
+
+
+\subsection{Non-parametric bootstrap}
+Without any assumption of the model, and with some samples points we can
+do an estimate of the Bias and standard deviation.
+In non-parametric bootstrapping we randomly re sample the observations, therefore
+we give a random weight to the samples of the observations and calculate
+the sample mean of the new set.
+
+  \begin{algorithmic}
+  \FORALL{R}
+    \STATE{$I \sim U\{0,1,\dots,n-1\}$}
+    \STATE{$X' = X(I)$}
+    \STATE{$Y' = Y(I)$}
+    \STATE{$\hat{d}(i) = \sqrt{\bar{X'}^2+\bar{Y'}^2}$}
+  \ENDFOR
+  \STATE{$BIAS= \bar{\hat{d}} -\bar{d}$}
+  \end{algorithmic}
+
+For this example using 100 bootstrapping samples I obtain: $bias = 0.000109(ud)$,$\hat{\sigma} = 0.02726(ud)$
+
+Both techniques provide a similar estimate of $\sigma_d$, but the parametric bootstrapping seems to be more
+biased. 
+
+\subsection{Propagation of error formula}
+
+
+Following the same flow as in the first exercise we have:
+
+\[
+\dters{d}{X} = \left(X^2+Y^2 \right)^{-1/2}+X^2\left(X^2+Y^2\right)^{-3/2} 
+\]
+
+\[
+\ders{d}{X} = X/\sqrt{X^2+Y^2}
+\]
+
+
+\[
+\dters{d}{Y} = \left(X^2+Y^2 \right)^{-1/2}+Y^2\left(X^2+Y^2\right)^{-3/2} 
+\]
+\[
+\ders{d}{Y} = Y/\sqrt{X^2+Y^2}
+\]
+
+
+
+Therefore the bias is:
+
+\[
+bias = \frac{1}{2} \sum_i \frac{\partial^2f}{\partial X_i^2}(\mathbf \mu_i)\sigma_i^2 = -0.001455
+\]
+
+\[
+\hat{\sigma_d} = 0.092195
+\]
+
+
+
+\subsection{Big errors and approximation methods}
+If the errors changed to 1 and 2 instead of 0.05 and 0.1 the parametric bootstrapping will
+have a very large bias, therefore will estimate very poorly.
+
+The non-parametric bootstrapping should still perform well, since it depends only 
+on the sample population.
+
+Such a large error will violate the implicit linearization assumption of the propagation
+of error formula because  the error is comparable with the mean (and we expand the 
+formula around the means).
+
+
+\section{Problem 3}
+In this exercise we can follow the approach in Problem 1, since we have the 
+partial derivatives evaluated at the mean. Therefore, and estimate of $\sigma_{\lambda}$ is:
+
+\[
+\sigma_{\lambda} =0.033047 [cal/(^\circ C* cm* s]
+\]
+
+The variable that seems to contribute the most is D, since it has the biggest partial.
+
+\end{document}

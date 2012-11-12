@@ -16,3 +16,5 @@ Geo-computing/test/cachedir/
 *.log
 *.aux
 *.dat
+*.png
+*.jpg
