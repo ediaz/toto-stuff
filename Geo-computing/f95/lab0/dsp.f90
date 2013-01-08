@@ -17,7 +17,7 @@ b=1.0-a
 yi =x(1)
 y(1) = yi
 
-do i=2,n-1
+do i=2,n
     yi = a*yi +b*x(i)
     y(i) = yi
 enddo

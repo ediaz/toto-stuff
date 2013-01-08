@@ -232,16 +232,11 @@ real, dimension(:,:)  :: y
 integer :: n1,n2, chunk,i1,i2
 integer :: lb,ub 
 
-
 n2 = size(x,2)
 n1 = size(x,1)
 
-
-
 ub = lb +chunk - 1 
-
 ub = min(ub,n1)
-
 b = 1.0 -a
 
 do i1=lb,ub
@@ -257,7 +252,6 @@ enddo
 do i1=lb,ub
   y(i1,n2) = (a*y(i1,n2-1) +x(i1,n2))/(1.0+a) !last
 enddo
-
 
 do i2=n2-1,1,-1
   do i1=lb,ub

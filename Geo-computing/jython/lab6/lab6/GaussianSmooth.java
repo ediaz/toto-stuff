@@ -1,6 +1,7 @@
 package lab6;
 
 import edu.mines.jtk.util.Parallel;
+import edu.mines.jtk.util.Check;
 import edu.mines.jtk.dsp.*;
 import static edu.mines.jtk.util.ArrayMath.*;
 
@@ -19,14 +20,13 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
   /*
     Common variables:
   */
-
-
-  private float _sigma;
-  private int _flength, _ngk1,_n1; 
+  private int _sigma;
+  private int  _ngk1,_n1; 
   private int _nfft1, _nfft2, _k1  ; 
   private int _nfft  ;
   private int _ngk ;  
   private float [] _gfilter1; 
+  private boolean _zslope;
   private FftReal _fft; 
 
 
@@ -35,9 +35,9 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
     sigma is an approximation to the standard
     deviation of the gaussian.
   */
-  public  GaussianSmooth(float sigma){
-    this(sigma,(int)(sigma*3.0));
-
+  public  GaussianSmooth(int sigma){
+    this(sigma,true);
+    Check.argument(sigma>0,"sigma>0");
     /*
        default size is related to  3sigma
        which is the distance for which a gaussian
@@ -45,16 +45,18 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
      */
   }
 
-  public  GaussianSmooth(float sigma,int flength){
-    _sigma = sigma;
-    _flength = flength; 
-    _nfft1 = FftReal.nfftFast(flength);
+  public  GaussianSmooth(int sigma,boolean zslope){
 
-    if(flength < (int)(3.0*sigma)){ 
-      System.out.printf("Warning: the filter length is too small! %n"); 
-      System.out.printf("Recommended length = 3*sigma = %f %n",3.0f*sigma) ;
-    }
+    /*
+       default size is related to  3sigma
+       which is the distance for which a gaussian
+       goes almost to zero. 
+     */
+    _sigma = sigma;
+    _zslope = zslope;
+
   }
+
 
   public void apply(float[] x, float[] y){
     PrepareFft(x);
@@ -85,6 +87,10 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
 
 
 
+  //////////////////////////////////////////////////////////////////
+  // private
+
+
   private void filter1_2d(final float [][] x, final float[][] y){
     final int n2 = x.length; 
     final int n1 = x[0].length;
@@ -96,9 +102,6 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
     });
   }
 
-  //////////////////////////////////////////////////////////////////
-  // private
-
   /** 
    * Smooth along second dimension in chunks along first dimension.
    * 
@@ -108,8 +111,8 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
     _gfilter1 = new float[(int)_nfft1/2 + 1];
 
     int n1 = _gfilter1.length;
-    float scale = 1.f/_nfft1 ;
-    float omega = -2.0f*FLT_PI*scale;
+    float df = 1.f/_nfft1 ;
+    float omega = -2.0f*FLT_PI*df;
     float a1 =(float)(omega*omega*_sigma*_sigma*0.5);
 
     for(int i1=0; i1< n1 ; ++i1){
@@ -119,9 +122,14 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
 
 
   private void filter1d_paux(float[] x, float[] y){
-    float[] xaux = new float[_nfft1+2];
 
-    copyZ(x,xaux);
+    // I have to create a new array to allow
+    // parallel computing
+    float[] xaux = new float[_nfft1+2];
+    copy(x,xaux);
+    if (_zslope){
+      pad(xaux);
+    }
 
     _fft.realToComplex(-1,xaux,xaux);
 
@@ -136,25 +144,41 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
     copy(_n1, xaux,y);
   }
 
-  private void copyZ(float[]x, float[] xaux){
-    copy(x,xaux);
-    int naux= xaux.length;
 
-    for (int i1=_n1; i1<2*_n1;++i1)
-      xaux[i1]=x[_n1-1];
 
-    for (int i1=2*_n1; i1<_nfft1;++i1)
-      xaux[i1]=x[0];
 
+
+  /*
+    Zero slope with FFT's 
+    instead of padding with zeroes I extend
+    the array with the last and first value
+    of it.
+
+    x =    [0,1,2,3,4] 
+    xpad = [0,1,2,3,4,4,4,4,0,0,0]
+  */
+
+  private void pad(float[]x){
+
+    for (int i1=_n1; i1<_n1+3*_sigma-1;i1+=2){
+      x[i1  ] = x[_n1-2];
+      x[i1+1] = x[_n1-1];
+    }
+
+    for (int i1=_n1+3*_sigma-1; i1<_nfft1;i1+=2){
+      x[i1  ]=x[0];
+      x[i1+1]=x[1];
+    }
   }
 
   private void PrepareFft(float[]x){
     _n1 = x.length;
-    _nfft1 = FftReal.nfftFast(3*_n1);
+    if(_zslope){
+      _nfft1 = FftReal.nfftFast(_n1+6*_sigma);
+    }else{
+      _nfft1 = FftReal.nfftFast(_n1+3*_sigma);
+    }
     _fft = new FftReal(_nfft1);
-    
-    if(_flength > _nfft1-1) 
-      _flength = _nfft1;
   }
 
   private void Transpose(final float[][] x, final float[][] y){
@@ -168,7 +192,6 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
       y[i2][i1]=x[i1][i2];
     }
   }
-  
 
   Parallel.loop(k2,n2,4, new Parallel.LoopInt(){
     public void compute(int i2){
@@ -181,5 +204,4 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
     }
     });
   }
-
 }

@@ -1,0 +1,217 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic,subfigure}
+\usepackage{setspace,enumerate}
+\doublespacing
+
+
+
+
+\author{Esteban D\'{i}az}
+\title{Gaussian smoothing filters}{}
+
+\begin{document}
+\maketitle
+
+In this report we discuss two different filters that
+apply a Gaussian: one is exact and implemented via FFT's, and
+the other is a good approximation with recursive exponential smoothing.
+
+\section{Gaussian smoothing with Exponential Filters}
+In this approach we apply a cascade of exponential filters to 
+approximate a Gaussian. This type of filter will converge 
+to the exact Gaussian as $n \rightarrow \infty$, where $n$ is 
+the number of applied exponential filters.
+
+The impulse response of a Gaussian filter is given by:
+\begin{equation}
+  H_G(\omega) = e^{-\frac{\sigma^2\omega^2}{2}}
+\end{equation}
+One can cascade several exponential filters such that:
+
+\[
+H_G(\omega) = e^{-\frac{\epsilon^2\omega^2}{2}} e^{-\frac{\epsilon^2\omega^2}{2}}\dots e^{-\frac{\epsilon^2\omega^2}{2}}
+\]
+
+Therefore, $\epsilon^2 = \frac{\sigma^2}{n}$. Now, by approximating each individual
+filter to an exponential, for the low frequencies we have:
+
+\[
+\frac{a}{(1-a)^2}=\frac{\epsilon}{2} \implies a =\frac{\epsilon^2 +1 -\sqrt{2\epsilon^2+1}}{\epsilon^2}
+\]
+One has to pick the negative root to ensure $a<1$. Now we have the connection between 
+exponential and Gaussian smoothing. The bigger the number of smoothing steps, the better
+the approximation.
+
+Figure~\ref{fig:fig1} shows the 1D impulse response of the approximation for different number
+ of smoothing. One can see that $n=1$ results in a exponential smoothing response.
+Although several $n$ seems to nicely approximate the Gaussian, the detail in Figure~\ref{fig:fig2}
+shows that only $n=200$ is very close to the exact solution. However, in practice $n=200$ is not
+feasible. One has to make a compromise between efficiency and precision.
+
+
+The 2D impulse response of this filter is quite interesting. One can see in Figure~\ref{fig:fig5}(a)
+that the filters is very anisotropic for few smoothing steps. For $\sigma=30$, 16 smoothing steps 
+seems to do a fair approximation to the Gaussian shown in Figure~\ref{fig:fig5}(b) 
+
+\section{2D Gaussian smoothing via FFT's}
+
+In the frequency domain the implementation is straight forward. I use the Fft routines
+provided in the Mines Java Toolkit (FftReal). When working with FFT's one has to be careful
+to avoid wraparound effect due to the sampling of continuous signals (which implies periodicity in 
+time and frequency). 
+
+The impulse response of the filter (equation 1) goes to zero after $3\sigma$. Therefore, a padding 
+of $3\sigma$ elements should be enough to avoid the periodicity effect in the Fourier domain.
+For zero slope boundary condition one might need $6\sigma$, which is $3\sigma$ in both sides of
+the array. The padding in this case involves a constant extrapolation, whereas in the zero boundary
+one just pad with zeros.
+
+
+In Figure~\ref{fig:fig4}, I compare the output of the Gaussian filter with zero (a) and zero slope (b)
+boundary conditions. In the first one the boundaries are contaminated with zeros,
+ whereas the second is well behaved at the boundaries.
+
+One can see that the speed of this filter will decrease as the length of the filter ($\sigma$) increases.
+
+\section{Benchmark}
+For benchmarking I count how many smooths per second the filters perform. I test with three images of 
+different size.
+
+The performance of the exponential filter depends linearly with the number of smooths. The boundary 
+condition on the Gaussian has little influence  on the performance (the zero boundary is slightly
+faster).
+
+For small arrays (100,101) the Gaussian smoothing is much faster than the exponential. For 
+small arrays the FFT cost is probably negligible.
+
+I also tested the dependency of the cost with $\sigma$ for the Gaussian filter. It seems
+to have little influence.
+
+Looking at the impulse responses in Figure~\ref{fig:fig5}(a) show that $n=16$ looks isotropic.
+For this $n$ only for big arrays the exponential performs better.
+
+\begin{verbatim}
+(n1,n2)=(100,101)
+exponential n=8 benchmarking rate=  814.170527027 smooths/s
+exponential n=16 benchmarking rate=  447.303203587 smooths/s
+exponential n=32 benchmarking rate=  220.821752681 smooths/s
+=================================================================
+Gaussian zb sigma=10 benchmarking rate=  1454.05663002 smooths/s
+Gaussian zs sigma=10 benchmarking rate=  1394.85130885 smooths/s
+Gaussian zb sigma=40 benchmarking rate=  1570.46336969 smooths/s
+Gaussian zs sigma=40 benchmarking rate=  1430.70500119 smooths/s
+Gaussian zb sigma=200 benchmarking rate=  1550.9751844 smooths/s
+Gaussian zs sigma=200 benchmarking rate=  1412.54685497 smooths/s
+(n1,n2)=(200,201)
+exponential n=8 benchmarking rate=  531.935529414 smooths/s
+exponential n=16 benchmarking rate=  266.942126947 smooths/s
+exponential n=32 benchmarking rate=  130.987975304 smooths/s
+=================================================================
+Gaussian zb sigma=10 benchmarking rate=  716.188254513 smooths/s
+Gaussian zs sigma=10 benchmarking rate=  558.075549153 smooths/s
+Gaussian zb sigma=40 benchmarking rate=  712.955915626 smooths/s
+Gaussian zs sigma=40 benchmarking rate=  606.281775054 smooths/s
+Gaussian zb sigma=200 benchmarking rate=  707.307767067 smooths/s
+Gaussian zs sigma=200 benchmarking rate=  585.721981832 smooths/s
+(n1,n2)=(500,501)
+exponential n=8 benchmarking rate=  197.525848796 smooths/s
+exponential n=16 benchmarking rate=  94.5145210671 smooths/s
+exponential n=32 benchmarking rate=  48.3296417076 smooths/s
+=================================================================
+Gaussian zb sigma=10 benchmarking rate=  156.71568696 smooths/s
+Gaussian zs sigma=10 benchmarking rate=  155.770715106 smooths/s
+Gaussian zb sigma=40 benchmarking rate=  164.336106122 smooths/s
+Gaussian zs sigma=40 benchmarking rate=  153.102749134 smooths/s
+Gaussian zb sigma=200 benchmarking rate=  165.487336222 smooths/s
+Gaussian zs sigma=200 benchmarking rate=  157.36147791 smooths/s
+(n1,n2)=(1000,1001)
+exponential n=8 benchmarking rate=  62.2771396589 smooths/s
+exponential n=16 benchmarking rate=  30.5387697666 smooths/s
+exponential n=32 benchmarking rate=  15.09491224 smooths/s
+=================================================================
+Gaussian zb sigma=10 benchmarking rate=  40.6226091902 smooths/s
+Gaussian zs sigma=10 benchmarking rate=  43.3885888011 smooths/s
+Gaussian zb sigma=40 benchmarking rate=  37.5071697549 smooths/s
+Gaussian zs sigma=40 benchmarking rate=  40.189959235 smooths/s
+Gaussian zb sigma=200 benchmarking rate=  41.642366984 smooths/s
+Gaussian zs sigma=200 benchmarking rate=  39.9016185693 smooths/s
+\end{verbatim}
+
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{png/Exp_Gauss.png}
+    \caption{Comparisson between exponential with different number of %
+             smoothings and Gaussian filters:%
+             red: 1, green: 5, blue: 10, cyan: 20, magenta: 50, %
+             black: 200, yellow: Gaussian.}
+    \label{fig:fig1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{png/detail_Exp_Gauss.png}
+    \caption{Detail of Fig~\ref{fig:fig1}, same color coding. }
+    \label{fig:fig2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{png/Exp_2d_rand.png}
+    \caption{Exponential filter with 8 repetitions %
+            applied to a random field, $\sigma=5$}
+    \label{fig:fig3}
+\end{figure}
+
+
+\begin{figure}[ht!]
+     \begin{center}
+%
+        \subfigure[Gaussian smoothing, zero boundary]{%
+           \label{fig:second}
+           \includegraphics[width=0.7\textwidth]{png/Gauss_2d_rand_0b.png}
+        }\\ %  ------- End of the first row ----------------------%
+        \subfigure[Gaussian smoothing, zero slope boundary]{%
+            \label{fig:third}
+            \includegraphics[width=0.7\textwidth]{png/Gauss_2d_rand_0sb.png}
+        }%
+%
+    \end{center}
+    \caption{%
+        Comparisson between boundary conditions for the Gaussian
+        filter applied to the same random field of Figure~\ref{fig:fig3}, $\sigma=5$.
+     }%
+   \label{fig:fig4}
+\end{figure}
+
+
+\begin{figure}[ht!]
+     \begin{center}
+%
+        \subfigure[]{%
+           \label{fig:second}
+           \includegraphics[width=0.7\textwidth]{png/Exp_2d_ir.png}
+        }\\ %  ------- End of the first row ----------------------%
+        \subfigure[]{%
+            \label{fig:third}
+            \includegraphics[width=0.7\textwidth]{png/Gauss_2d_ir_0b.png}
+        }%
+%
+    \end{center}
+    \caption{%
+     2D Impulse response for exponential filter (a): 1, 2, 4, 8, 16, 32, 48, 64 smooths. 
+      2D Impulse response for Gaussian filter (b), $\sigma=30$.
+     }%
+   \label{fig:fig5}
+\end{figure}
+
+
+
+
+
+
+
+\end{document}

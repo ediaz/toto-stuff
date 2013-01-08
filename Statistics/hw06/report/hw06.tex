@@ -1,0 +1,135 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,subfig}
+\usepackage{setspace,enumerate}
+\doublespacing
+
+
+
+
+\usepackage{algorithmic}
+
+
+
+
+
+\def\der#1#2#3{
+\frac{\partial #1}{\partial #2}\bigg|_{#3}
+}
+\def\ders#1#2{
+\frac{\partial #1}{\partial #2}
+}
+
+\def\dters#1#2{
+\frac{\partial^2 #1}{\partial #2^2}
+}
+
+\author{Esteban D\'{i}az}
+\title{Homework 6}{}
+
+\begin{document}
+\maketitle
+
+\section{Problem 1}
+
+\subsection{Find an unbiased estimator of $\mu$ and compute its variance}
+The sample mean is an unbiased estimator of each $X_i$. Therefore:
+\[
+  \bar{X} =  \frac{1}{2} (\bar{x}_1 +\bar{x}_2) -\bar{x}_3 = -1.2
+\]
+
+The variance can be approximated by combining the sample variances:
+\[
+  S^2 = \frac{1}{4} \left(S_1^2 +S_2^2\right) +S_3^2 =0.3988 
+\]
+
+
+\subsection{Compute 95\% confidence interval for $\mu$}
+The confidence interval is given by:
+
+\[
+   \bar{X} \pm Z_{\alpha/2}\sqrt{\frac{1}{4} \left(\frac{S_1^2}{n1} +\frac{S_2^2}{n2}\right) +\frac{S_3^2}{n3}} = (0.00246, 0.049566)
+\]
+
+\subsection{Is there any evidence that pesticide \#3 is better than the others?}
+The confidence interval is slightly positive. Therefore, one can say that pesticide
+\#3 is almost as good as the other two. Possibly the three pesticides result in a 
+similar outcome.
+
+
+
+\section{Problem 2}
+
+\subsection{normality of the data}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{./lab6.png}
+    \caption{QQ plot to test normality}
+    \label{fig:fig1}
+\end{figure}
+As shown in fig~\ref{fig:fig1} the data is not normal. However this is not conclusive due to 
+the small sample size ($n=20$).
+
+
+\subsection{confidence interval for 95\%}
+
+We can construct the confidence interval using a student $t-distribution$ of degree 19:
+
+$ \bar{X} \pm t_{n-1}(0.05/2) \frac{S}{\sqrt{n}}$, this means: $\mu \in (29.07,52.71)$
+
+
+\section{Problem 3}
+
+The $95\%$ confidence interval for the difference is given by:
+\[
+\mu_D \in (\bar{D} \pm  t_{n-1}(0.05/2) \frac{S_D}{\sqrt{n}}=(-1.5034, 0.6778)
+\]
+
+Here, I assume: $D_i = Ground_i -Sattelite_i$. Therefore,
+the result is not conclusive because it contains $0$. However,
+ one can see that is more negative, which implies that $Ground_i > Sattelite_i$ is
+more likely to happen.
+
+\section{Problem 4: Suppose $X_1,X_2,X_3$ are independent $N(\mu,\sigma^2)$ and $\sigma$ is known} 
+
+\subsection{Write down the usual $95\%$ confidence interval for $\mu$}
+Let's suppose that each individual sample has its own number of samples $n_i$. 
+
+First, we need an estimator for $\mu$, given that they come from the same distribution, one could
+no an average:
+
+\[
+\mu = \frac{\bar{X}_1}{3}+\frac{\bar{X}_2}{3} +\frac{\bar{X}_3}{3}
+\]
+
+Then, for a $95\%$ CI we have:
+\[
+ \mu \in \frac{\bar{X}_1}{3}+\frac{\bar{X}_2}{3} +\frac{\bar{X}_3}{3} \pm Z(0.975)\frac{\sigma}{3}\sqrt{\frac{1}{n_1} +\frac{1}{n_2}+\frac{1}{n_3}}
+\]
+
+
+
+\subsection{Based on the weighted average $X_w = \frac{1}{8}X_1 + \frac{1}{8}X_2+ \frac{3}{4}X_3$ derive the $95\%$ formula for $\mu$}
+In this case the only change would be in the estimated mean:
+\[
+\mu \in \frac{1}{8}\bar{X}_1 + \frac{1}{8}\bar{X}_2+ \frac{3}{4}\bar{X}_3 \pm Z(0.975)\sigma\sqrt{\frac{1}{64n_1} +\frac{1}{64n_2}+\frac{9}{16n_3}}
+\]
+
+\subsection{if both intervals give the $95\%$ CI, in what do they differ? Which of the intervals is better and why?}
+Both have a similar assumption (some sort of average for the samples). However, the second could be biased because is putting more weight on
+sample $X_3$. Maybe this could make sense if we know something extra about $X_3$ (i.e. more number of samples, more reliable measure, etc).
+
+\section{Problem 7.3 from textbook}
+
+a) Having a margin of error of 1 for the $95\%$ CI implies:
+  \[
+    Z(0.975) \sigma/\sqrt{n} = 1
+  \]
+  Therefore, $n = (1.96\sigma)^2 = \lceil96.04\rceil=96$
+
+b) Given that for the estimated sample above the observed mean is $\bar{x}=6.3days$, and $sd = 4.57days$ then the $95\%$ CI is:
+  \[
+   \mu \in \bar{x} \pm Z(0.975) \sigma\frac{1}{\sqrt{n}} = (5.38583, 7.21417)days
+  \]
+\end{document}

@@ -1,0 +1,260 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,subfig}
+\usepackage{setspace,enumerate}
+\doublespacing
+
+
+
+
+\usepackage{algorithmic}
+
+
+
+
+
+\def\der#1#2#3{
+\frac{\partial #1}{\partial #2}\bigg|_{#3}
+}
+\def\ders#1#2{
+\frac{\partial #1}{\partial #2}
+}
+
+\def\dters#1#2{
+\frac{\partial^2 #1}{\partial #2^2}
+}
+
+\author{Esteban D\'{i}az}
+\title{Take home exam}{}
+
+\begin{document}
+\maketitle
+
+\section{Problem 1}
+\subsection{part I}
+For such small dataset, and given that there are no evidence against 
+gaussianity, we can use a t-statistic:
+\[
+ \bar{D} = \mu_x - \mu_y
+\]
+and:
+\[
+ \mu_D \in \bar{D} \pm t_{n-1}(\alpha/2)\sqrt{\frac{s_x^2}{6}+\frac{s_y^2}{6}}
+\]
+
+\subsection{Part II}
+If n and m are very large, we can still use the Gaussian model. However,
+given that there is no correlation between the random variables, then
+the difference between them can be statistically irrelevant.
+
+\[
+ \mu_D \in \bar{D} \pm z_{\alpha/2}\sqrt{\frac{s_x^2}{n}+\frac{s_y}{m}}
+\]
+
+\subsection{Part III}
+Since the data is non-gaussian, then I would use a non-parametric test (i.e. no 
+assumption about the variables). I found that the Wilcoxon signed-rank test
+might be suitable for this scenario.
+
+\section{Problem 2}
+i) The probability is 
+\[P = \frac{2520}{6036}\]
+
+ii) The probability that a victim is a male is 
+\[P = \frac{24226}{30604}\]
+
+iii) Using an fire arm and being male has a probability  of:
+\[
+  P = \frac{15518}{30604}
+\]
+
+
+\section{Problem 3}
+\subsection{part I}
+Compute the velocity and uncertainty using propagation of errors.
+The velocity is given by:
+\[
+V = x \sqrt{\frac{1}{2NMO t_o}}
+\]
+
+Therefore,
+\[
+\ders{V}{t_o} = -\frac{x}{2} \sqrt{\frac{1}{2NMO}} \left( t_o \right)^{-3/2}
+\]
+\[
+\ders{V}{NMO} = -\frac{x}{2} \sqrt{\frac{1}{2t_o}} \left( NMO \right)^{-3/2}
+\]
+where $\mathbf{\mu}=(\mu_{to},\mu_{NMO})$
+Then, we have:
+
+\[
+\sigma_V  = \der{V}{t_o}{\mathbf{\mu}}^2 \sigma_{to}^2 +\der{V}{NMO}{\mathbf{\mu}}^2 \sigma_{NMO}^2
+\]
+
+Evaluating the above formulas:
+\[
+V = 2000.0 \pm 200.0 (m/s)
+\]
+
+\subsection{Part II}
+We would have to assume a model for each random variable. Then, we can do $n$ simulations, 
+and at the end we analyze the properties of $V_i$, by calculating the sample mean and sample
+variance.
+
+\section{Problem 4}
+
+\subsection{normality test} 
+
+From the qq-plot in Figure~\ref{fig:qq} the data seems highly correlated with a gaussian. 
+I also performed a Shapiro-Wilk test. The results
+shows a $W=0.984$ which is very high, this indicates that we cannot reject the null hypothesis
+$H_0 : X\sim N(\mu,\sigma)$. Therefore, it is safe to assume that the data is Gaussian.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{./qq.png}
+    \caption{QQ plot to test normality}
+    \label{fig:qq}
+\end{figure}
+
+\subsection{Confidence interval}
+For this data we have:
+\[
+  \bar{x} = 54.33 
+\]
+
+\[
+  s_x = 9.6383
+\]
+Then,
+\[
+\mu \in \bar{x} \pm z_{\alpha/2} s_x/\sqrt{24} = 54.3333 +/- 3.8561 mg/m^3
+\]
+\subsection{Hypothesis test}
+
+Now I will test the null hypothesis $H_0 :\mu \leq \mu_o=50mg/m^3$, with the alternative being $H_1: \mu> 50mg/m^3$.
+ 
+For the test statistics I use $Z$ (normal-score). The rejection region is $Z > Z_\alpha$ 
+\[
+Z = \frac{\bar{x}-\mu_o}{s_x/\sqrt{n}} = 2.202 
+\]
+
+Then, for a significance level $\alpha=0.05$ we have to reject $H_o$ because $Z > Z_\alpha$.
+
+The P-value is given by $P(Z > Z_{\alpha} ) = 0.025$.
+
+With such small $p-value$ I would reject the null.
+
+From these tests it seems very conclusive that the concentration of Sulphur dioxide is 
+above the limit for normal values. Such high concentration could generate acid rain.
+
+\section{Problem 5}
+The result of the studies are shown in Table~\ref{tab:condom}.
+The first test I do is to check consistency among both studies: if both studies are
+consistent, then, the difference of the proportions for the same case should contain 
+zero, for a certain confidence value $\alpha$. Then, I test the Hypothesis that
+there is no correlation between using or not condoms. If this is true, then the CI
+should contain the zero as well (for both studies).
+
+\subsection{test I}
+Now I want to test that both studies have consistent results:
+Let $\hat{p}_1 =$ Proportion of infected Italians that used condoms and
+$\hat{p}_2 =$ Proportion of infected Europeans that use condoms, then
+
+\[
+ci \in (-0.0021, 0.0372)
+\]
+
+Now, let $\hat{p}_1 =$ Proportion of infected Italians that did not used condoms,
+and $\hat{p}_2 =$ Proportion of infected Europeans that did not use condoms, then:
+
+\[
+ci \in (-0.060023, 0.1542106)
+\]
+
+From these results I can conclude that both studies are consistent with each other
+with a confidence value $\alpha=0.05$ because both contain zero. 
+
+Now I will compare the individual information from both studies, to see if there 
+is any evidence against using condoms as a effective method against HIV infections.
+
+For the Italian study I get:
+
+\[
+ci \in (-0.22314, -0.03268)
+\]
+
+For the European study I get:
+\[
+ci \in (-0.151204, -0.0455)
+\]
+
+These results indicate that the use of condoms is effective against HIV infection for 
+an $\alpha=0.05$ (because the interval does not contain zero).
+
+
+
+
+\begin{table}
+  \centering
+\begin{tabular}{c | c | c  }
+  
+                          & Italian     & Eurozone    \\ \hline
+Infection with condom     & 3/171       & 0 \\ 
+Infection without condom  & 8/55        & 12/122 \\ \hline 
+\end{tabular}
+\caption{Summary of the studies results}
+\label{tab:condom} 
+\end{table}
+
+
+\section{Problem 6}
+
+The ML estimate is $\theta=0.0357123$. Once we have $\theta$ I can proceed
+to get the estimates for the counts for the different types. The results
+can be summarized in Table~\ref{tab:count}.
+
+
+\begin{table}
+  \centering
+\begin{tabular}{c | c | c  }
+  
+k    & Count     & Estimated count   \\ \hline 
+0  & 1997  & 1953.77 \\
+1  & 906  & 925.48 \\
+2  & 904  & 925.48 \\
+3  & 32  & 34.27 \\
+\end{tabular}
+\caption{Observed and estimated counts for self-fertilized heterozygotes}
+\label{tab:count}
+\end{table}
+
+
+The estimated $\chi^2$ give by:
+\[
+ \chi^2 = \sum_{i=0}^{k-1} \frac{(O_i - E_i)^2}{E_i}=2.01544
+\]
+Then, I have $dof= 4-1 -1 =2$. So, 
+\[
+p-value = P[\chi^2 \geq 2.01544] = 0.3651
+\]
+
+This $p-value$ is very high, so it seems that the model has good fit with the observed data.
+
+\section{Problem 7}
+Let's assume a null hypothesis that the coin is fair, then $T \sim B(10,0.5)$, where $T$
+is the number of heads. For this
+case, the significance level is given by:
+\[
+\alpha = P[T = 0]+P[T=1] +P[T=9]+P[T=10] = 0.02148
+\]
+
+For the power of the test we have to compute the probability of $T=[0,1,9,10]$ under
+the assumption that $T\sim B(n,0.6)$.
+\[
+power(0.6) = P[T = 0]+P[T=1] +P[T=9]+P[T=10] = 0.04804
+\]
+
+
+\end{document}

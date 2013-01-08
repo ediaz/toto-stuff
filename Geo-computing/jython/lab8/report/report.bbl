@@ -1,0 +1,26 @@
+\begin{thebibliography}{1}
+
+\bibitem{claerbout_gee}
+Jon~F. Claerbout.
+\newblock {\em IMAGE ESTIMATION BY EXAMPLE Geophysical Soundings Image
+  Construction}.
+\newblock ahay.org, 2008.
+
+\bibitem{Pedro_dt}
+Pedro~F. Felzenszwalb and Daniel~P. Huttenlocher.
+\newblock Distance transforms of sampled functions.
+\newblock Technical report, Cornell Computing and Information Science, 2004.
+
+\bibitem{guitton_galilee}
+A.~Guitton and J.~Claerbout.
+\newblock Interpolation of bathymetry data from the sea of galilee: A noise
+  attenuation problem.
+\newblock {\em GEOPHYSICS}, 69(2):608--616, 2004.
+
+\bibitem{park}
+Sung~W. Park, Lars Linsen, Oliver Kreylos, John~D. Owens, and Bernd Hamann.
+\newblock Discrete sibson interpolation.
+\newblock {\em IEEE Transactions on Visualization and Computer Graphics},
+  12:243--253, 2006.
+
+\end{thebibliography}

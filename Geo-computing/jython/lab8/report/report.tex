@@ -1,0 +1,538 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic,subfigure}
+\usepackage{setspace,enumerate}
+
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\doublespacing
+
+
+
+
+\author{Esteban D\'{i}az}
+\title{3D Discrete Sibson's and Nearest Neighbor interpolation}{}
+
+\begin{document}
+\maketitle
+In this homework I implement 3 main classes to solve the interpolation 
+problem:
+\begin{enumerate}
+  \item ClosestPointTransform.java: implements efficiently distance
+   transform using ~\cite{Pedro_dt} algorithm.
+  \item NearestNeighbor.java: implements Nearest Neighbor interpolation.
+  \item SibsonInterpolation.java: implements Sibson's interpolation.
+\end{enumerate}
+
+
+
+\section{General flow}
+  Both algorithms share general features of the implementation, which can
+  be summarized in three general steps:
+ \begin{enumerate}
+  \item Bin scattered data $X_i$ on a regular grid.
+  \item Find the nearest valid sample to any given point on the
+         grid, meaning the Closest Point Transform (CPT).
+  \item Use the nearest sample(s) to interpolate.
+ \end{enumerate}
+
+\subsection{Closest Point Transform}
+  The Closest Point Transform (CPT) consist on finding the pair with minimum distance
+ between a point $x$ and a point in a set $Y_i$. This problem can be solved in an
+straight forward way by comparing the distance between a point $x$ and each point 
+in a set $Y_i$ and keeping the minimum.
+
+ The naive implementation is probably the easiest but more inefficient way to 
+address this problem. The main fragments of my naive 2D code are shown in 
+algorithm~\ref{code:naiveCPT2d}. This approach has a complexity of 
+order $NxM$ (due to the nested loops), with $N$ being the grid samples and $M$ 
+the known scattered samples. 
+  
+  
+\begin{program}
+\begin{verbatim}
+
+    for (int i2=0; i2<n2 ; ++i2){ // count known samples loop 
+      for (int i1=0; i1<n1 ; ++i1){ 
+        if(sparse[i2][i1] != _flag){ 
+          nk +=1;
+        } 
+      }                                   
+    } 
+    int[] i1known = new int[nk]; // known samples array
+    int[] i2known = new int[nk];
+    nk=0;
+
+    for (int i2=0; i2<n2 ; ++i2){ 
+      for (int i1=0; i1<n1 ; ++i1){ 
+        // fill output with known samples first
+        if(sparse[i2][i1] != _flag){ 
+          i1known[nk] = i1;
+          i2known[nk] = i2;
+          i2csp[i2][i1] = i2;
+          i1csp[i2][i1] = i1;
+          distance[i2][i1] = 0.0f;
+          nk+=1;
+        } 
+      }                                   
+    }
+    int i22 = 0; int i11=0;
+    int ig = 1;
+    int ng = n1*n2-nk;
+
+    for (int i2=0; i2<n2 ; ++i2){ 
+      for (int i1=0; i1<n1 ; ++i1){ 
+        if(sparse[i2][i1] == _flag){ 
+          float dmin = (float)(n1*n1+n2*n2);
+          // largest posible distance in the array.
+          for (int ik=0; ik<nk ; ++ik){
+             float d2 = (i1known[ik]-i1)*(i1known[ik]-i1)
+                 + (i2known[ik]-i2)*(i2known[ik]-i2); 
+            if(d2 <dmin){
+              i22 = i2known[ik];
+              i11 = i1known[ik];
+              dmin = d2;
+            }            
+          }
+          i2csp[i2][i1] = i22;
+          i1csp[i2][i1] = i11;
+          distance[i2][i1] = sqrt(dmin);
+        }
+      }                                   
+    } 
+\end{verbatim}
+  \caption{Naive 2d CPT (main fragments)}
+  \label{code:naiveCPT2d}
+\end{program}    
+
+
+ ~\cite{Pedro_dt} showed a simple way to compute the DT in linear time. I implemented
+his DT algorithm as shown in their paper (see algorithm~\ref{code:pedroCPT}). This 
+function computes the minimum square distance. I had to adapt it to keep the coordinates
+of the closest sample ($cp[q] = v[k]$). 
+
+\begin{program}
+\begin{verbatim}
+    int n = f.length; 
+    int[] v = new int[n];
+    float[] z = new float[n+1];
+    z[0] = -_inf ; z[1] = _inf;
+    int k=0;
+    for (int q=1; q<n ; ++q){
+      float s  = ((f[q]+q*q)-(f[v[k]]+v[k]*v[k]))/(2*q-2*v[k]);
+      while (s <= z[k]) {
+        k=k-1;
+        s  = ((f[q]+q*q)-(f[v[k]]+v[k]*v[k]))/(2*q-2*v[k]);
+      }
+      ++k;
+      v[k] = q;
+      z[k] = s;
+      z[k+1] = _inf;
+    } 
+    k=0;
+    for (int q=0 ;  q<= n-1; ++q){
+      while (z[k+1] <q )
+        k+=1;
+      d[q] = (q-v[k])*(q-v[k]) +f[v[k]];
+      cp[q] = v[k];
+    }   
+\end{verbatim}
+  \caption{Felzenszwalb's DT algorithm implementation}
+  \label{code:pedroCPT}
+\end{program}    
+
+The nice thing about this algorithm is that is separable, which allow us
+to process each element on a given dimension independently for $d>1$.
+
+\begin{program}
+\begin{verbatim}
+  public void apply(float[] f, int[] i1cpt, float[]d){
+    DT(f, d, i1cpt);
+    d = sqrt(d);
+  }
+\end{verbatim}
+  \caption{1D distance transform}
+  \label{code:1dDT}
+\end{program}    
+
+The 2D and 3D implementations are very similar: first pass is along columns (i1 direction),
+the second pass is along i2 direction and the third one along i3.
+
+The tricky part is how to keep track of the closest coordinate. After the first pass
+we only update the i1 closest coordinates. After the second pass we obtain the i2 coordinates. 
+Therefore, we use the updated i2 coordinates to modify the i1 coordinates. 
+
+In 3D the first pass updates i1 coordinates, the second pass updates i1 and i2 coordinates. Finally,
+ the third pass updates i1, i2 and i3 coordinates.
+
+All the results shown in Figure~\ref{fig:DT} were done using the naive and Felzenszwalb's 
+DT algorithm. Both approaches give the same result, although the second one is much more faster.
+
+
+\begin{program}
+\begin{verbatim}
+    Parallel.loop(n2,new Parallel.LoopInt() {
+      public void compute(int i2) {
+        dt(sparse[i2],d[i2],i1cpt[i2]);
+        }
+      });
+    
+    // after do the distance transform
+    // along i2 direction  
+    Parallel.loop(n1,new Parallel.LoopInt() {
+      public void compute(int i1) {
+        float[] g = new float[n2]; 
+        float[] daux = new float[n2]; 
+        int[] i2aux = new int[n2];
+        int[] i1aux = new int[n2];
+  
+        for (int i2=0 ; i2<n2; ++i2){
+          g[i2] = d[i2][i1];
+        }
+        dt(g,daux,i2aux);
+  
+        for (int i2=0 ; i2<n2 ; ++i2){
+          d[i2][i1] = sqrt(daux[i2]);
+          int i22 = i2aux[i2];
+          i2cpt[i2][i1] = i22;
+          i1aux[i2] = i1cpt[i22][i1];
+        }
+        for (int i2=0; i2<n2; ++i2){
+          i1cpt[i2][i1]  = i1aux[i2];
+        }
+      }
+      });
+\end{verbatim}
+  \caption{2D distance transform (fragments)}
+  \label{code:2dDT}
+\end{program}    
+
+\begin{program}
+\begin{verbatim}
+    // along i3 direction
+    Parallel.loop(n2,new Parallel.LoopInt() {
+      public void compute(int i2) {
+        float[] f = new float[n3]; 
+        float[] d3 = new float[n3];
+        int[] i3aux = new int[n3];
+        int[] i2aux = new int[n3];
+        int[] i1aux = new int[n3];
+
+        for (int i1=0 ; i1<n1; ++i1){
+          for (int i3=0 ; i3<n3; ++i3){
+            f[i3] = d[i3][i2][i1];
+          }
+          dt(f,d3,i3aux);
+          // update squared distance 
+          for (int i3=0 ; i3<n3; ++i3){
+            d[i3][i2][i1] = sqrt(d3[i3]);
+            int i33 = i3aux[i3];
+            i1aux[i3] = i1cpt[i33][i2][i1];
+            i2aux[i3] = i2cpt[i33][i2][i1];
+          }
+          for (int i3=0 ; i3<n3; ++i3){
+            int i33 = i3aux[i3];
+            int i22 = i2aux[i3];
+            int i11 = i1aux[i3];
+            i3cpt[i3][i2][i1] = i33;
+            i2cpt[i3][i2][i1] = i22;
+            i1cpt[i3][i2][i1] = i11;
+            
+          }
+        }
+      }
+      });
+\end{verbatim}
+  \caption{3D distance transform (fragments): indices tracking on last pass for 3D CPT}
+  \label{code:3dDT}
+\end{program}    
+
+
+
+\begin{figure}[ht!]
+     \begin{center}
+%
+        \subfigure[1d Distance Transform]{%
+           \label{fig:first}
+           \includegraphics[width=0.6\textwidth]{png/distance_1d.png}
+        }\\ %  ------- End of the first row ----------------------%
+        \subfigure[2d Distance Transform]{%
+           \label{fig:second}
+           \includegraphics[width=0.6\textwidth]{png/distance2d_CPT.png}
+
+        }%
+        \subfigure[3d Distance Transform]{%
+           \label{fig:second}
+           \includegraphics[width=0.6\textwidth]{png/distance3d_CPT.png}
+        }%
+
+    \end{center}
+    \caption{Distance transform results.}
+   \label{fig:DT}
+\end{figure}
+
+\section{Interpolation}
+\subsection{1d interpolation}
+Figure~\ref{fig:1dInt} shows the result of a randomly sampled Gaussian function
+using Nearest Neighbor (blue) and Sibson's (red) interpolation. In 1d, one can
+see that the Sibson's acts has a linear interpolant.
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.6\textwidth]{png/interp_1d.png}
+  \caption{1D interpolation: Sibson's (red), Nearest Neighbor (blue)}
+  \label{fig:1dInt}
+\end{figure}
+
+
+
+\subsection{2d interpolation}
+
+Nearest Neighbor interpolation if probably the fastest interpolation method. It
+is completely separable an relies only on the value of the closest valid sample. 
+Sibson's interpolation is more robust when few samples are know, but it is also
+much more expensive and difficult to parallelize. The parallelization complexity
+appears because of the ``scatter'' approach proposed by~\cite{park}. 
+
+To overcome the Sibson's parallelization problem, I used a reduce and combine 
+parallel framework. I assigned to each thread its own matrix that accumulates
+the accepted values and the number of hits for a given cell. Then, I combine
+the outcome from every thread as shown in algorithm~\ref{code:2dSibsonP} and 
+average for obtaining the interpolated value.
+
+Since I could not return and combine two matrices, I created a composite one ($e$)
+which contains both, the numerator ($e[0]$) and the denominator ($e[1]$).
+
+In theory, although my parallel algorithm should be thread safe, I still see some very small
+differences in the order of $10^{-4}\%$ of the function.
+
+Figure~\ref{fig:Int2d} shows the result of the interpolation of a 2D scattered 
+sinusoidal function. The Sibson interpolation recovers very well the original function.
+
+\begin{program}
+\begin{verbatim}
+final float[][][] e = Parallel.reduce(nthread, new Parallel.ReduceInt<float[][][]>(){
+  public float[][][] compute(int ithread){
+  float[][][] e = new float[2][n2][n1];
+
+  int lb = ithread*chunk;
+  int ub = min((ithread+1)*chunk,n2);
+  if (ithread == nthread -1)
+    ub =n2;
+
+    for (int i2=lb; i2<ub; ++i2){ 
+      for (int i1=0; i1<n1 ; ++i1){
+        int i1cp = i1o[i2][i1];
+        int i2cp = i2o[i2][i1];
+        float r = dt[i2][i1]; 
+        float f = scatter[i2cp][i1cp];
+        int i1min = max(i1 -(int)r,0); 
+        int i1max = min(i1 +(int)r,n1-1); 
+        int i2min = max(i2 -(int)r,0); 
+        int i2max = min(i2 +(int)r,n2-1); 
+
+        for(int i22=i2min; i22<=i2max ; ++i22 ){
+          for(int i11=i1min; i11<=i1max ; ++i11 ){
+            float d = sqrt((i11-i1)*(i11-i1)+(i22-i2)*(i22-i2));
+            if(d<=r){
+              e[0][i22][i11] += f;      
+              e[1][i22][i11]++;
+            }
+          }
+        }
+      }
+    }
+    return e;
+  }
+
+  public float[][][] combine(float[][][] ea, float[][][] eb){
+        return add(ea,eb);
+      }
+    });
+  
+    Parallel.loop(n2,new Parallel.LoopInt() {
+    public void compute(int i2) {
+    
+      for (int i1=0; i1<n1 ; ++i1){
+        c[i2][i1] = e[0][i2][i1]/e[1][i2][i1];
+      }
+    }});
+\end{verbatim}
+  \caption{Fragments of 2D Sibson's Parallel implementation}
+  \label{code:2dSibsonP}
+\end{program}    
+
+
+
+\begin{figure}
+     \begin{center}
+%
+        \subfigure[Nearest Neighbor]{%
+           \label{fig:first}
+           \includegraphics[width=0.6\textwidth]{png/interp2d_nearest.png}
+        }\\ %  ------- End of the first row ----------------------%
+        \subfigure[Sibson's Interpolation]{%
+           \label{fig:second}
+           \includegraphics[width=0.6\textwidth]{png/interp2d_sibson.png}
+        }%
+
+    \end{center}
+    \caption{2D Interpolation. The black dots represent the scattered data locations}
+   \label{fig:Int2d}
+\end{figure}
+
+
+\subsection{3d interpolation}
+3D interpolation is implemented in parallel with the same strategy as in 2D (algorithm~\ref{code:2dSibsonP})
+, using a reduce and combine parallel framework. However, in this case
+the RAM memory could be a limitation since each thread has to create two 3D arrays.
+
+
+\begin{figure}
+     \begin{center}
+%
+        \subfigure[Nearest Neighbor]{%
+           \label{fig:first}
+           \includegraphics[width=0.6\textwidth]{png/interp3d_nearest.png}
+        }\\ %  ------- End of the first row ----------------------%
+        \subfigure[Sibson's Interpolation]{%
+           \label{fig:second}
+           \includegraphics[width=0.6\textwidth]{png/interp3d_sibsonP.png}
+        }%
+
+    \end{center}
+    \caption{3D Interpolation of a randomly sampled isotropic Gaussian function.}
+   \label{fig:Int2d}
+\end{figure}
+
+
+\section{Benchmarks}
+
+The Distance and Nearest Neighbor codes scale linearly since both algorithms are separable.
+
+Sibson's interpolation is not predictable though, since for each point the work depends on the
+radius corresponding to the closest sample. Therefore, for low density data (very few scattered points)
+this algorithm can be very slow since each sample will be scattered to a bigger circle in 2D or sphere
+in 3D. If the distribution of scattered data is homogeneous the each thread in the parallel implementation
+will work more than less the same.
+
+If the data is not well distributed, then one thread could work more than others. Therefore, for all these
+reasons it is very hard to predict the scalability of this algorithm. However, in my synthetic tests the scaling
+should be linear because my data is randomly scattered.
+
+
+In my machine the parallel Sibson implementation performed three times faster
+than the serial one.
+
+\begin{table}
+\centering
+    \begin{tabular}{  |l | l | l | l | l | l |}
+    \hline
+      Test             & n1   &  n2  & n3  &  Time       & Threads \\ \hline
+      Sibson Serial    & 1001 & 1002 & --  & $15.2410s$  &  --     \\ 
+      Sibson Parallel  & 1001 & 1002 & --  & $ 5.096s$   &  4      \\ 
+      Sibson Parallel  & 1001 & 1002 & --  & $ 8.796s$   &  2      \\ 
+      NN Parallel      & 1001 & 1002 & --  & $ 0.0726s$  &  4      \\ 
+      Sibson Serial    & 251  & 252  & 253 & $298.019s$  &  --     \\ 
+      Sibson Parallel  & 251  & 252  & 253 & $101.210s$  &  4      \\ 
+      NN Parallel      & 251  & 252  & 253 & $1.33125s$  &  4      \\ 
+    \hline
+    \end{tabular}
+    \caption{ Interpolation benchmarks}
+    \label{tab:2dbench}
+\end{table}
+
+
+
+\section{Galilee bathymetry interpolation}
+This data is freely available in the Madagascar repository as part
+of the reproducible experiments by Jon Claerbout in ``Image Estimation by
+ Example''~\cite{claerbout_gee}. 
+
+This data is also analyzed in a denoising+interpolation context by Guitton and Claerbout
+~\cite{guitton_galilee}.
+
+\subsection{Binning}
+The data came in $xyz$ format. Therefore, I had to bin it to a regular grid.  To do so,
+I used the following algorithm:
+
+\begin{program}[h!]
+\begin{verbatim}
+
+def grid(x,y,z,ox,dx,nx,oy,dy,ny):
+  nk = len(x)
+  n1 = nx
+  n2 = ny
+  nn = zeroint(n1,n2)
+  image = zerofloat(n1,n2)
+
+  for n in range(nk):
+    xi = int(((x[n]-ox)/dx)) 
+    yi = int(((y[n]-oy)/dy)) 
+      
+    image[yi][xi] += z[n]  
+    nn[yi][xi] += 1
+
+  for i2 in range(n2):
+    for i1 in range(n1):
+      if nn[i2][i1] != 0:
+        image[i2][i1] = image[i2][i1]/nn[i2][i1]
+      else:
+        image[i2][i1] = flag
+  return image
+\end{verbatim}
+  \caption{Scattered data binning}
+  \label{code:bin}
+\end{program}
+
+Basically, it makes an average of the samples that fall in a given bin. For grid points with 
+zero hits ($nn[i2][i1]$) I put a flag value.
+
+\subsection{interpolation}
+
+Once the data is binned, I proceeded to perform the interpolation. The results are shown in Figure~\ref{fig:gal2}.
+Both interpolations yield in a very smooth model. The Nearest Neighbor is very similar to the Sibson one. 
+A conclusion of this observation is that for very dense data a NN interpolation might be good enough.
+
+These results are smoother than the ones shown by Guitton and Claerbout~\cite{guitton_galilee}.
+
+The interpolated data shows some spikes which comes from errors in the data. This spikes are
+widely discussed in the Guitton and Claerbout's paper. 
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{png/galilee_scatter.png}
+    \caption{Galilee sea bathymetry. Black dots shows scattered navigation data before binning.}
+    \label{fig:gal1}
+\end{figure}
+
+
+
+\begin{figure}[ht!]
+     \begin{center}
+%
+        \subfigure[Nearest neighbor interpolation]{%
+           \label{fig:second}
+           \includegraphics[width=0.7\textwidth]{png/galilee_nearest.png}
+        }\\ %  ------- End of the first row ----------------------%
+        \subfigure[Sibson interpolation]{%
+            \label{fig:third}
+            \includegraphics[width=0.7\textwidth]{png/galilee_sibson.png}
+        }%
+%
+    \end{center}
+    \caption{Interpolation of the scattered data shown in Figure~\ref{fig:gal1}. The scale shows% 
+            the depth in meters of the bottom of the lake.}
+   \label{fig:gal2}
+\end{figure}
+
+
+
+\section{Acknowledgments}
+I acknowledge the discussions about this homework with Carla, Joe and Gino.
+
+\clearpage
+\bibliographystyle{plain}
+\bibliography{galilee}
+\end{document}

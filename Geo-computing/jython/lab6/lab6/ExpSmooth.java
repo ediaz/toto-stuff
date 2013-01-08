@@ -7,7 +7,7 @@ import edu.mines.jtk.util.Parallel;
 /**
  * Digital signal processing.
  * @author Esteban Diaz
- * @version 2012.10.04
+ * @version 2012.11.04
  *
 
 
@@ -40,13 +40,16 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
 
     float epsq = (sigma*sigma)/nsmooth;
     _a= (float)((epsq+1.0f-Math.sqrt(2.0f*epsq+1.0f))/epsq);
-
   }
 
+  /*
+  TODO: create a new constructor that 
+        takes a boolean variable to set
+        up the boundary condition (zero or zero slope).
+  */
 
   // 1D smoothing
   public void apply(float[] x, float[] y){
-
     smooth(_a,x,y);
     for (int nr=1 ; nr <_nsmooth ; ++nr) 
       smooth(_a,y,y);
@@ -55,7 +58,6 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
 
   // 2D smoothing
   public void apply(float[][] x,float[][] y){
-
     smooth1P(_a,x,y);
     for (int nr=1 ; nr <_nsmooth ; ++nr) 
       smooth1P(_a,y,y);
