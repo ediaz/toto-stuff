@@ -1,0 +1,7 @@
+Satyan:
+
+If you want to test:
+  1- compile by:  
+  $: scons
+  2- run:
+  $: ./jy test.py

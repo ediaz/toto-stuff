@@ -1,3 +1,3 @@
 #!/bin/sh
-export CLASSPATH=.:../edu_mines_jtk.jar:../jython.jar
-java -cp $CLASSPATH -ea org.python.util.jython $*
+export CLASSPATH=.:./edu_mines_jtk.jar:../jython.jar
+java -cp $CLASSPATH org.python.util.jython $*
