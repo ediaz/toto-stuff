@@ -1,0 +1,371 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{setspace,enumerate}
+
+\usepackage{graphicx,caption,subfig}
+
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\doublespacing
+
+
+\def\dt{\delta t}
+\def\dxs{{\delta x}^2}
+\def\heq{\frac{\partial u}{\partial t} -a\frac{\partial^2 u}{\partial x^2}}
+
+\def\du#1#2{\frac{\partial^{#2} u}{\partial {#1}^{#2}}}
+\def\exp#1{\mathbf{e}^{#1}}
+\author{Esteban D\'{i}az}
+\title{Crank-Nicolson method implementation for the 1D heat equation}{}
+
+\begin{document}
+\maketitle
+
+\section{The Crank-Nicolson method}
+We use the C-N method to solve the homogeneous parabolic problem of the 1D
+heat equation:
+\begin{equation}
+\heq= f(x,t).
+\label{eq:heat1d}
+\end{equation}
+
+With the C-N method, we approach this problem by looking for the 
+solution at a half time-step. In this way, we obtain a much better approximation.
+By considering the temporal mesh with ${\delta t}/2$ we obtain a second order
+error for the solution $\mathcal{O}({\delta t}^2+{h}^2)$.
+
+The C-N method for equation~\ref{eq:heat1d} can be expressed as follows:
+
+\[
+  \frac{U_{n}^{m} -U_{n}^{m-1}}{\delta t} %
+  -\frac{a}{2h^2}\left(U_{n+1}^{m}-2U_{n}^{m}+U_{n-1}^{m}%
+  +U_{n+1}^{m-1}-2U_{n}^{m-1}+U_{n-1}^{m-1} \right) = f(x_n,t_{m-1/2}),
+\]
+Rearranging, and making $\alpha=a\delta t /h^2$ we obtain:
+\[
+U_{n}^{m} -\alpha/2 \left(U_{n+1}^{m}-2U_{n}^{m}+U_{n-1}^{m}\right) =%
+\delta t  f(x_n,t_{m-1/2}) +U_{n}^{m-1}%
+ +\alpha/2 \left(U_{n+1}^{m-1}-2U_{n}^{m-1}+U_{n-1}^{m-1} \right)
+\]
+
+\[
+(1+\alpha)U^{m}_{n} -\frac{\alpha}{2}\left(U_{n-1}^{m} +U_{n+1}^m\right) =%
+ (1-\alpha)U^{m-1}_{n} +\frac{\alpha}{2}\left(U_{n-1}^{m-1} +U_{n+1}^{m-1}\right)%
+ +\delta t  f(x_n,t_{m-1/2})
+\]
+finally:
+\begin{equation}
+U_n^{m} +\frac{\alpha}{2}\left(2U_n^{m} -U_{n-1}^m-U_{n-1}^{m}\right) = U_n^{m-1}%
+ -\frac{\alpha}{2}\left(2U_n^{m-1} -U_{n-1}^{m-1}-U_{n-1}^{m-1}\right)%
+ +\delta t  f(x_n,t_{m-1/2}) 
+\end{equation}
+
+Which can be written in matrix form as:
+\begin{equation}
+\left[\mathbf{I} +\frac{\alpha}{2}\mathbf{B} \right] \mathbf{U}^m = \left[\mathbf{I}%
+ -\frac{\alpha}{2} \mathbf{B}\right]\mathbf{U}^{m-1} +\delta t \mathbf{F}^{m-1/2}
+\label{eq:CN-zero}
+\end{equation}
+where,
+
+\begin{equation}
+\mathbf{B}=
+ \begin{pmatrix}
+  2       & -1      &  0      & 0  \\
+  -1      &  2      & \ddots  & 0  \\
+  0       & \ddots  & \ddots  & -1 \\
+  0       &  0      &  -1     &  2  
+ \end{pmatrix}_{N-2,N-2},
+\label{eq:B}
+\end{equation}
+where $N$ is the number of grid points in space.
+
+The matrix form leads into a linear system of equations:
+\begin{equation}
+\mathbf{A} \mathbf{U}^{m-1} = \mathbf{b}
+\label{eq:linear}
+\end{equation}
+with $\mathbf{A} = \left[\mathbf{I} +\frac{\alpha}{2}\mathbf{B} \right]$ and 
+$\mathbf{b} = \left[\mathbf{I} -\frac{\alpha}{2} \mathbf{B}\right]\mathbf{U}^{m-1}%
+ +\delta t \mathbf{F}^{m-1/2}$
+
+Equations~\ref{eq:CN-zero} and~\ref{eq:linear} implicitly assume that the solution $u(x,t)$
+vanishes at the boundary of the model, i.e. $u(x,t)=0, \forall x \in \delta \Omega$. One can
+easily adapt these equations for the inhomogeneous Dirichlet boundary conditions, as follows:
+
+
+
+\[
+\left[\mathbf{I} +\frac{\alpha}{2}\mathbf{B} \right] \mathbf{U}^m +\frac{\alpha}{2}\mathbf{C}_1= \left[\mathbf{I}%
+ -\frac{\alpha}{2} \mathbf{B}\right]\mathbf{U}^{m-1} +\delta t \mathbf{F}^{m-1/2} +\frac{\alpha}{2}\mathbf{C}_2
+\]
+Where, $\mathbf{C}_1,\mathbf{C}_2$ are corrections vectors defined as:
+\[
+\mathbf{C}_1=
+ \begin{pmatrix}
+  -g_1(t_m) \\
+  0         \\
+  \vdots    \\
+  0         \\
+  -g_2(t_m)         
+ \end{pmatrix}_{N-2}
+\], and
+\[
+\mathbf{C}_2=
+ \begin{pmatrix}
+  g_1(t_{m-1}) \\
+  0         \\
+  \vdots    \\
+  0         \\
+  g_2(t_{m-1})         
+ \end{pmatrix}_{N-2}
+\]
+. Therefore, the right-hand side becomes:
+\begin{equation}
+\mathbf{b} = \left[\mathbf{I} -\frac{\alpha}{2} \mathbf{B}\right]\mathbf{U}^{m-1}%
+ +\delta t \mathbf{F}^{m-1/2} +\frac{\alpha}{2}\left(\mathbf{C}_2 -\mathbf{C}_1\right)
+\label{eq:CN-dirichlet}
+\end{equation} 
+
+The system of equations has $N-2$ unknowns since we know the end values of the 
+spatial coordinates at each time-step.
+
+
+\subsection{Proof that $\mathbf{A}$ is SPD}
+The matrix $\mathbf{A}$ is symmetric positive definite (SPD). Proving that $\mathbf{A}$ 
+is SPD amounts to prove that $\mathbf{B}$ is SPD since:
+
+\[
+x^T \left[I  +\frac{\alpha}{2}\mathbf{B} \right] x = %
+x^T I x  +\frac{\alpha}{2} x^T \mathbf{B} x = ||\mathbf{x}|| +\frac{\alpha}{2} x^T \mathbf{B} x  > 0 
+\]
+is also SPD ($\alpha>0$ by definition) if $\mathbf{B}$ is SPD.
+
+To prove that $\mathbf{B}$ is SPD I will consider the simple case where $N-2=4$, 
+ then I will generalize the proof.
+
+Let
+\[
+\mathbf{x}=
+ \begin{pmatrix}
+  a_1 \\
+  a_2 \\
+  a_3 \\
+  a_4 
+ \end{pmatrix}
+\], with $a_i \neq 0$ be a test vector.
+
+Then,
+\[
+\mathbf{B}\mathbf{x}=
+ \begin{pmatrix}
+  2a_1^2-a_2a_1 \\
+  -a_2a_1+2a_2^2-a_2a_3 \\
+  -a_3a_2+2a_3^2-a_3a_4 \\
+  -a_4a_3+2a_4^2 
+ \end{pmatrix}
+\]
+And finally,
+\[
+\mathbf{x}^T\mathbf{B}\mathbf{x} = 2a_1^2 -2a_1a_2 +2a_2^2 -2a_2a_3+2a_2 +2a_3^2-2a_3a_4+2a_4^2 = %
+ a_1^2 +(a_1-a_2)^2 + (a_2-a_3)^2+(a_3-a_4)^2+a_4^2 .
+\]
+
+We have a sum of squared numbers, therefore is always positive. We can write previous
+equation for an arbitrary $n=2,3,4,...,N$ as follows:
+
+\begin{equation}
+\mathbf{x}^T\mathbf{B}\mathbf{x} = a_1^2 +{\sum_{i=2}^{N} (a_{i-1} -a_i)^2}  +a_N^2 >0 \qed
+\label{eq:Bspd}
+\end{equation}
+
+We can efficiently solve the system in equation~\ref{eq:linear} by taking 
+advantage of the SPD properties of the matrix $\mathbf{A}$. We
+can use the Cholesky decomposition algorithm to solve the system.
+Another alternative is to use the ``Thomas algorithm''\cite{thomas} to solve a tridiagonal
+linear system. The last alternative have a $\mathcal{O}(n)$ convergence, where $n$ is the
+size the of the vector to invert for. 
+
+\section{Implementation of the C-N method}
+I implement the following problem:
+
+$\frac{\partial u}{\partial t} -0.1\frac{\partial^2 u}{\partial x^2} = f(x,t),  2<x<3, 0<t\leq2$
+
+$ u(x,0) = v(x), 2\leq x\leq 3$ and
+
+$ u(2,t) = g_1(t), u(3,t) = g_2(t), 0<t \leq 2$
+
+Here we obtain the boundary condition and the force terms such that we satisfy that:
+\[
+u(x,t) = [\sin(4x) +\cos(2x)] [ \cos(t)+\sin(t)]
+\]
+
+By doing so, the force term and boundary conditions become:
+\[
+f(x,t) =\cos(t) \left[(1+16a)\sin(4x)+(1+4a)\cos(2x)\right]+\sin(t)\left[(4a-1)\cos(2x)+(16a-1)\sin(4x)\right] 
+\]
+\[
+g_1(x,t) = (\sin(8.)+\cos(4))(\cos(t)+\sin(t))
+\]
+\[
+g_2(x,t) = (\sin(12)+\cos(6))(\cos(t)+\sin(t))
+\]
+\[
+v(x) = \sin(4x) +\cos(2x)
+\]
+
+
+\subsection{Testing the convergence of the C-N method}
+
+I tested the convergence of the method by changing the sampling interval of the time and 
+space axes as follows:
+
+\begin{equation}
+  h = \delta t = 0.1/2^k, k=0,1,2,3,4
+\label{eq:sampling}
+\end{equation}
+
+The outcome of those tests can be seen in Figure~\ref{fig:results}and~\ref{fig:results2}. 
+In general, all of them represented fairly well the true field $u(x,t)$. The error
+decreased by a power of 2 as predicted by the theoretical truncation results $\mathcal{O}({\delta t}^2+{h}^2)$.
+
+At each sampling I computed the error as follows:
+
+\begin{equation}
+  e_{\infty,\delta t,h} := \left|\left|U(.,2)-u(.,2)\right|\right|_\infty.
+\label{eq:error}
+\end{equation}
+
+Then, with the errors computed for each $k$, I plotted the error against $h,\delta t$ in Figure~\ref{fig:error}.
+In the logarithmic plot one can see that there is a linear relation between the error and the sampling as predicted 
+by the theory. In a normal plot the error would have a quadratic decrease with $h$.
+
+\begin{table}
+\centering
+  \begin{tabular}{c | c | c | c}
+ h        &    dt    &   error       &  EOC           \\  \hline
+0.1       &0.1       &1.297665e-02   &2.0000e-02      \\
+0.05      &0.05      &3.182586e-03   &5.0000e-03      \\
+0.025     &0.025     &7.903909e-04   &1.2500e-03      \\
+0.0125    &0.0125    &1.966145e-04   &3.1250e-04      \\
+0.00625   &0.00625   &4.904514e-05   &7.8125e-05       
+  \end{tabular}
+\caption{Convergence analysis table. EOC is the theoretical error proportionality (i.e $e \propto \mathcal{O}({\delta t}^2+{h}^2$). Error is defined as in equation~\ref{eq:error}.}
+\label{tab:table}
+\end{table}
+
+
+
+\begin{figure}
+  \centering
+  \subfloat[]{\label{fig:1}\includegraphics[width=1.2\textwidth]{fig/solutions_k0.png}} \\
+  \subfloat[]{\label{fig:2}\includegraphics[width=1.2\textwidth]{fig/solutions_k1.png}} \\ 
+  \subfloat[]{\label{fig:2}\includegraphics[width=1.2\textwidth]{fig/solutions_k2.png}} \\
+  \caption{Matrix of results: rows 1,2 and 3 correspond to $k=0,1,2$. First column %
+          corresponds to the C-N solution, second column is the exact solution, and
+          column 3 is the difference}
+  \label{fig:results1}
+\end{figure}
+\begin{figure}
+  \subfloat[]{\label{fig:2}\includegraphics[width=1.2\textwidth]{fig/solutions_k3.png}} \\
+  \subfloat[]{\label{fig:2}\includegraphics[width=1.2\textwidth]{fig/solutions_k4.png}}
+  \caption{Matrix of results (continued): rows 1 and 2 correspond to $k=3,4$. First column %
+          corresponds to the C-N solution, second column is the exact solution, and
+          column 3 is the difference }
+  \label{fig:results2}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=1.2\textwidth]{fig/error.png}
+\caption{Error plot (log-log) as a function of $h=\delta t = 0.1/2^k, k=0,1,2,3,4$.}
+\label{fig:error}
+\end{figure}
+
+
+\section{Truncation error prove: order of convergence}
+
+The truncation error for the C-N method is defined as:
+\[
+  \tau^{C-N} (x,t)= \frac{U(x,t+0.5\dt)-U(x,t-0.5\dt}{\dt} -\frac{a}{2}\left[\dxs U(x,t+0.5\dt)+\dxs U(x,-0.5\dt)\right] -f(x,t)
+\]
+where $\dxs$ is the centered second derivative operator and $f(x,t)=\heq $ is the source term.
+
+Now, I substitute the discrete operators by the associated error:
+
+
+\begin{equation}
+  \begin{split}
+  \tau^{C-N} (x,t)=& \left[\du{t}{}(x,t)+\frac{1}{6}\du{t}{3}(x,t)\left(\frac{\dt}{2}\right)^2\right] +\mathcal{O}({\dt}^2)  \\
+                   &-\frac{a}{2} \left[\du{x}{2}(x,t+0.5\dt)+\frac{1}{12}\du{x}{4}(x,t+0.5\dt)h^2 +\mathcal{O}({h}^4)\right]  \\
+                   &-\frac{a}{2} \left[\du{x}{2}(x,t-0.5\dt)+\frac{1}{12}\du{x}{4}(x,t-0.5\dt)h^2 +\mathcal{O}({h}^4)\right] \\
+                   & -\du{t}{}(x,t)+a\du{x}{2}(x,t)
+  \end{split}
+\end{equation}
+
+As we can see, the space derivatives are shifted $\pm 0.5\dt$, this comes from the fact that we did an averaging operation (inherent 
+to the method). Therefore, we have to introduce the truncation error of the average:
+\[
+\frac{1}{2}\left[ W(t+0.5\dt)+W(t-0.5\dt)\right]=W(t) +\frac{1}{8}\dt^2W^{''}(t) + \mathcal{O}(\dt^4)
+\]
+
+Then,
+\begin{equation}
+  \begin{split}
+  \tau^{C-N} (x,t)= &\frac{1}{24} \du{t}{3}(x,t)\dt^2 + \mathcal{O}(\dt^4) \\  
+                    &-a \left[\du{x}{2}(x,t) +\frac{1}{8}\dt^2 \frac{\partial^4u}{\partial t^2\partial x^x}(x,t) +\mathcal{O}(\dt^4) +% 
+                      \frac{1}{12}\du{x}{4}(x,t)h^2 +\mathcal{O}(\dt^2h^2) \right] \\
+                    & + a\du{x}{2}(x,t)  = \mathcal{O}(\dt^2+h^2) 
+  \end{split}
+\end{equation}
+
+\section{Stability analysis of the C-N method}
+
+I will do a stability analysis similar to the one done in class for the eE method.
+
+let $u(x,t) = W(t) \exp{i2\pi p x}$ be a solution for the heat equation, then the discretized form is:
+\[
+U_{n}^{m} = W^m \exp{i2 \pi px}
+\]
+
+We can later construct a general solution by linearly combining many Fourier modes $p$.
+
+Now we introduce the solution in the heat equation solved by the C-N method:
+
+
+\[
+\frac{W^{m+1}-W^m}{\dt}\exp{i2\pi px_n} -\frac{a}{2h^2}\left(W^m+W^{m+1}\right)\left[\exp{i2\pi p x_{n+1}}-2\exp{i2\pi p x_n} + \exp{i2\pi x_{n-1}}\right] = 0
+\]
+This then becomes:
+\[
+\frac{W^{m+1}-W^m}{\dt} -\frac{a}{2h^2}\left(W^m+W^{m+1}\right)\left[\exp{i2\pi p h}-2+ \exp{-i2\pi p h}\right] = 0
+\]
+\[
+W^{m+1}-W^m +\frac{\alpha}{2}\left(W^m+W^{m+1}\right)4\sin^2(2\pi p h) = 0
+\]
+
+
+\[
+W^{m+1} = W^m \frac{1 -2\alpha\sin^2(2\pi p h)}{ 1 +2\alpha\sin^2(2\pi p h)}
+\] 
+
+Now,
+\[
+|W^{m+1}| = |W^m |\left|\frac{1 -2\alpha\sin(2\pi p h)}{ 1 +2\alpha\sin^2(2\pi p h)}\right| 
+\] 
+And,
+\[
+\left|\frac{1 -2\alpha\sin^2(2\pi p h)}{ 1 +2\alpha\sin^2(2\pi p h)}\right| <1
+\]
+since $\alpha >0$ by definition.
+
+Then $|W^{m+1}|<|W^m |$. Therefore, the C-N method is absolutely stable.
+
+
+\begin{thebibliography}{9}
+
+\bibitem{thomas}
+  \begin{verbatim}http://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm\end{verbatim}
+\end{thebibliography}
+
+\end{document}
