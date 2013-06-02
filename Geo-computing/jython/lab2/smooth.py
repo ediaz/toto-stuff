@@ -21,7 +21,18 @@ def main(args):
   #goSmooth2T()
   #goSmooth2S()
   #goDetrend()
-  goBenchmark()
+  #goBenchmark()
+  deriv()
+
+
+def deriv():
+  inp = zerofloat(11)
+  out = zerofloat(11)
+  inp[5] = 1.
+  der = Deriv(1,3)
+  der.apply(inp,out)
+  print out
+
 
 def goSmooth():
   a = 0.9

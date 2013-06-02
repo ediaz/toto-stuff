@@ -1,0 +1,359 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{setspace,enumerate}
+\usepackage{amsfonts}
+\usepackage[margin=1.2in]{geometry}
+
+\usepackage{graphicx,caption,subfig}
+
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\doublespacing
+
+\def\dt{\dt}
+\def\dxs{{\delta x}^2}
+\def\heq{\frac{\partial u}{\partial t} -a\frac{\partial^2 u}{\partial x^2}}
+
+\def\du#1#2{\frac{\partial^{#2} u}{\partial{#1}^{#2}}}
+
+\def\dut#1{\frac{\partial u}{\partial {#1}}}
+
+\def\exp#1{\mathbf{e}^{#1}}
+\def\uk#1#2#3{{ U}^{#1}_{#2,#3}}
+\def\ukk#1{{\bf U}^{#1}}
+
+\newcommand{\twopartdef}[4]
+{
+ \left\{
+   \begin{array}{ll}
+     #1 & \mbox{if } #2 \\
+     #3 & \mbox{if } #4
+   \end{array}
+ \right.
+}
+\def\dop#1#2{\fraction{\partial #1}{\partial #2}}
+
+\author{Esteban D\'{i}az}
+\title{2D implementation of the wave equation in the frequency domain}{}
+
+\begin{document}
+\input{./pcsmacros}
+\maketitle
+
+In this report, I solve a second order hyperbolic PDE that corresponds to the wave equation
+\beq
+  \swe{{\bf u}} = f_s(\xx,t),
+  \label{eq:tawe}
+\eeq 
+with ${\bf u} = u(\xx,t)$, $\nabla^2 u= u_{xx} + u_{zz}$, and  $f_s(\xx,t) = s(t)\delta(\xx-\xx_s)$ being a point source, injected at a specific location $\xx_s$. Here,
+ $\xx = (x,z)$ are the coordinates in our domain $\Omega \in \mathbb{R}^2$.
+
+To formulate the acoustic wave equation in the frequency domain, one has to perform a Fourier transform over 
+the time variable $t$
+\beq
+\left(k(\xx)^2 + \nabla^2 \right)  {\bf u}  = -s(\omega)\delta(\xx-\xx_s).
+  \label{eq:wawe}
+\eeq
+Here $k(\xx) = \omega/v_p(\xx)$, and ${\bf u} = u(\xx,\omega)$. The nice characteristic of this approach is that the
+second time derivative (now frequency scaling) is exact in the frequency domain, and makes the problem frequency independent.
+
+
+This wave equation is a simplified version of the wave phenomena seen in the nature. In reality, this wave phenomena occurs
+in a semi-infinite medium and is not acoustic and isotropic as equations 1-2. In the computer, however,
+we are unable to simulate an unbounded medium. Therefore, we have to truncate our domain.
+
+Figure~\ref{fig:domain} depicts a cartoon of the ``real'' earth, and the truncated versions in our computer. 
+In the earth, the surface ($z=0$) is approximatively free of pressure $u(\xx,t) = 0, \forall z =0$. In the 
+other boundaries of the domain, the pressure waves radiate outgoing from the source position $\xx_s$. Therefore,
+in the computer to simulate an infinite $x$ and $+z$ axis we have make sure that the waves dies before reaching
+to the truncation.
+
+The free surface condition at $z=0$ introduces unwanted reflections from the upper boundary that even though are
+realistic, most of the time are not considered in practice (and the data is processed accordantly).
+
+Based on all these considerations, for this project I implement two problems:
+\begin{eqnarray}
+\nonumber \left(k(\xx)^2 + \nabla^2 \right)  {\bf u}  = -s(\omega)\delta(\xx-\xx_s),  \text{ in }\Omega = (x_0,x_1)\times(0,z), \\
+{\bf u} = 0, \text{  in }\delta\Omega_1 = z =0, \\
+\nonumber {\bf u} \rightarrow 0, \text{ as } \xx \rightarrow \delta \Omega,\text{  in } \delta \Omega -\delta \Omega_1,
+\label{eq:profree}
+\end{eqnarray}
+which corresponds to the sketch in Figure~\ref{fig:domain}b, and,
+\begin{eqnarray}
+\nonumber \left(k(\xx)^2 + \nabla^2 \right)  {\bf u}  = -s(\omega)\delta(\xx-\xx_s),  \text{ in }\Omega = (x_0,x_1)\times(0,z), \\
+{\bf u} \rightarrow 0, \text{ as } \xx \rightarrow \delta \Omega,\text{  in } \delta \Omega,
+\label{eq:proabc}
+\end{eqnarray}
+which corresponds to Figure~\ref{fig:domain}c.
+
+The boundary conditions are achieved trough the implementation of the Perfectly Matched Layer (PML) approach~\cite{BerengerPML}.
+
+
+\begin{figure}
+\centering
+\subfloat[]{\includegraphics[width=0.3\textwidth]{Fig/semi-inf.pdf}}
+\subfloat[]{\includegraphics[width=0.3\textwidth]{Fig/semi-infpml1.pdf}}
+\subfloat[]{\includegraphics[width=0.3\textwidth]{Fig/semi-infpml2.pdf}}
+\caption{Medium simulation (a) real earth: unbounded semi-infinite medium, (b) PML region (lines) avoiding reflections
+        from truncated domain with free surface, and (c) simulation of an infinite medium which avoids reflections
+        from the truncated domain. Here $z$ is depth.}
+\label{fig:domain}
+\end{figure}
+
+
+\section{Implementation}
+
+The domain $\Omega$ is discretized as:
+\begin{eqnarray}
+ \nonumber x_{i1} = x_0 +i_1 h_x, \text{ with } i_1 = 0,1,...,Nx\\
+ z_{i2} = z_0 +i_2 h_z, \text{ with } i_2 = 0,1,...,Nz
+\end{eqnarray}
+where $N_x,N_z$ are the number of grid points in $x,z$ axes.
+
+The frequency grid can be discretized as:
+\beq
+\omega_k = w_0 + k \delta\omega, \text{ with }  k = 0,1,...,N_\omega.
+\eeq
+The frequency discretization is given by the FFT of the source function $S(\omega) = FFT\left\{s(t)\right\}$.
+
+The discrete version of equation~\ref{eq:wawe} can be written as: 
+
+\[
+\left(k(\xx)^2 + L_x^2 + L_z^2 \right)  {\bf u}  = -s(\omega_k)\delta(\xx-\xx_s).
+\]
+Which can be written compactly in matrix form as:
+\beq
+ {\bf A}(\omega) {\bf U}(\omega) = {\bf F(\omega)}
+\eeq
+
+Here, $L_x$ and $L_z$ are discrete second order difference operators that can be thought as a filter $f[k]$ whose
+impulse response is similar to one of the continuous derivative operators. To obtain the digital differentiator
+filters, I follow~\cite{Fornberg88} approach.
+
+During class, we demonstrated that the second order differentiator for the second derivative 
+reads $f = 1/h^2[1,-2,1]$ , then $u_{xx} \approx L_x^2 u(x,z,\omega) = f[x]*u(x,z,\omega) + \mathcal{O}(h^2)$ with $*$ being the convolution operator. 
+With Fornberg's algorithm implementation, I can use differentiators  for an arbitrary order. However, 
+the computational cost is directly related to the order (and hence filter length) of the differentiator. Figure~\ref{fig:d2} shows the impulse 
+response for the second derivative operators for $\mathcal{O}(h^{2k}), k=1,...,6$.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{Fig/SecondDerivative.pdf}
+\caption{Impulse response for Fornberg's filters, for orders $2k, k =1,2,3,4,5,6$. The black curve shows the true
+        response of the second derivative operator.}
+\label{fig:d2}
+\end{figure}
+
+The approximate Laplacian operator $\nabla^2 \approx L_x^2 + L_z^2$ can be constructed in matrix form as,
+\beq
+{\bf L} = {\bf Bh}_x \otimes {\bf I}_z +{\bf Bh}_z \otimes {\bf I}_x,
+\label{eq:Lop}
+\eeq
+ where $\otimes$ is the tensor product between two matrices and 
+\begin{equation}
+\mathbf{Bh}_x=\frac{1}{h_x^2}
+ \begin{pmatrix}
+  f_0     & f_1     &  f_2    & \dots   & f_{M/2} & \dots   & 0      & 0       \\
+  f_{-1}  & f_0     &  f_1    & f_2     & \ddots  & f_{M/2} & \ddots & 0       \\
+  f_{-2}  & f_{-1}  & \ddots  & f_1     & \ddots  &  \ddots & \ddots & f_{M/2} \\
+  \vdots  & f_{-2}  & \ddots  & \ddots  & \ddots  & \ddots  & \ddots & \vdots  \\   
+  f_{-M/2}& \ddots  & \ddots  & \ddots  & \ddots  & \ddots  & f_1    & f_2    \\   
+  0       & \ddots  & \ddots  & \ddots  & \ddots  & f_{-1}  & f_0    & f_1    \\   
+  0       & \dots   & 0       & f_{-M/2}& \dots   & f_{-2}  & f_{-1} & f_0       
+ \end{pmatrix}_{Nx,Nx},
+\label{eq:B}
+\end{equation}
+where M is the length of the centered filter $f$, and $\bf I_x$ is the identity matrix with size $Nx$. $\bf Bh_z$, $\bf Iz$ are constructed
+similarly.
+
+
+If one implements only Dirichlet BC (undesired for wave phenomena), the impedance matrix is:
+
+\beq
+{\bf A} = {\bf K} + {\bf L},
+\eeq
+where $\bf K$ is a main diagonal matrix with entries $K_{ii} = \frac{\omega^2}{vp_i^2}$. Such an impedance matrix
+will produce reflections from the domain boundaries.
+
+\section{PML implementation}
+
+The PML BC~\cite{BerengerPML} is introduced using the so-called stretched coordinates, near the
+boundaries of the domain. The PML is frequency dependent, and requires one wavelength to effectively attenuate
+the waves and avoid boundary reflections.~\cite{notesPML} explains the PML very simply, it amounts to introduce
+the following change:
+\beq
+  \frac{\partial}{\partial x} \rightarrow \frac{1}{1+i\frac{\sigma(x)}{\omega}}\frac{\partial}{\partial x} = p(x) \frac{\partial}{\partial x}
+\eeq 
+with,
+\beq
+\sigma(x) = \twopartdef{1}{ x \not\in {PML}}{\sigma_0 (x-{\partial P})^k}{ x\in {PML}}
+\eeq
+where $\partial P$ is the boundary of the PML region, and $k$ is a power, generally $k=2$. So, outside the PML
+region the differential operator does not change, and inside the PML is scaled by a complex number that attenuates
+the incoming waves.
+
+Introducing the PML changes equation~\ref{eq:wawe} to:
+\beq
+k(\xx)^2 u + p(x)\dot{p}(x)\du{x}{} + p(z)\dot{p}(z)\du{z}{} +p(x)^2\du{x}{2} +p(z)^2\du{z}{2}  = -s(\omega)\delta(\xx-\xx_s).
+  \label{eq:wawe2}
+\eeq
+
+So, we now need the first derivative as well. Figure~\ref{fig:d1} shows the impulse response for the Fornberg's first
+derivative differentiators for different orders.
+The weight derivative can be evaluated analytically and has the form:
+\beq
+\dot{r}(x) = \frac{dr}{d\sigma}\frac{d\sigma}{dx} = \twopartdef{0}{ x \not\in {PML}}{\frac{-i}{(1+i\frac{\sigma(x)}{\omega})^2}\sigma_0 p(x-{\partial P})^{p-1}}{x\in {PML}}
+\label{eq:waweP}
+\eeq
+ 
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{Fig/FirstDerivative.pdf}
+\caption{Impulse response for Fornberg's filters, for orders $2k, k =1,2,3,4,5,6$. The black curve shows the true
+        response of the first derivative operator.}
+\label{fig:d1}
+\end{figure}
+
+The impedance matrix from equation~\ref{eq:wawe2} can be implemented in matrix form as:
+\[
+\bf A =\bf K + {\bf Sx} D_x \otimes \bf I_z + {\bf Sz} D_z \otimes \bf I_x +{\bf Rx} B_x \otimes \bf I_z +{\bf Rz} B_z \otimes \bf I_x
+\]
+with 
+\begin{equation}
+\mathbf{D_x}=\frac{1}{h}
+ \begin{pmatrix}
+  f_0     & f_1     &  f_2    & \dots   & f_{M/2} & \dots   & 0      & 0       \\
+  f_{-1}  & f_0     &  f_1    & f_2     & \ddots  & f_{M/2} & \ddots & 0       \\
+  f_{-2}  & f_{-1}  & \ddots  & f_1     & \ddots  &  \ddots & \ddots & f_{M/2} \\
+  \vdots  & f_{-2}  & \ddots  & \ddots  & \ddots  & \ddots  & \ddots & \vdots  \\   
+  f_{-M/2}& \ddots  & \ddots  & \ddots  & \ddots  & \ddots  & f_1    & f_2    \\   
+  0       & \ddots  & \ddots  & \ddots  & \ddots  & f_{-1}  & f_0    & f_1    \\   
+  0       & \dots   & 0       & f_{-M/2}& \dots   & f_{-2}  & f_{-1} & f_0        
+ \end{pmatrix}_{Nx,Nx},
+\label{eq:D}
+\end{equation}
+is the first derivative matrix using a Fornberg's filter $f$ of length $M$. Matrix $\bf S$ is a diagonal matrix with entries $S_{ii}= p_i\dot{p}_i$ and 
+matrix $\bf R$ is diagonal with entries $ R_{ii} = p_i^2$.
+
+
+
+\section{Convergence analysis}
+My implementation allows the use of any order for the error in the discrete operators, however, long operators are too expensive to use here and might
+need other implementation approach. I do the error analysis for second and fourth order convergence. Table~\ref{tab:coeff} shows 
+the filters coefficients for second and fourth orders computed after~\cite{Fornberg88}.
+
+\begin{table}
+\centering
+  \begin{tabular}{c  c  c c c c c}
+Derivative & Accuracy           & $-2h$ & $-h$     & 0   & $h$   & $2h$     \\  \hline
+first      & $\mathcal{O}(h^2)$ &       & -1/2     & 0   & 1/2   &          \\  
+first      & $\mathcal{O}(h^4)$ &1/12   & -2/3     & 0   & 2/3   & -1/12    \\  
+second     & $\mathcal{O}(h^2)$ &       &  1       & -2  & 1     &          \\  
+second     & $\mathcal{O}(h^4)$ &-1/12  & 4/3      &-5/2 & 4/3   & -1/12      
+  \end{tabular}
+\caption{Fornberg's filters coefficients used in the convergence error analysis.}
+\label{tab:coeff}
+\end{table}
+
+To test the convergence, I used a know function
+\[
+ u(x,z,\omega=0) = 4\sin(4\pi x)\sin(4\pi z) \mbox{ }\forall x,z\in \Omega =(0,2)\times(0,2)
+\]
+shown in Figure~\ref{fig:known}.
+
+Tables~\ref{tab:rate2} and~\ref{tab:rate4} show the results for the convergence, both of them
+approaches to the expected rates.
+
+To compute the error, I used the $L_2$ norm:
+\[
+L_2 = ||U(x_n,z_m)-u(x_n,z_m)||_{L_2} = \sqrt{\frac{1}{NM}\sum_n\sum_m (U(x_n,z_m)-u(x_n,z_m))^2}
+\]
+where $U$ is the computed solution.
+
+The rate is computed as $r = \log(e_h/e_{2h})/\log(2)$ and $r = \log(e_h/e_{4h})/\log(2)$, respectively.
+
+\begin{table}
+\centering
+  \begin{tabular}{c c c c}
+  N&     h     &     r     &     e        \\ \hline
+ 26& 0.08000000&  --       & 0.019021662  \\
+ 51& 0.04000000& 1.81205972& 0.0054170659 \\
+101& 0.02000000& 1.91133210& 0.0014401105 \\ 
+201& 0.01000000& 1.95731802& 0.00037083814
+  \end{tabular}
+\caption{Convergence analysis for second order filters. Note that the rate converges to 2. I use $N=Nx=Nz$.}
+\label{tab:rate2}
+\end{table}
+
+
+\begin{table}
+\centering
+  \begin{tabular}{c c c c}
+  N&     h     &     r     &     e        \\ \hline
+ 13& 0.16000000& --        & 0.046950859  \\ 
+ 51& 0.04000000& 3.23384926& 0.0049906592 \\
+201& 0.01000000& 3.86656567& 0.00034214143\\
+801& 0.00250000& 3.96873277& 2.1852345e-05
+  \end{tabular}
+\caption{Convergence analysis for fourth order filters. Note that the rate converges to 4. I use $N=Nx=Nz$.}
+\label{tab:rate4}
+\end{table}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{Fig/known.pdf}
+\caption{known function used for error analysis}
+\label{fig:known}
+\end{figure}
+
+
+\section{Realistic tests}
+I tested the code using the Pluto model~\cite{Pluto}. The Pluto synthetic model (Figure~\ref{fig:Pluto}) was developed to
+benchmark migration and multiple\footnote{multiples are strong reflections from the free surface ($z=0$).} 
+attenuation algorithms. This model mimics the geology of a Gulf of Mexico play.  
+
+I test the solver injecting the $10Hz$ response of the source function in Figure~\ref{fig:source} at $\xx_s = ( 16.,  0.05)Km$.
+I do two tests: one with free surface (problem in equation~\ref{eq:profree}) and one with absorbing boundaries at $z=0$ (problem in 
+equation~\ref{eq:profree}).
+
+\begin{figure}
+\includegraphics[width=1.0\textwidth]{Fig/Pluto.pdf}
+\caption{The Pluto velocity model.}
+\label{fig:Pluto}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\subfloat[]{\includegraphics[width=0.5\textwidth]{Fig/twav.pdf}}
+\subfloat[]{\includegraphics[width=0.5\textwidth]{Fig/wwav.pdf}}
+\caption{Time (a) and frequency (b) domain representation of the source function $s(t)$.}
+\label{fig:source}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1.\textwidth]{Fig/free10Hz.pdf}
+\caption{Response for $w=2\pi f$, $f=10Hz$ for free surface (without PML at $z=0$), which implements the model in Figure~\ref{fig:domain}b. The top panel
+        shows the real part, and the bottom shows the imaginary part.}
+\label{fig:free}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=1.\textwidth]{Fig/abc10Hz.pdf}
+\caption{Response for $w=2\pi f$, $f=10Hz$ for absorbing boundary at $z=0$, which implements the model in Figure~\ref{fig:domain}c.The top panel
+        shows the real part, and the bottom shows the imaginary part. Note how this wavefield is simpler than the one with free surface.}
+\label{fig:free}
+\end{figure}
+
+
+\section{Conclusions}
+I have developed a Helmholtz solver for inhomogeneous medium (spatially variable). I implemented
+the solver such that it could work with an arbitrary accuracy for the spatial derivatives. The 
+tests for free surface and absorbing BC at the surface produced coherent results.
+The error analysis demonstrated the correct convergence for second and fourth order. Although
+not shown here, the rate should convergence for high order filters.
+
+\bibliographystyle{plain}
+\bibliography{biblio} 
+\end{document}

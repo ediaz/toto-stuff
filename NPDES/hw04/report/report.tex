@@ -1,0 +1,1018 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{setspace,enumerate}
+
+\usepackage{graphicx,caption,subfig}
+
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\doublespacing
+
+
+\def\dt{\dt}
+\def\dxs{{\delta x}^2}
+\def\heq{\frac{\partial u}{\partial t} -a\frac{\partial^2 u}{\partial x^2}}
+
+\def\du#1#2{\frac{\partial^{#2} u}{\partial{#1}^{#2}}}
+
+\def\dut#1{\frac{\partial u}{\partial {#1}}}
+
+\def\exp#1{\mathbf{e}^{#1}}
+\def\uk#1#2#3{{ U}^{#1}_{#2,#3}}
+\def\ukk#1{{\bf U}^{#1}}
+
+\author{Esteban D\'{i}az}
+\title{2D implementation of the diffusion and wave equations}{}
+
+\begin{document}
+\input{./pcsmacros}
+
+\maketitle
+
+\section{2D diffusion equation}
+
+Here, we want to solve the homogeneous 2D diffusion equation:
+
+\beq
+\frac{\partial u}{\partial t} -0.5\nabla^2u = 0,\text{    in  } \Omega^2=(0,1)\times(0,1),\forall \text{  } t>0
+\label{eq:poisson}
+\eeq
+with boundary data:
+\beq
+u(x,y,t) = \sin(c\pi x)\cos(c\pi y) \exp{-c^2\pi^2t}
+\label{eq:boundary}
+\eeq
+and initial state:
+\beq
+u(x,y,0) = \sin(c\pi x)\sin(c\pi y),\text{    with } c \in (0,5] 
+\label{eq:heqin}
+\eeq
+
+This problem represents the diffusion of an initial temperature profile over time. We
+should expect that the energy of the solution decays fast over time.
+
+\subsection{Grid discretization}
+One can discretize the problem described in 
+equations~\ref{eq:poisson}-\ref{eq:heqin} in the following grid:
+\[
+x_n = hi, i = 0,1,2,...,Nx=N
+\]
+\[
+y_n = hj, j = 0,1,2,...,Ny=N
+\]
+\[
+t_m = {dt} k, k = 0,1,2,...,M
+\]
+with $h = 1/N$ and $dt=0.1/M$,
+from which we have to solve for $U^k_{i,j}$ with $i=1,N-1$, $j=1,N-1$ and $k=1,M$.
+
+
+Each time-step $k$ can be represented as shown in table~\ref{tab:2darray}.
+The model can be rearranged as a 1D vector for of the same 2D space as shown
+in equation~\ref{eq:2darray_vform}.
+
+
+\begin{table}
+\centering
+  \begin{tabular}{|c | c | c | c|}
+\hline
+$U_{1,1}$  &  $U_{1,2}$  & $\dots$  & $U_{1,N-1}$ \\  \hline
+$U_{2,1}$  &  $U_{2,2}$  & $\dots$  & $U_{2,N-1}$ \\  \hline 
+$\vdots$   &  \dots  & \dots    & $\vdots$    \\  \hline
+$U_{N-1,1}$  &  $U_{N-1,2}$  & \dots  & $U_{N-1,N-1}$ \\  \hline
+  \end{tabular}
+\caption{representation of $U^k$ as a 2D array}
+\label{tab:2darray}
+\end{table}
+
+ \begin{equation}
+\mathbf{U^k}=
+ \begin{pmatrix}
+  U^k_{1,1} \\
+  U^k_{1,2} \\
+  \vdots   \\
+  U^k_{1,N-1} \\
+  U^k_{2,1} \\
+  U^k_{2,2} \\
+  \vdots  \\ 
+  U^k_{N-1,N-1} \\
+ \end{pmatrix}_{(N-1)^2},
+\label{eq:2darray_vform}
+\end{equation}
+
+
+\subsection{Solution}
+To solve the problem described in equations (1)-(3), I use the Crank-Nicolson
+method, which give us second order accuracy in both space and time.
+
+Let 
+\[
+L = \delta x^2+ \delta y^2
+\]
+be the second order discrete representation of the 
+Laplacian $\nabla^2$ operator, then the application of this operator to a given $U^k$ is:
+
+\[
+h^2 L U^k = \uk{k}{i-1}{j}-2\uk{k}{i}{j}+\uk{k}{i+1}{j} + \uk{k}{i}{j-1}-2\uk{k}{i}{j}+\uk{k}{i}{j+1}.
+\]
+
+Then, the C-N solution for equations (1)-(3) can be written as:
+\[
+\frac{\ukk{k} -\ukk{k-1}}{\dt} -\frac{a}{2h^2}\left[ L\ukk{k-1}+L\ukk{k} \right] =0
+\]
+
+We can also represent the negative of the operator $L$ in matrix form as:
+
+\[
+-{\bf L} = {\bf I}\otimes {\bf B_h} +{\bf B_h}\otimes {\bf I}.
+\]
+The above matrix is SPD.
+
+With 
+\begin{equation}
+\mathbf{B_h}=\frac{1}{h^2}
+ \begin{pmatrix}
+  2       & -1      &  0      & 0  \\
+  -1      &  2      & \ddots  & 0  \\
+  0       & \ddots  & \ddots  & -1 \\
+  0       &  0      &  -1     &  2  
+ \end{pmatrix}_{N-1,N-1},
+\label{eq:B}
+\end{equation}
+
+and $\bf I$ being the identity matrix. Matrix $-\bf L$ is a block diagonal matrix:
+
+\begin{equation}
+-\mathbf{L}=
+ \begin{pmatrix}
+  {\bf B_h} & 1      &  0      & 0  \\
+  0      &   {\bf B_h}      & \ddots  & 0  \\
+  0       & \ddots  & \ddots  & 0 \\
+  0       &  0      &  0     &  {\bf B_h}   
+ \end{pmatrix}_{(N-1)^2,(N-1)^2}+\frac{1}{h^2}
+ \begin{pmatrix}
+  2I       & -I      &  0      & 0  \\
+  -I      &  2I      & \ddots  & 0  \\
+  0       & \ddots  & \ddots  & -I \\
+  0       &  0      &  -I     &  2I  
+ \end{pmatrix}_{(N-1)^2,(N-1)^2}
+\end{equation},
+
+so the solution can be written as:
+\[
+\frac{\ukk{k} -\ukk{k-1}}{\dt} +\frac{a}{2h^2}\left[ \bf L\ukk{k-1}+\bf L\ukk{k} \right] =0.
+\]
+
+Let $\alpha = \frac{a\dt}{2h^2}$, then:
+\[
+\left( \bf I +\frac{\alpha}{2} \bf L \right) \ukk{k} = \left(I -\frac{\alpha}{2} \bf L\right) \ukk{k-1}
+\]
+I now introduce the boundary data vector $\bf C$ which contains the data not added in the Laplacian operator at the
+boundaries for $k$ and $k-1$:
+\beq
+\left( \bf I +\frac{\alpha}{2} \bf L \right) \ukk{k} = \left(I -\frac{\alpha}{2} \bf L\right) \ukk{k-1} +\bf C
+\label{eq:ls}
+\eeq
+
+The boundary data can be represented as a 2D array and then reshaped to 1D, the 2D representation is shown in table~\ref{tab:C2darr}. 
+
+\begin{table}
+\centering
+  \begin{tabular}{|c | c | c | c|}
+\hline
+$\uk{k}{1}{1}+\ukk{k-1}{1}{1}$    & $\uk{k}{1}{2}+\uk{k-1}{1}{2}$  & $\dots$  &$\uk{k}{1}{N-1}+\uk{k-1}{1}{N-1}$ \\  \hline
+$\uk{k}{2}{1}+\uk{k-1}{2}{1}$    &  0  & $\dots$  & $\uk{k}{2}{N-1}+\uk{k-1}{2}{N-1}$ \\  \hline 
+$\uk{k}{3}{1}+\uk{k-1}{3}{1}$    &  0  & $\dots$  & $U_{3,N-1}$ \\  \hline 
+$\vdots$   &  \dots  & \dots    & $\vdots$    \\  \hline
+$\uk{k}{N-1}{1}+\uk{k-1}{N-1}{1}$ & $\uk{k}{N-1}{2}+\uk{k-1}{N-1}{2}$  & \dots  & $\uk{k}{N-1}{N-1}+\uk{k-1}{N-1}{N-1}$ \\  \hline
+  \end{tabular}
+\caption{representation of $C^k$ as a 2D array}
+\label{tab:C2darr}
+\end{table}
+
+The lhs of equation~\ref{eq:ls} is SPD, and therefore an unique solution exist and can be efficiently solved.
+
+\subsection{Truncation error}
+Similar to the 1D case presented in homework 1, the truncation error can be written as:
+
+\begin{equation}
+  \begin{split}
+  \tau^{C-N} (x,y,t)=& \left[\dut{t}(x,y,t)+\frac{1}{6}\dut{t}(x,y,t)\left(\frac{\dt}{2}\right)^2\right] +\mathcal{O}({\dt}^2)  \\
+                   &-\frac{a}{2} \left[\du{x}{2}(x,y,t+0.5\dt)+\frac{1}{12}\du{x}{4}(x,y,t+0.5\dt)h^2 +\mathcal{O}({h}^4)\right]  \\
+                   &-\frac{a}{2} \left[\du{x}{2}(x,y,t-0.5\dt)+\frac{1}{12}\du{x}{4}(x,y,t-0.5\dt)h^2 +\mathcal{O}({h}^4)\right] \\
+                   &-\frac{a}{2} \left[\du{y}{2}(x,y,t+0.5\dt)+\frac{1}{12}\du{y}{4}(x,y,t+0.5\dt)h^2 +\mathcal{O}({h}^4)\right]  \\
+                   &-\frac{a}{2} \left[\du{y}{2}(x,y,t-0.5\dt)+\frac{1}{12}\du{y}{4}(x,y,t-0.5\dt)h^2 +\mathcal{O}({h}^4)\right] \\
+                   & -\du{t}{}(x,t)+a\du{x}{2}(x,y,t)+a\du{y}{2}(x,y,t)
+  \end{split}
+\end{equation}
+
+As we can see, the space derivatives are shifted $\pm 0.5\dt$, this comes from the fact that we did an averaging operation (inherent 
+to the method). Therefore, we have to introduce the truncation error of the average:
+\[
+\frac{1}{2}\left[ W(t+0.5\dt)+W(t-0.5\dt)\right]=W(t) +\frac{1}{8}\dt^2W^{''}(t) + \mathcal{O}(\dt^4)
+\]
+
+Then,
+\begin{equation}
+  \begin{split}
+  \tau^{C-N} (x,t)= &\frac{1}{24} \du{t}{3}(x,t)\dt^2 + \mathcal{O}(\dt^4) \\  
+                    &-a \left[\du{x}{2}(x,y,t) +\frac{1}{8}\dt^2 \frac{\partial^4u}{\partial t^2\partial x^2}(x,y,t) +\mathcal{O}(\dt^4) +% 
+                      \frac{1}{12}\du{x}{4}(x,y,t)h^2 +\mathcal{O}(\dt^2h^2) \right] \\
+                    &-a \left[\du{y}{2}(x,y,t) +\frac{1}{8}\dt^2 \frac{\partial^4u}{\partial t^2\partial y^2}(x,y,t) +\mathcal{O}(\dt^4) +% 
+                      \frac{1}{12}\du{x}{4}(x,y,t)h^2 +\mathcal{O}(\dt^2h^2) \right] \\
+                    & + a\du{x}{2}(x,y,t) +a\du{y}{2}(x,y,t) = \mathcal{O}(\dt^2+h^2+h^2) 
+  \end{split}
+\end{equation}
+
+\section{Stability analysis of the C-N method}
+
+I will do a stability analysis similar to homework 1.
+
+let $u(x,t) = W(t) \exp{i2\pi p x}$ be a solution for the heat equation, then the discretized form is:
+\[
+\uk{k}{x}{y} = W^k \exp{i2 \pi p_x x_n}\exp{i2 \pi p_y y_n}
+\]
+
+We can later construct a general solution by linearly combining many Fourier modes $p_x,p_y$.
+
+Now we introduce the solution in the heat equation solved by the C-N method:
+\begin{equation}
+  \begin{split}
+   & \frac{W^{k+1}-W^k}{\dt}\exp{i2 \pi p_x x}\exp{i2 \pi p_y y} \\
+   & -\frac{a}{2h^2}\left(W^k+W^{k+1}\right)\exp{i2 \pi p_y y}\left[\exp{i2\pi p_x x_{n+1}}-2\exp{i2\pi p_x x_n} + \exp{i2\pi p_x x_{n-1}}\right] \\
+   & -\frac{a}{2h^2}\left(W^k+W^{k+1}\right)\exp{i2 \pi p_x x}\left[\exp{i2\pi p_y y_{n+1}}-2\exp{i2\pi p_y y_n} + \exp{i2\pi p_y y_{n-1}}\right] = 0
+  \end{split}
+\end{equation}
+This then becomes:
+\begin{equation}
+  \begin{split}
+  &\frac{W^{k+1}-W^k}{\dt} \\
+  &-\frac{a}{2h^2}\left(W^k+W^{k+1}\right)\left[\exp{i2\pi p_x h}-2+ \exp{-i2\pi p_x h}\right] \\ 
+  &-\frac{a}{2h^2}\left(W^k+W^{k+1}\right)\left[\exp{i2\pi p_y h}-2+ \exp{-i2\pi p_y h}\right] = 0
+  \end{split}
+\end{equation}
+\begin{equation}
+  \frac{W^{k+1}-W^k}{\dt}% 
+  +\frac{\alpha}{2}\left(W^k+W^{k+1}\right)4\sin^2(2\pi p_x h)% 
+  +\frac{\alpha}{2}\left(W^k+W^{k+1}\right)4\sin^2(2\pi p_x h) = 0  
+\end{equation}
+
+
+\[
+W^{k+1} = W^k \frac{1 -2\alpha\sin^2(2\pi p_x h)-2\alpha\sin^2(2\pi p_y h)}{ 1 +2\alpha\sin^2(2\pi p_x h)+2\alpha\sin^2(2\pi p_y h)}
+\] 
+The denominator is always greater than the numerator; therefore, $|W^{k+1}|<|W^k |$, hence the C-N method is absolutely stable.
+
+
+\subsection{Convergence analysis}
+Equation~\ref{eq:boundary} is the solution for this problem. Therefore, we can use as benchmark for the code. I tested with different
+grid spacing ($h=\dt = 0.02/2^k, k=1,2,3,4$). The convergence rate can be found as:
+$r = \log(e_{2h}/e_h)/\log(2)$.
+
+\begin{table}
+\centering
+  \begin{tabular}{c | c | c | c| c}
+ k        &    N=M    &  h &  error($L_\infty$)       &  r          \\  \hline
+ 1        &   11      & 0.01& 0.0049661009&  -- \\
+2&   21& 0.0050& 0.0026126372& 0.92660676 \\ 
+3&   41& 0.0025& 0.00069737615&  1.9054979 \\
+4&   81& 0.00125000& 0.00017773729&  1.9721906 
+  \end{tabular}
+\caption{Convergence analysis table. }
+\label{tab:table}
+\end{table}
+
+Because of computational limitations I could not run the code for greater k values, however for $k=3,4$ the rate
+approaches to the expected convergence of 2.
+
+
+
+
+
+
+\section{2D Wave equation}
+Here, we want to solve the homogeneous 2D wave equation:
+
+\beq
+\du{t}{2} -4\nabla^2u = 0,\text{    in  } \Omega^2=(0,1)\times(0,1),\forall \text{  } t>0
+\label{eq:wave}
+\eeq
+and initial state:
+\beq
+v(x,y) = \left\{
+     \begin{array}{lr}
+       \cos^2\left(\frac{\pi}{2}\frac{\sqrt{(x-0.5)^2+(y-0.5)^2}}{R}\right)  & : \sqrt{(x-0.5)^2+(y-0.5)^2} \leq R  \\
+       0 & : R< \sqrt{(x-0.5)^2+(y-0.5)^2}.
+     \end{array}
+   \right.
+\eeq
+
+
+This problem mimics a membrane exited at $t=0$ without further energy introduced into the system. There is no
+energy loss in this problem; therefore, the membrane should vibrate forever.
+
+The grid discretization is exactly as the diffusion problem. 
+
+\subsection{Solution}
+In order to achieve second order convergence in space and time, I discretized the problem using $\dt^2$ and $\delta x^2$ operators.
+Therefore, equation~\ref{eq:wave} can be written as:
+
+\beq
+\uk{k-1}{i}{j}-2\uk{k}{i}{j}+\uk{k+1}{i}{j} -4\dt \frac{1}{h^2} \left(\uk{k}{i-1}{j}-2\uk{k}{i}{j}+\uk{k}{i+1}{j} + \uk{k}{i}{j-1}-2\uk{k}{i}{j}+\uk{k}{i}{j+1}\right) =0
+\eeq
+
+and hence can be solved explicitly as:
+
+\beq
+\uk{k+1}{i}{j} = 4\dt \frac{1}{h^2} \left(\uk{k}{i-1}{j}-2\uk{k}{i}{j}+\uk{k}{i+1}{j} + \uk{k}{i}{j-1}-2\uk{k}{i}{j}+\uk{k}{i}{j+1}\right) -\uk{k-1}{i}{j}+2\uk{k}{i}{j}
+\eeq
+
+Since this is a three level implementation, in order to start the solution we need  $U^0_{i,j} = v(ih,jh)$, and $U^1_{i,j}$. To solve for $U^1_{i,j}$ we can
+make use of the Taylor expansion:
+\[
+U^1_{i,j} = U^0_{i,j} +\dt \dut{t}(x,y,0) +\frac{\dt^2}{2} \du{t}{2}(x,y,0) + \mathcal{O}(\dt^4)
+\]
+
+In this problem $ \dt \dut{t}(x,y,0) =0$. We know that $ \du{t}{2}(x,y,0) = c^2\nabla^2u(x,y,0)=c^2\nabla^2v(x,y,0) \approx c^2 LU^0_{i,j} +\mathcal{O}(\dx^2)$. Therefore,
+\beq
+U^1_{i,j} = U^0_{i,j} +\frac{\dt^2}{2} c^2 LU^0_{i,j}+ \mathcal{O}(\dt^4)
+\label{eq:u1}
+\eeq
+
+We now can solve for $U^k_{i,j}, k=2,...,M; i=1,...,N-1; j=1,...,N-1$.
+
+This FD explicit method is subject to the CFL condition, which is necessary but not sufficient for stability. The CFL condition imposes the following 
+restriction over the grid:
+\beq
+  c\frac{\dt}{h} \leq 1,
+\eeq
+which for our case implies $\dt \leq \frac{h}{c} $.
+
+\subsection{Truncation error}
+In this case the truncation error is more simpler, and can be written as:
+\begin{equation}
+  \begin{split}
+  \tau^{C-N} (x,y,t)=& \left[\du{t}{2}(x,y,t)+\frac{1}{12}\du{t}{4}(x,y,t)\left(\frac{\dt}{2}\right)^2\right] +\mathcal{O}({\dt}^4)  \\
+                   &-c^2 \left[\du{x}{2}(x,y,t)+\frac{1}{12}\du{x}{4}(x,y,t)\left(\frac{\dx}{2}\right)^2 +\mathcal{O}({\dx}^4) \right]  \\
+                   &-c^2 \left[\du{y}{2}(x,y,t)+\frac{1}{12}\du{y}{4}(x,y,t)\left(\frac{\dy}{2}\right)^2 +\mathcal{O}({\dy}^4) \right]  \\
+                   & -\du{t}{2}(x,y,t)+c^2\du{x}{2}(x,y,t)+c^2\du{y}{2}(x,y,t) \\
+                   =& \mathcal{O}(\dt^2+h^2+h^2) 
+  \end{split}
+\end{equation}
+
+\subsection{Stability analysis}
+
+We can introduce a solution using Fourier modes of the form:
+\[
+\uk{k}{x}{y} = W^k \exp{i2 \pi p_x x_n}\exp{i2 \pi p_y y_n},
+\]
+similar to problem 1. 
+
+Both problems are similar, the only difference is in the time discretization:
+
+
+\begin{equation}
+  \begin{split}
+   & \frac{W^{k+1}-2W^k+W^{k-1}}{\dt^2}\exp{i2 \pi p_x x}\exp{i2 \pi p_y y} \\
+   & -\frac{c^2}{h^2}W^k\exp{i2 \pi p_y y}\left[\exp{i2\pi p_x x_{n+1}}-2\exp{i2\pi p_x x_n} + \exp{i2\pi p_x x_{n-1}}\right] \\
+   & -\frac{c^2}{h^2}W^k\exp{i2 \pi p_x x}\left[\exp{i2\pi p_x y_{n+1}}-2\exp{i2\pi p_y y_n} + \exp{i2\pi p_y y_{n-1}}\right] = 0
+  \end{split}
+\end{equation}
+This then becomes:
+\begin{equation}
+   W^{k+1}= 2W^k\left(1-\frac{c^2\dt^2}{2h^2}\left[ \sin^2(2\pi p_x h)+\sin^2(2\pi p_y h) \right]\right)-W^{k-1}
+\label{eq:weqk}
+\end{equation}
+
+to prove stability we need $|W^{k+1}| \leq |W^{k}|$.
+Using equation~\ref{eq:u1} we can obtain $W^1$:
+\beq
+W^1 = W^0(1 -\frac{c^2\dt^2}{2h^2}\left[ \sin^2(2\pi p_x h)+\sin^2(2\pi p_y h) \right]).
+\label{eq:weq1}
+\eeq
+Let $P = (1 -\frac{c^2\dt^2}{2h^2}\left[ \sin^2(2\pi p_x h)+\sin^2(2\pi p_y h) \right])$. 
+Then, introducing equation~\ref{eq:weq1} in~\ref{eq:weqk} we obtain:
+\[
+W^{2} = W^0(P^2 -1).
+\]
+If the CFL condition is satisfied, then $0\leq P \leq 1$.
+Therefore,
+\[
+|W^2| = |W^0||(P^2-1)| \leq |W^0|
+\]
+Therefore, the method is stable if and only if the CFL condition is satisfied.
+
+
+\subsection{Convergence analysis}
+I generated an ``exact solution'' using a very fine grid $\dt = .000625, h = 4\dt$. I then,
+generated other solutions by varying only $h$. I did this because in this way I know
+that since the temporal grid is the same, I can compare the solutions at $(x,y)=(0.5,0.5)$.
+Since I am keeping $\dt$ constant, I expect the error to be proportional to:
+\[
+e \propto \mathcal{O}(\dx^2), 
+\]
+because the error from the temporal grid is the same in both ``u exact'' and $u_h$. 
+
+I implemented the code in Python, which is not very efficient, so I could not test
+other approaches (varying both $\dt$ and $h$) in a timely manner. I am sure that my implementation
+is correct, because the propagation is stable and satisfies the expected behaviour for the
+vibrating membrane. 
+
+For the last case $N=201$ the convergence approaches to $2$. I might need to run 
+the code for other grids, and produce a better ``u exact''. I think it will converge to
+ the right rate, I just could not test it due to the extensive computing.
+
+
+\begin{table}
+\centering
+  \begin{tabular}{c | c | c | c| c}
+ N        &    M    &  h &  error($l_2$)       &  r           \\  \hline
+25        & 1601    & 1/24  & 0.00163644115806 & --           \\
+51        & 1601    & 1/60  & 0.000476440841329& 1.78019273404 \\ 
+101       & 1601    & 1/100 & 0.000153565044924 & 1.63344722726 \\ 
+201       & 1601    & 1/200 & 4.21993310577e-05 & 1.86355782687
+  \end{tabular}
+\caption{Error analysis}
+\label{tab:table2}
+\end{table}
+
+
+
+
+\section{results}
+
+\subsection{Diffusion problem}
+
+Here I plot some snapshots of the movie. The field diffuses as expected.
+
+\begin{figure}
+  \includegraphics[width=0.8\textwidth]{Fig/heq/frame-it00.png}
+\caption{Diffusion problem solution $t=0.0$}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=0.8\textwidth]{Fig/heq/frame-it05.png}
+\caption{Diffusion problem solution $t=0.025$}
+\end{figure}
+\begin{figure}
+  \includegraphics[width=0.8\textwidth]{Fig/heq/frame-it10.png}
+\caption{Diffusion problem solution $t=0.050$}
+\end{figure}
+
+
+
+\begin{figure}
+  \includegraphics[width=0.8\textwidth]{Fig/heq/frame-it15.png}
+\caption{Diffusion problem solution $t=0.075$}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=0.8\textwidth]{Fig/heq/frame-it20.png}
+\caption{Diffusion problem solution at the terminal time $t=0.1$}
+\end{figure}
+
+
+\subsection{Wave problem}
+
+Here I plot some snapshots of the movie. The problem behaves as expected.
+
+\begin{figure}
+  \includegraphics[width=0.8\textwidth]{Fig/weq/frame-it00.png}
+\caption{Wavefield snapshot}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=0.8\textwidth]{Fig/weq/frame-it08.png}
+\caption{Wavefield snapshot}
+
+\end{figure}
+\begin{figure}
+  \includegraphics[width=0.8\textwidth]{Fig/weq/frame-it16.png}
+\caption{Wavefield snapshot}
+
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=0.8\textwidth]{Fig/weq/frame-it24.png}
+\caption{Wavefield snapshot}
+
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=0.8\textwidth]{Fig/weq/frame-it32.png}
+\caption{Wavefield snapshot}
+
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=0.8\textwidth]{Fig/weq/frame-it40.png}
+\caption{Wavefield snapshot}
+
+\end{figure}
+
+
+\section{Codes}
+
+\subsection{Diffusion code}
+The main code is in 'hw04\_heq.py' which calls the plotting an convergence tests routines.
+The main class (which is here) is in heat2dequation.py.
+
+\begin{verbatim}
+import numpy as np
+from scipy import *
+from scipy.sparse import dia_matrix,linalg,kron
+
+
+class CrankNicolson2d:
+
+  def __init__(self,g,N,c=2.5,a=0.5,jsnap=10):
+    self.nt = N  # number of grid points
+    self.ot = 0.
+    self.dt = .1/(N-1)
+    self.ntsnap = N/jsnap+1
+    self.dtsnap = self.dt*jsnap
+
+    self.ox = 0.
+    self.nx = int(1./self.dt)+1
+    self.dx = self.dt
+
+    self.oy = 0.
+    self.ny = self.nx
+    self.dy = self.dx
+
+    self.jsnap = jsnap # how many snapshots to avoid for the movie?
+    self.n = self.nx-2 # number of unknowns within the domain
+    self.g = g
+    self.a = a # conductivity
+    self.c = c
+    self.alpha =  self.a*self.dt/(self.dx*self.dx)
+
+    self.um1  = np.zeros(self.n*self.n)    
+    self.u0   = np.zeros(self.n*self.n)    
+    self.utmp = np.zeros(self.n*self.n)    
+    self.umovie = np.zeros((self.ntsnap,self.nx,self.nx)) 
+    self.umovex = np.zeros((self.ntsnap,self.nx,self.nx)) 
+    self._fillbounds()
+    print 'nt = %d   nx = %d  ny = %d'%(self.nt,self.nx,self.ny)
+
+  def solve(self):
+    self._fillt0()
+    A = self._getA()
+    self._Arhs()
+    u = np.reshape(self.um1,(self.n,self.n))
+    isnap = 0
+    self.umovie[isnap,1:self.nx-1,1:self.ny-1] = u
+    for it in range(1,self.nt,1):
+
+      b = self._rhs(it)       
+      self.u0 = linalg.spsolve(A,b) # linear solver for sparse A
+      if ((it)%self.jsnap == 0):
+        print '%d/%d'%(it,self.nt)
+        isnap+=1
+        u = np.reshape(self.u0,(self.n,self.n))    
+        self.umovie[isnap,1:self.nx-1,1:self.ny-1] = u
+      self.um1 = self.u0  # swap pointers 
+      self.u0 = np.zeros(self.n*self.n)
+    return self.umovie
+
+  # private methods:
+  def _fillt0(self):
+    d = self.dx
+    n = self.n
+    y = x = np.linspace(d,1.-d,n)
+    self.um1 = np.reshape(self.um1,(n,n))
+    for ix in range(n):  
+      for iy in range(n):  
+        self.um1[ix,iy] = self.g(self.c,x[ix],y[iy],0.) 
+    self.um1 = np.reshape(self.um1,(n*n))
+
+  def _getA(self,lhs=True):
+    '''
+    gets the left hand side of the linear system of 
+    equations.
+    If lhs=False it returns the matrix needed     
+    in the right hand side
+    '''
+    n = self.n
+    n2 = n*n
+    bh = self._laplace() 
+    I  = dia_matrix((ones(n2),array([0])),shape=(n2,n2))
+    if lhs:
+      A = I + 0.5*self.alpha*bh
+    else:
+      A = I - 0.5*self.alpha*bh
+    return A
+
+  def _laplace(self):
+    '''
+    construct Laplace operator as a matrix
+    based on user input filter.
+    Actually this matrix can be thought
+    as a convolution operator:
+    f(x,z)*U(x,z)
+    '''
+    f=[-1.,2.,-1.]
+    nx = nz = self.n
+    nf = len(f)
+    nonzero = np.ones((nf,nx))
+    for i in range(nf):
+      nonzero[i] *=f[i]
+    offsets = array(range(nf/2,-nf/2 ,-1))
+  
+    m1 = dia_matrix((nonzero,offsets),shape=(nx,nx))
+    m2 = identity(nz)
+    k1 = kron(m1,m2)
+    nonzero = np.ones((nf,nz))
+    for i in range(nf):
+      nonzero[i,:] *=f[i]
+    m1 = dia_matrix((nonzero,offsets),shape=(nz,nz))
+    m2 = identity(nx)
+    k2 = kron(m2,m1)   
+    return k1+ k2
+
+  def _gett(self,it):
+    return it*self.dt +self.ot
+
+  def _getx(self,ix):
+    return ix*self.dx +self.ox
+
+  def _Arhs(self):
+    self.Arhs = self._getA(False)
+
+  def _rhs(self,it):
+    um1 = self.um1 
+    b = self.Arhs*um1 
+    t0 = self._gett(it) 
+    tm1 = self._gett(it-1) 
+    b += 0.5*self.alpha*(self._g1(t0)+self._g1(tm1))
+    return b
+
+  def _fillbounds(self):
+    '''
+    this method introduces the boundary data
+    '''
+    x = np.linspace(0.,1.,self.nx)
+    y = np.linspace(0.,1.,self.nx)
+
+    for it in range(len(self.umovie)):
+      t = self.ot +it*self.dt*self.jsnap 
+      for iy in range(self.ny):
+        yy = y[iy]
+        self.umovie[it,0,iy] = self.g(self.c,0,yy,t)
+        self.umovie[it,self.nx-1,iy] = self.g(self.c,x[self.nx-1],yy,t)
+
+      for ix in range(self.nx):
+        xx = x[ix]
+        self.umovie[it,ix,0] = self.g(self.c,xx,0,t)
+        self.umovie[it,ix,self.ny-1] = self.g(self.c,xx,y[self.ny-1],t)
+
+  
+  def _g1(self,t):
+    n = self.n
+    c = self.c
+    u = np.zeros((n,n))
+    ux = np.zeros(n)
+    uy = np.zeros(n)
+    d = 1./(n+1)
+    y = x = np.linspace(d,1.-d,n)
+    ux0 = self.g(self.c,x,0.,t) 
+    ux1 = self.g(self.c,x,1.,t) 
+    u0y = self.g(self.c,0.,y,t) 
+    u1y = self.g(self.c,1.,y,t)
+ 
+    for ix in range(n):
+      u[ix,0  ] = ux0[ix]
+      u[ix,n-1] = ux1[ix]
+
+    for iy in range(n):
+      u[n-1,iy] += u1y[iy]
+      u[0  ,iy] += u0y[iy]
+    return np.reshape(u,n**2)
+
+
+  def uexact(self):
+    jsnap = self.jsnap
+    x = np.linspace(0.,1.,self.nx)   
+    y = np.linspace(0.,1.,self.ny)   
+    t = np.linspace(0.,.1,self.ntsnap)   
+ 
+    x,y = np.meshgrid(x,y) 
+    umov = np.zeros((self.ntsnap,self.nx,self.ny))
+    for it in range(self.ntsnap):
+      umov[it] = self.g(self.c,x,y,t[it])
+    return umov
+  
+\end{verbatim}
+
+Here is the main code for the diffusion problem:
+\begin{verbatim}
+import numpy as np
+import heat2dequation as heq
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+import matplotlib.cm as cm
+from mpl_toolkits.mplot3d import Axes3D
+import os
+
+def surf(u1,obj,figname):
+  nx = obj.nx
+  ny = obj.ny
+  X = np.linspace(0.,1.,nx)
+  Y = np.linspace(0.,1.,ny)
+  X, Y = np.meshgrid(X, Y)
+  fig = plt.figure()
+  ax = fig.gca(projection='3d')
+  surf = ax.plot_surface(X, Y, u1, rstride=10, cstride=10, cmap=cm.coolwarm,
+        linewidth=0, antialiased=False)
+  ax.set_zlim(-1.01, 1.01)
+  fig.savefig(figname)
+
+
+def plot_side(u1,u2,fn):
+  scale = 1. 
+  fig = plt.figure(fn)
+  ax1  = fig.add_subplot(1,2,1)
+  ax1.imshow(u1,vmin=-scale,vmax=scale)
+  ax2  = fig.add_subplot(1,2,2)
+  ax2.imshow(u2,vmin=-scale,vmax=scale)
+
+def error(u,u1):
+  n3 = len(u)
+  n2 = len(u[0])
+  n1 = len(u[0,0])
+
+  e = (abs(u-u1)).max()
+  return e
+
+def g(c,x,y,t):
+  return np.sin(np.pi*c*x)*np.sin(np.pi*c*y)*np.exp(-c*c*np.pi*np.pi*t)
+
+
+#######################################################################
+# Here I create the movie frames for diffusion example
+N = 101
+c = 2.5
+outfile1 = 'solution-N%03d-C%3.1f.npy'%(N,c)
+outfile2 = 'exact-N%03d-C%3.1f.npy'%(N,c)
+modeling = 'heq/'
+folder  = 'solutions/'
+
+if not os.path.exists(folder+modeling+outfile1):
+  CN2d = heq.CrankNicolson2d(g,N,c=c,jsnap=5)
+  u = CN2d.solve()
+  uex = CN2d.uexact() 
+  np.save(folder+modeling+outfile1,u)
+  np.save(folder+modeling+outfile2,uex)
+  movieframesdir = folder+modeling+'movieN%03d-C%3.1f'%(N,c)
+  os.makedirs(movieframesdir)
+  for it in range(len(u)):
+    figname = movieframesdir+'/frame-it%02d.png'%it
+    figname2 = movieframesdir+'/frameex-it%02d.png'%it
+    surf(u[it],CN2d,figname)  
+    surf(uex[it],CN2d,figname2)  
+
+
+nk = 5
+p = ['']*nk
+L2 = 1.
+for k in range(1,nk,1):
+  h = 0.02/2**k
+  N = int(.1/h)+1
+  CN2d = heq.CrankNicolson2d(g,N,c=c,jsnap=5)
+  u = CN2d.solve()
+  uex = CN2d.uexact() 
+  e = error(u,uex)
+  r = np.log(L2/e)/np.log(2)
+  L2 = e
+  print '%d& %4d& %10.8f& %10.8g& %10.8g'%(k,N,h,e,r)
+
+\end{verbatim}
+
+\subsection{Wave code}
+The main code is in 'hw04\_weq.py' which calls the plotting an convergence tests routines.
+The main class (which is here) is in waveequation.py.
+
+\begin{verbatim}
+import numpy as np
+from scipy import *
+
+class Waveequation2d:
+  def __init__(self,v,M,N,R,c=2.,jsnap=10):
+    self.nt = M  # number of grid points
+    self.ot = 0.
+    self.dt = 1./(M-1)
+    self.ntsnap = M/jsnap+1
+    self.dtsnap = self.dt*jsnap
+
+    self.ox = 0.
+    self.nx = N
+    self.dx = 1./(N-1)
+
+    self.ih2 = 1./(self.dx*self.dx)
+
+    self.oy = 0.
+    self.ny = self.nx
+    self.dy = self.dx
+
+    self.jsnap = jsnap # how many snapshots to avoid for the movie?
+
+    self.c = c
+    self.c2 = c*c
+    self.v = v
+    self.R = R
+
+    self.check_CFL()
+
+    self.um1  = np.zeros((self.nx,self.ny))    
+    self.u0   = np.zeros((self.nx,self.ny))    
+    self.up1  = np.zeros((self.nx,self.ny)) 
+    self.utmp = np.zeros((self.nx,self.ny)) 
+    
+    self.umovie = np.zeros((self.ntsnap,self.nx,self.ny)) 
+    self.get_uo()
+    self.get_u1()
+
+  def check_CFL(self):
+    if self.c*(self.dt/self.dx)>1:
+      print "CFL is violated"
+
+  def solve(self):
+    dt2 = self.dt*self.dt
+
+    isnap = 0
+    self.umovie[isnap] = self.um1
+ 
+    for it in range(1,self.nt-1,1):
+      self.laplacian()
+      self.up1 = self.utmp*dt2*self.c2 -self.um1 +2.*self.u0
+
+      # save snapshot to movie
+      if ((it+1)%self.jsnap == 0):
+        isnap+=1
+        self.umovie[isnap] = self.u0
+        #print it,self.nt 
+      # circulate arrays:
+      self.um1 = self.u0
+      self.u0 = self.up1 
+    return self.umovie
+
+  def get_uo(self):
+    x = np.linspace(0.,1.,self.nx)   
+    y = np.linspace(0.,1.,self.ny)  
+
+    for ix in range(self.nx):
+      for iy in range(self.nx):
+        self.um1[ix,iy] = self.v(self.R,x[ix],y[iy])
+
+  def get_u1(self):
+    c2 = self.c2
+    dt = self.dt
+    self.u0 = self.um1 +c2*dt*dt*0.5*self.laplacianu0(self.um1)
+  
+  def laplacian(self):
+    for ix in range(1,self.nx-1,1):
+      for iy in range(1,self.nx-1,1):
+        self.utmp[ix,iy] = self.u0[ix-1,iy] +self.u0[ix+1,iy]+\
+                           self.u0[ix,iy-1] +self.u0[ix,iy+1]-\
+                           4.*self.u0[ix,iy]
+    self.utmp *= self.ih2
+
+  def laplacianu0(self,u):
+    uout = np.zeros((self.nx,self.ny))
+
+    for ix in range(1,self.nx-1,1):
+      for iy in range(1,self.nx-1,1):
+        uout[ix,iy] = u[ix-1,iy] +u[ix+1,iy]+\
+                      u[ix,iy-1] +u[ix,iy+1]-\
+                           4.*u[ix,iy]
+    uout *= self.ih2
+    return uout
+\end{verbatim}
+
+Here is the main code for the wave problem:
+\begin{verbatim}
+import numpy as np
+import waveequation as weq
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+import matplotlib.cm as cm
+from mpl_toolkits.mplot3d import Axes3D
+import os
+
+def surf(u1,obj,title="",figname=None):
+  nx = obj.nx
+  ny = obj.ny
+  X = np.linspace(0.,1.,nx)
+  Y = np.linspace(0.,1.,ny)
+  X, Y = np.meshgrid(X, Y)
+  fig = plt.figure()
+  ax = fig.gca(projection='3d')
+  surf = ax.plot_surface(X, Y, u1, rstride=1, cstride=1, cmap=cm.coolwarm,
+        linewidth=0, antialiased=False)
+  ax.set_zlim(-1.01, 1.01)
+  ax.set_title(title)
+  if not figname == None:
+    fig.savefig(figname)
+
+
+def plot_side(u1,u2,fn):
+  scale = 1. 
+  fig = plt.figure(fn)
+  ax1  = fig.add_subplot(1,2,1)
+  ax1.imshow(u1,vmin=-scale,vmax=scale)
+  ax2  = fig.add_subplot(1,2,2)
+  im2= ax2.imshow(u2,vmin=-scale,vmax=scale)
+  cbar = fig.colorbar(im2)
+
+
+def error(u,u1):
+
+  e = np.sqrt((abs(u-u1)*abs(u-u1)).sum())/len(u)
+  return e
+
+
+def v(R,x,y):
+  cx = 0.5
+  cy = 0.5
+  
+  d = np.sqrt((x-cx)**2+(y-cy)**2)
+  if R >= d:
+    out = np.cos(0.5*np.pi*d/R)
+    out *= out
+  else:
+    out = 0.
+  return out
+
+
+
+
+
+#######################################################################
+# Here I create the movie frames for diffusion example
+N = 1601
+M = (N-1)/4+1
+c = 2.0
+jsnap = 5
+
+
+ 
+outfile1 = 'solution-N%03d-C%3.1f.npy'%(N,c)
+#outfile2 = 'exact-N%03d-C%3.1f.npy'%(N,c)
+modeling = 'weq/'
+folder  = 'solutions/'
+
+if not os.path.exists(folder+modeling+outfile1):
+  weq2d= weq.Waveequation2d(v,N,M,0.3,c=2.,jsnap=jsnap)
+  u = weq2d.solve()
+  np.save(folder+modeling+outfile1,u)
+  movieframesdir = folder+modeling+'movieN%03d-C%3.1f'%(N,c)
+  os.makedirs(movieframesdir)
+  for it in range(len(u)):
+    figname = movieframesdir+'/frame-it%02d.png'%it
+    tit = "t=%5.3f"%(it*weq2d.dt*weq2d.jsnap)
+    surf(u[it],weq2d,title=tit,figname=figname)  
+
+
+#
+nk = 4
+#p = ['']*nk
+#L2 = 1.
+
+ufine = np.load(folder+modeling+outfile1)
+Nf = len(ufine)
+Mf = len(ufine[0])
+#
+#
+uex = ufine[:,Mf/2,Mf/2]
+
+e = np.zeros(nk)
+e[1] = 1.
+k=0
+for n in [25,51,101,201]:
+  N = 1601 
+  M = n
+  Ns = N/jsnap+1
+  Nr = (Nf-1)/(Ns-1)
+  Mr = (Mf-1)/(M-1)
+
+
+  weq2d= weq.Waveequation2d(v,N,M,0.3,c=2.,jsnap=jsnap)
+  umov = weq2d.solve()
+  u = umov[:,M/2,M/2] 
+  print u.shape
+ 
+  e[k] = error(u,uex) 
+  print e[k]
+  k+=1
+
+k=0
+for n in [25,51,101,201]:
+  N = n 
+  M = (N-1)/4+1
+  dt = 1./(N-1)
+  print n,1./(n-1),e[k],np.log(e[k-1]/e[k])/np.log(2)
+  k+=1
+\end{verbatim}
+
+\end{document}

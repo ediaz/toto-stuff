@@ -1,0 +1,324 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{setspace,enumerate}
+\usepackage[font=small,labelfont=bf]{caption}
+
+\usepackage{graphicx,caption,subfig}
+
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\doublespacing
+
+
+\def\dt{\delta t}
+\def\dxs{{\delta x}^2}
+\def\heq{\frac{\partial u}{\partial t} -a\frac{\partial^2 u}{\partial x^2}}
+
+\def\up#1{ #1^{\prime}}
+
+
+\def\intab#1{\int_{\alpha}^{\beta} #1 dx}
+\def\evat{\bigg|_{\alpha}^{\beta}}
+
+\author{Esteban D\'{i}az}
+\title{Galerkin Finite Element Method for the 1D Poisson equation}{}
+
+\begin{document}
+\input{./pcsmacros}
+
+\maketitle
+In this report we concentrate in the solutions for the Poisson equation
+\beq
+-\nabla\cdot(\sigma\nabla u) = g,\text{    in  } \Omega,
+\label{eq:poisson}
+\eeq
+where $\sigma$ satisfies $0<\sigma_{min} \leq\sigma(x) \leq \sigma_{max}$, $\forall x \in \Omega$.
+
+In this report we consider the 1D version of equation~\ref{eq:poisson}. Instead of solving the Poisson equation
+explicitly or implicitly as in FD methods, we solve an equivalent problem which in 1d has the following form:
+\beq
+-\intab{ \up{\left(\sigma\up{u}\right)}v} = \intab{gv},
+\label{eq:peq}
+\eeq
+where $v$ is a test function which belongs to the same space as $u$. In 1D $\Omega =(\alpha,\beta)$
+
+Integrating by parts the left hand side of equation~\ref{eq:peq} results in:
+\beq
+\intab{ \sigma\up{u} \up{v} } - \sigma\up{u}v\evat = \intab{gv}.
+\label{eq:weakform}
+\eeq
+
+Note that solving equation~\ref{eq:weakform} does not require to differentiate $\sigma$ and neither differentiate twice $u$. 
+Therefore, $u$ is required to be once differentiable and so does $v$. A suitable space for $u,v$ is $H^1$. However, depending 
+on the boundary conditions (BC), we might need to restrict the solutions to $H^1_0$. Therefore, for either case
+$u,v$ and $\up{u},\up{v}$ need to have compact support.
+
+We can rewrite equation~\ref{eq:weakform} as:
+\beq
+a(u,v) -\sigma\up{u}{v}\evat = F(v).
+\label{eq:weakform}
+\eeq
+
+Here, $a(u,v) = \intab{ \sigma\up{u} \up{v} }$ is the bilinear form.
+The test function v is arbitrary chosen, it has to be such that $v \in V \subset H^1$ or $v \in V \subset H^1_0$ depending
+on the BC of $u$. In our case we choose as basis the ``hat function''. Therefore,
+\beq
+V  = span\{\phi_j : i=1,2,...,N\}
+\eeq
+
+So, we can write equation~\ref{eq:weakform} as:
+\beq
+a(u,\phi_j) -\sigma\up{u}{\phi_j}\evat = F(\phi_j).
+\label{eq:weakform2}
+\eeq
+
+Since $u \in V$, then we can write it as a linear combination of the functions in $V$, this is:
+\beq
+u_h(x) = \sum_{i=1}^{N} \alpha_i \phi_i(x),
+\label{eq:lin}
+\eeq
+Where $\alpha_i$ are the weights.
+
+Due to the bilinear form of $a(.,.)$ we can rewrite equation~\ref{eq:weakform2} as
+\beq
+\sum_{i=1}^{N} \alpha_i\left(a(\phi_i,\phi_j) -\sigma\up{\phi_i}{\phi_j}\evat\right) = F(\phi_j).
+\label{eq:weakform3}
+\eeq
+
+So, given a discretization of $\Omega = (\alpha,\beta)$ we can have the system of linear equations, which
+reads:
+
+\beq
+  \left( {\bf A} + {\bf B}_1 \right) \vec{\alpha} = \vec{{F}} + \vec{{B}_2},
+\label{eq:general}
+\eeq
+where ${\bf B}_1$ and $\vec{B}_2$ are related to the boundary conditions. This
+stiffness matrix (lhs) is sparse and SPD; therefore, it can be efficiently solved using a Cholesky
+decomposition.
+
+
+Given a discretization of $\Omega$ of the form:
+\[
+\alpha=x_0 < x_1 < x_2 < x_3 < ... < x_{n-1} < x_n = \beta.
+\]
+$\phi_i$ can defined as:
+
+\beq
+\phi_i(x) = \left\{
+     \begin{array}{lr}
+       0  &: \alpha \leq x < x_{i-1} \\
+       \frac{x - x_{i-−1}}{h_i} & : x_{i-1} \leq x < x_{i} \\
+       \frac{x_{i+1}-−x}{h_{i+1}} & : x_{i} \leq x < x_{i+1} \\
+       0  &: x_{i+1}\leq x \leq \beta \\
+     \end{array}
+   \right.
+\eeq
+where $h_i = x_i - x_{i-1}$. Note that $\phi_i(x_i) = 1$.
+
+\begin{figure}
+\includegraphics[width=0.8\textwidth]{fig/basis.pdf}
+\caption{Basis functions $\phi_{i-1}(x),\phi_{i}(x),\phi_{i+1}(x)$.}
+\label{fig:basis}
+\end{figure}
+
+
+Figure~\ref{fig:basis} shows the basis function for 3 contiguous points. Note that 
+for any given interval only two functions exists, and $\phi_{i-1}(x) + \phi_{i}(x) = 1.$.
+
+Once we solve for the weights $\alpha_i$ and having the base $V$ defined,
+\beq
+u_h(x) = \sum_i \alpha_i \phi_i(x).
+\label{eq:uh}
+\eeq
+ If we happen to know the function we want to solve, then we can define an error functional
+based on the $L_2$ norm which reads
+\beq
+\norm{u(x) - u_h(x)} = \sqrt{\intab{(u(x) - u_h(x))^2}}
+\eeq
+
+
+
+\section{Problem 1: Dirichlet BVP}
+
+Here we want to solve:
+\beq
+-\nabla\cdot(\sigma\nabla u) = g,\text{    in  } \Omega=(\alpha,\beta), u=0\text{ on } \delta\Omega 
+\label{eq:Dirichlet}
+\eeq
+where $\sigma$ satisfies the same conditions as in equation~\ref{eq:poisson}.
+
+Since $u(\alpha)=u(\beta)=0$, then we choose a suitable base accordantly. Therefore, in this
+problem $u,v \in V \subset H^1_0$ which means that both $u,v$ vanish at the bounds of the domain.
+
+Considering that we know the endpoints of the discretized domain, we have to solve for 
+$i=1,n$. The system of equations resulting from this BC is:
+\beq
+ {\bf A} \vec{\alpha} = \vec{{F}},
+\label{eq:sdir}
+\eeq
+where ${\bf A}_{ij} = a(\phi_i,\phi_j), i=1,N$.
+
+To further test the method implementation, I do numerical tests. The parameters for the tests are chosen
+such that $u(x) = \sin(x)$:
+\[
+\sigma(x) = x+1,
+\]
+\[
+g(x) = (1+x)\sin(x) -\cos(x)
+\]
+\[
+u(0) = u(\pi) = 0
+\]
+To test the code, I use a regular grid with $n=100$, so $h = \phi/100$. I then evaluate the FEM solution
+following equation~\ref{eq:uh}. Note that evaluating the FEM solution is equivalent to perform a linear
+interpolation between two known points $u_i,u_{i+1}$, so our choice for $V$ acts as a linear interpolant on $\Omega$.
+
+Figure~\ref{fig:fig1} shows the retrieved solution overlay with the true function (top) and the associated error.
+Note that the error is oscillatory, this is due to our choice for the basis function. Basically what we see 
+here is an interpolation error, where the error increases between the inverted control points $x_i$.
+
+I then numerically explore the convergence properties of the method by changing the number of points in the grid:
+$N = 2^k 100, k=0,1,2,3,4$. The results are shown in table~\ref{tab:table1}. The rate was calculated for 
+each k as $r_k = \log(L2_{k-1}/L2_k)/\log(2)$. The rate is close to $r=2$ which is the expected rate given
+the linear interpolant error. 
+
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth]{fig/fig1.png}
+\caption{Overlay of the FEM solution and $u(x)= \sin(x)$ (top), and error $e(x) = u(x)-u_h(x)$ (bottom).}
+\label{fig:fig1}
+\end{figure}
+
+\begin{table}
+\centering
+  \begin{tabular}{c | c | c | c | c}
+k&   N &      h    &     L2    &     rate       \\ \hline
+0&  101& 0.03141593& 0.0001080497&     ---      \\
+1&  201& 0.01570796& 2.703994e-05&  1.9985312   \\
+2&  401& 0.00785398& 6.7599883e-06&  1.9999993  \\
+3&  801& 0.00392699& 1.6899967e-06&  2.0000003  \\
+4& 1601& 0.00196350& 4.2249092e-07&  2.0000282
+  \end{tabular}
+\caption{Convergence analysis for FEM method, problem 1.}
+\label{tab:table1}
+\end{table}
+
+
+
+\section{Problem 2: Dirichlet-Neumman BVP}
+Here we want to solve the problem:
+\beq
+-\nabla\cdot(\sigma\nabla u) = g,\text{    in  } \Omega=(\alpha,\beta), u(\alpha)=0, \up{u}(\beta) =\gamma
+\label{eq:D-N}
+\eeq
+
+Here, $V$ is in $H^1$. The discretization of this problem is the same as the previous one. 
+Here we have $N+1$ unknowns (we only know $u(0)=0$). Therefore, the weak form for this problem is that
+of equation~\ref{eq:weakform3}.
+
+Inserting the boundary condition data results in the following linear system:
+\beq
+ \left({\bf A} + {\bf B1}\right)\vec{\alpha} = \vec{{F}},
+\label{eq:sdn}
+\eeq
+
+Where ${\bf B1}_{ij} = -\sigma\up{\phi}_i\phi_j (\beta)$. Note that 
+the BC matrix only has one entry at ${\bf B1}_{N+1,N+1} = -\sigma(\beta)\up{u}(\beta)$. 
+
+To test this BC we solve the problem such that $u(x) = \sin(2x) \in \Omega(0,\pi/4)$ with $\sigma(x) =1$. This results in:
+$g(x) = 4\sin(2x)$, $\gamma = 0$.
+
+In order to test the code, I create an uniform partition of $\Omega$, with $h = \pi/400$.
+Figure~\ref{fig:fig2} shows the FEM solution for this problem with an overlay of the true answer (top), and the
+associated error. One can see that the error is oscillatory, again this is related with the linear interpolant error
+asscociated with our choice for the space. Here $u(x) > u_h(x)$.
+
+Table~\ref{tab:table2} shows the convergence for this problem. To test the decay in the error, I 
+change $N = 2^k100, k=0,1,2,3,4$. The rate is calculated in the same way as in previous problem. The 
+estimated rate is $r=2$ which is consistent with the linear interpolant error.
+
+\begin{figure}
+\centering
+
+\includegraphics[width=0.6\textwidth]{fig/fig2.png}
+\caption{Overlay of the FEM solution and $u(x)= 4\sin(2x)$ (top), and error $e(x) = u(x)-u_h(x)$ (bottom).}
+\label{fig:fig2}
+\end{figure}
+
+\begin{table}
+\centering
+  \begin{tabular}{c | c | c | c | c}
+k&   N &      h    &     L2    &     rate      \\ \hline
+0&  101& 0.00785398& 1.4353305e-05&  --        \\
+1&  201& 0.00392699& 3.5541949e-06&  2.0137882 \\
+2&  401& 0.00196350& 8.850103e-07&  2.0057567  \\
+3&  801& 0.00098175& 2.2079196e-07&  2.0030066 \\ 
+4& 1601& 0.00049087& 5.5129197e-08&  2.0017991
+  \end{tabular}
+\caption{Convergence analysis for FEM method with D-N BC.}
+\label{tab:table2}
+\end{table}
+
+
+\section{Problem 3: mixed BVP}
+We now solve the following problem:
+\beq
+-\nabla\cdot(\sigma\nabla u) = g,\text{    in  } \Omega=(\alpha,\beta), \up{u}(\alpha)=3, \sigma(\beta)\up{u}(\beta) =\gamma -u(\beta).
+\label{eq:Robin}
+\eeq
+Here, we know the flux in one side of the domain, and we know $\sigma(\beta)\up{u}(\beta)$ on the other side of the domain. 
+We now have $N+2$ unknowns on the domain (we have to find the solution for $x_0$ and $x_{N+1}$). A suitable space
+for this problem is $H^1$.
+
+Here, the system of equations has the general form of equation~\ref{eq:general}, with 
+${\bf B}_{ij},\text{  }i,j=0,...,N+1$ being a sparse matrix with one entry: ${\bf B}_{N+1,N+1} = 1$ 
+and the vector $\vec{B2}$ has two entries:
+\[
+B2_{0,0} = -\sigma(\alpha)\up{u}(\alpha)
+\]
+and
+\[
+B2_{N+1,N+1} = \sigma(\beta)\gamma
+\]
+
+
+To test the implementation, I set up a problem with parameters chosen such that $\sigma(x)=1$ and $u(x) =\exp(3x)$. This
+results in $g(x) = -9\exp(3x)$ and $\gamma=4\exp(3)$.
+
+Similar to previous exercises, I test the implementation with $N=100$, and the interpolated solution $u_h$ evaluated
+at 1000 points. Figure~\ref{fig:fig3} shows the retrieved solution, note that in this case $u(x) < u_h(x)$. 
+
+
+To test the convergence, I change the number of points on the interval. Table~\ref{tab:table3} shows the results,
+similar to Problems 1 and 2, the convergence rate is $r=2$ which is consistent with the linear interpolant
+associated with our choice of $V$. 
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth]{fig/fig3.png}
+\caption{Overlay of the FEM solution and $u(x)= \exp(3x)$ (top), and error $e(x) = u(x)-u_h(x)$ (bottom).}
+\label{fig:fig3}
+\end{figure}
+
+\begin{table}
+\centering
+  \begin{tabular}{c | c | c | c | c}
+k&   N &      h    &     L2    &     rate      \\ \hline
+0&  101& 0.01000000& 0.0093932535&    --       \\ 
+1&  201& 0.00500000& 0.0023604731&  1.9925489  \\
+2&  401& 0.00250000& 0.00059221977&  1.9948715 \\ 
+3&  801& 0.00125000& 0.00014831877&  1.9974315 \\ 
+4& 1601& 0.00062500& 3.7113397e-05&  1.9986892
+  \end{tabular}
+\caption{Convergence analysis for FEM method with mixed BC.}
+\label{tab:table3}
+\end{table}
+
+
+\section{Implementation notes}
+The Python code associated with this report has 3 main classes: one computes the FEM solution, one creates the grid, and the last
+one evaluates the solution and computes the norm. These classes can be found in ``femlib.py''. The main code is in ``hw03.py'',
+and some utility functions and plotting command are found in $util.py$.
+\end{document}

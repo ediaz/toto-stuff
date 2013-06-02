@@ -1,0 +1,60 @@
+\documentclass[10pt]{article}
+\input{pcsmacros}
+
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{setspace,enumerate}
+
+\usepackage{graphicx,caption,subfig}
+
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\doublespacing
+
+\author{Esteban D\'{i}az}
+\title{Pseudo-spectral solution for the acoustic wave equation}{}
+
+\begin{document}
+\maketitle
+
+In Geophysics,
+ we usually implement the acoustic wave equation
+\begin{equation}
+ \swe{u} = f_s(\xx,t) 
+\label{eq:swe}
+\end{equation}
+in the time domain. Alternatively, we can do a mixed domain $\omega-\xx$ implementation. This should yield into a very accurate approximation
+for the time derivative operator (simply becomes $-\omega^2$)
+\beq
+(\frac{1}{v_p(\xx)^2}\omega^2 +\LAPL{} )u(\xx,\omega) = -f_s(\xx,\omega).
+\eeq
+
+This results in a complex sparse linear system of equations:
+\beq
+ \bf{A} (\omega) {\bf U}^{\omega} = -\bf{F}(\xx,\omega)
+\eeq
+
+Note that the previous equation is very easy to parallelize since 
+each frequency can be solved independently. Equation~\ref{eq:swe}
+cannot be parallelized over time. The parallelization of the time
+implementation is done on the spatial derivatives $\LAPL{}$.
+
+
+I would also like to investigate accurate ways to 
+solve $\LAPL{u}$ and therefore
+reduce grid dispersion problems.~\cite{chu} describes an interesting
+9-point operator to solve the spatial derivatives.\cite{917976} describes
+arbitrarily long finite impulse response derivative operators. It 
+could be interesting to compare with the simple Taylor
+expansion approach.
+
+By implementing the wave equation in the frequency domain, one can reduce
+the necessary time steps to accurate solve a wavefield. In the frequency
+domain, one just have to follow the Sampling theorem criteria  to reconstruct accurately a signal in
+time. In the time domain, the sampling is given by CFL condition, and therefore many time-steps are necessary to ensure stability. 
+
+
+
+\bibliographystyle{seg}
+\bibliography{BIB}
+\end{document}
