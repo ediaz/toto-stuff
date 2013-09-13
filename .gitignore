@@ -3,7 +3,6 @@ Geo-computing/jython/cachedir/*
 *.mod
 *.o
 *.class
-*.py
 *.toc
 *.pdf
 *.DS_store
