@@ -21,11 +21,27 @@ class helmhotz1D:
     else: 
       self.rho = rho
 
+  def setSource(self,sou):
+    self.f = -1*sou
+
+  def d2dt(self,w):
+    k2 = 1.*w*w/(self.rho*self.vel*self.vel)
+    return sparse.spdiags([k2],[0],self.n,self.n)    
+    
+  def dxRhoDx(self):
+    irho = sparse.spdiags([1./self.rho],[0],self.n,self.n)
+    return self.forwardDiff()*irho*self.backwardDiff()
+
+  def lhs(self):
+    return self.d2dt()+dxRhoDx()  
+
+
+
   def backwardDiff(self):
     md = np.ones(self.n)
     md[0] = 0
     ld = np.ones(self.n)
-    return sparse.spdiags([md,-ld],[0,-1],self.n,self.n)
+    return sparse.spdiags([md,-ld],[0,-1],self.n,self.n)*1./self.d
 
   def forwardDiff(self):
     return -1*self.backwardDiff().T
@@ -38,7 +54,11 @@ hm = helmhotz1D(0,1,4)
 bd = hm.backwardDiff().todense()
 fd = hm.forwardDiff().todense()
 
-print bd
-print fd
 
+
+print "backward der"
+print bd
+print "forward der"
+print fd
+print "second derivative"
 print fd*bd
