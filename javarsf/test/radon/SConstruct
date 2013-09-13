@@ -1,0 +1,37 @@
+from rsf.proj import *
+
+par = {'ox':-.3,'dx':0.001,'nx':601,
+       'ot':0.0, 'dt':0.004,'nt':1001}
+
+
+def planewave(output,vel):
+  ppar = par
+  ppar['vel']= vel
+  ppar['to'] = par['nt']*0.5*par['dt']+par['ot']
+  ppar['s']  = 0.005*(abs(vel)+0.005)
+  Flow(output,None,
+    '''
+    math n1=%(nt)d o1=%(ot)g d1=%(dt)g
+         n2=%(nx)d o2=%(ox)g d2=%(dx)g
+         output="abs(x2 +%(vel)g*(x1-%(to)g)) "|
+    mask max=%(s)g | dd type=float|ricker2 frequency=20
+    '''%ppar)
+
+
+v0 = -2.5
+dv =  0.2
+
+
+vels = [-2.5,-1.,-.3,-0.1,.1,0.3,1.,2.5]
+nvels = len(vels)
+
+
+for iv in range(nvels):
+  vtag = 'v-%03d'%int(iv)
+  vel = vels[iv]
+  planewave('junkrsf/test'+vtag,vel)
+
+Flow('testgather',map(lambda x: 'junkrsf/testv-%03d'%x,range(nvels)),
+  'cat ${SOURCES[1:%d]} |stack axis=3 |dd form=xdr'%nvels)
+
+End()

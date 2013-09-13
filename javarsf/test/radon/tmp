@@ -1,0 +1,32 @@
+1.5-svn	sfspike	javarsf/test/radon:	ediaz@unknown68a86d1fb3ee	Sun Jul 14 16:16:25 2013
+
+	d2=0.01
+	o1=0
+	n2=2001
+	o2=-10
+	label1="Time"
+	data_format="native_float"
+	label2="Distance"
+	esize=4
+	in="stdout"
+	unit1="s"
+	unit2="km"
+	d1=5
+	n1=101
+	in="stdin"
+
+1.5-svn	sfricker2	javarsf/test/radon:	ediaz@unknown68a86d1fb3ee	Sun Jul 14 16:16:25 2013
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	in="stdin"
+
+1.5-svn	sfslant	javarsf/test/radon:	ediaz@unknown68a86d1fb3ee	Sun Jul 14 16:16:26 2013
+
+	d2=1
+	n2=101
+	o2=-50
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/tmp@"

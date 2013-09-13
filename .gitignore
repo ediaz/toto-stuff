@@ -18,9 +18,9 @@ Geo-computing/test/cachedir/
 *.dat
 *.png
 *.jpg
-*.so
-*.dll
+*.blg
+*.dat
+*@
 *.bbl
 *.mpeg
-*@
-*.blg
+*.rsf

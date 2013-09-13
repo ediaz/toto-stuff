@@ -1,0 +1,133 @@
+1.5-svn	sfspike	ediaz/poynting_vector/backscattering:	ediaz@Estebans-MacBook-Pro.local	Wed Feb 27 00:16:33 2013
+
+	o1=0
+	label1="Time"
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	unit1="s"
+	d1=0.0015
+	n1=1500
+	in="stdin"
+
+1.5-svn	sfpad	ediaz/poynting_vector/backscattering:	ediaz@Estebans-MacBook-Pro.local	Wed Feb 27 00:16:33 2013
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	n1=3000
+	in="stdin"
+
+1.5-svn	sfricker1	ediaz/poynting_vector/backscattering:	ediaz@Estebans-MacBook-Pro.local	Wed Feb 27 00:16:33 2013
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	in="stdin"
+
+1.5-svn	sfwindow	ediaz/poynting_vector/backscattering:	ediaz@Estebans-MacBook-Pro.local	Wed Feb 27 00:16:33 2013
+
+	o1=0
+	label1="Time"
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	unit1="s"
+	d1=0.0015
+	n1=1500
+	in="stdin"
+
+1.5-svn	sfscale	ediaz/poynting_vector/backscattering:	ediaz@Estebans-MacBook-Pro.local	Wed Feb 27 00:16:33 2013
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	in="stdin"
+
+1.5-svn	sfput	ediaz/poynting_vector/backscattering:	ediaz@Estebans-MacBook-Pro.local	Wed Feb 27 00:16:33 2013
+
+	data_format="native_float"
+	in="/var/tmp/ediaz/poynting_vector/backscattering/wav_tmp.rsf@"
+	label1=t
+1.5-svn	sfhalfint	ediaz/poynting_vector/backscattering:	ediaz@Estebans-MacBook-Pro.local	Wed Feb 27 00:16:33 2013
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	in="stdin"
+
+1.5-svn	sftransp	ediaz/poynting_vector/backscattering:	ediaz@Estebans-MacBook-Pro.local	Wed Feb 27 00:16:33 2013
+
+	d2=0.0015
+	n2=1500
+	o2=0
+	data_format="native_float"
+	label2="t"
+	esize=4
+	in="stdout"
+	unit2="s"
+	n1=1
+	in="stdin"
+
+1.5-svn	sfscale	ediaz/poynting_vector/backscattering:	ediaz@Estebans-MacBook-Pro.local	Wed Feb 27 00:16:33 2013
+
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/ediaz/poynting_vector/backscattering/wav.rsf@"
+1.5-svn	sfawefd2d	ediaz/poynting_vector/backscattering:	ediaz@Estebans-MacBook-Pro.local	Wed Feb 27 00:17:14 2013
+
+	d2=0.01
+	n2=1000
+	o1=0
+	d3=0.0015
+	n3=1500
+	o2=0
+	label1=""
+	data_format="native_float"
+	o3=0
+	label2=""
+	label3="t"
+	esize=4
+	in="/var/tmp/fdattmp@"
+	unit1=""
+	unit2=""
+	unit3="s"
+	d1=0.01
+	n1=250
+1.5-svn	sfwindow	ediaz/java/bin:	ediaz@wl-dhcp199-19.mines.edu	Wed Feb 27 08:52:14 2013
+
+	d2=0.01
+	n2=1000
+	o1=0
+	d3=0.0015
+	n3=75
+	o2=0
+	label1=""
+	data_format="native_float"
+	o3=0.75
+	label2=""
+	label3="t"
+	esize=4
+	in="/var/tmp/wfdattmp@"
+	unit1=""
+	unit2=""
+	unit3="s"
+	d1=0.01
+	n1=250
+1.5-svn	java	ediaz/java/bin:	ediaz@wl-dhcp199-19.mines.edu	Wed Feb 27 09:21:36 2013
+
+	d2=0.01
+	n2=250
+	o1=0
+	d3=0.01
+	n3=1000
+	o2=0
+	data_format="native_float"
+	d4=0.0015
+	n4=75
+	o3=0
+	o4=0.75
+	esize=4
+	in="/var/tmp/tmp@"
+	d1=1
+	n1=2

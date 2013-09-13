@@ -9,12 +9,12 @@ import static edu.mines.jtk.util.ArrayMath.*;
 /**
  * 1D ACOUSTIC WAVE EQUATION FINITE DIFFERENCE
  * 
- * 1  d^2      d  1  d
- * -- --- u  - -- -- -- u = s
- * pv dt^2     dx p  dx
+ *   1    d^2      d   1   d
+ * -----  --- u  - -- ---  -- u = s
+ * rho v  dt^2     dx rho  dx
  * 
  *
- * p = density (closest look to \rho is ascii characters)
+ * rho = density 
  *  
  * @author Esteban Diaz
  * @version 2012.11.04
@@ -150,13 +150,6 @@ public class Awefd1d{
       source_inject(it, utmp);
       // time step: 
       up1 = sub(add(mul(2.0f,uo),mul(rhov2,utmp)),um1);
-      int nx = up1.length;
-//      for (int i1=0 ; i1<nx  ; ++i1){
-//        up1[i1]=( 2.0f*uo[i1] -1.0f*um1[i1] +rhov2[i1]*utmp[i1]);
-//      }
-
-      System.out.printf("%f%n",up1[200]);
-
 
       // circulate arrays:
       um1 = uo;

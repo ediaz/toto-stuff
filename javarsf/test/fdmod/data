@@ -1,0 +1,38 @@
+1.5-svn	sfspike	javarsf/test/fdmod:	ediaz@unknown68a86d1fb3ee	Wed Jul 17 23:35:11 2013
+
+	d2=0.1
+	o1=0
+	n2=461
+	o2=0
+	label1="Time"
+	data_format="native_float"
+	label2="Distance"
+	esize=4
+	in="stdout"
+	unit1="s"
+	unit2="km"
+	d1=0.004
+	n1=1501
+	in="stdin"
+
+1.5-svn	sfsmooth	javarsf/test/fdmod:	ediaz@unknown68a86d1fb3ee	Wed Jul 17 23:35:11 2013
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	in="stdin"
+
+1.5-svn	sfscale	javarsf/test/fdmod:	ediaz@unknown68a86d1fb3ee	Wed Jul 17 23:35:11 2013
+
+	data_format="native_float"
+	esize=4
+	in="stdout"
+	in="stdin"
+
+1.5-svn	sfdd	javarsf/test/fdmod:	ediaz@unknown68a86d1fb3ee	Wed Jul 17 23:35:11 2013
+
+	data_format="xdr_float"
+	esize=4
+	in="/var/tmp/tmp@"
+in=./layer/mask.dat
+in=./layer/allshots.dat
