@@ -1,0 +1,239 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{setspace,enumerate}
+
+\usepackage{graphicx,caption,subfig}
+
+\floatstyle{ruled}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert_p}
+\newcommand{\normi}[1]{\left\lVert#1\right\rVert_\infty}
+\newcommand{\normt}[1]{\left\lVert#1\right\rVert_2}
+
+\doublespacing
+
+\author{Esteban D\'{i}az}
+\title{Homework 1}{}
+
+\begin{document}
+
+\maketitle
+
+\section{Problem 1}
+Let $U\in R^{m\times m}$ be an upper triangular. Given than $U$ 
+is nonsingular, prove that $U^{-1}$ is also upper triangular. 
+
+\begin{proof}
+Let $A=[\vec{a}_1 ; \vec{a}_2; ...; \vec{a}_m]=U^{-1}$, then we need 
+to verify that $U \vec{a}_j =\vec{b}_j$ where $\vec{b}_j$ are columns of
+$I$. 
+
+For $\vec{a}_1$ we have:
+\[
+ \begin{pmatrix}
+  u_{1,1} & u_{1,2} & \cdots & u_{1,m} \\
+    0     & u_{2,2} & \cdots & u_{2,m} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+   0      &    0    & \cdots & u_{m,m}
+ \end{pmatrix}
+ \begin{pmatrix}
+  a_{1,1}  \\
+  a_{2,1}  \\ 
+  \vdots \\
+  a_{m,1}
+ \end{pmatrix}
+ = 
+  \begin{pmatrix}
+  1 \\ 
+  0 \\ 
+  \vdots \\ 
+  0 
+  \end{pmatrix}
+\]
+  Which can be solved using back substitution:
+ \[
+   u_{m,m} a_{m,1} = 0 
+ \]
+  which results in $a_{m,1}= 0$.
+  
+  Moving to the next row: 
+ \[
+   u_{m-1,m-1} a_{m-1,1} + u_{m-1,m} a_{m,1} =0
+ \]
+  Which leads to $a_{m-1,1} = 0$.
+  We can repeat this process until we reach to the first row:
+  \[
+     \sum_{j=1}^{m} u_{1,j} a_{j,1} = u_{1,1}a_{1,1} =1
+  \]
+  From which we solve: $a_{1,1} = 1/u_{1,1}$.
+
+  This process can be repeated for the next column of $A$. 
+  For each column we will find that $a_{i,j} = 0\forall i>j$.
+  
+  For each row, we first solve $a_{j,j} = 1/u_{j,j}$ and then we solve 
+  sequentially for $a_{i,j}$ ,with $i=j-1,\dots,1$.
+\end{proof}
+
+
+\section{Problem 2}
+
+\subsection{Part a}
+The matrix $B = \vec{u}\vec{v}^T$ can be written as 
+$B = [v_1\vec{u};...;v_m\vec{u}]$. Hence, matrix $B$ has only one independent
+column since each of its columns are $\vec{u}$ scaled by $v_i$. Therefore, 
+$Rank(B) = dim \ R(B) = 1$.
+
+\subsection{Part b}
+\begin{proof}
+Given $A = I+\vec{u}\vec{v}^T \in R^{m\times m}$, we need to verify that 
+$A^{-1} = I - \frac{1}{1+\vec{v}^T\vec{u}}\vec{u}\vec{v}^T$. To do so, it
+amounts to demonstrate that 
+\[
+ A A^{-1} = I
+\] 
+\[
+ \left(I+\vec{u}\vec{v}^T \right)\left( I - \frac{1}{1+\vec{v}^T\vec{u}}\vec{u}\vec{v}^T\right) =I
+\]
+\[
+I - \frac{1}{1+\vec{u}^T\vec{v}}\vec{u}\vec{v}^T +\vec{u}\vec{v}^T -\frac{\vec{v}^T\vec{u}}{1+\vec{v}^T\vec{u}}\vec{u}\vec{v}^T = I
+\]
+\[
+ I + \vec{u}\vec{v}^T  - \left( \frac{1+\vec{v}^T\vec{u}}{1+\vec{v}^T\vec{u}} \right)\vec{u}\vec{v}^T = I 
+\]
+\[
+ I = I
+\]
+Which is only valid if $\vec{v}^T\vec{u} \neq -1$.
+\end{proof}
+
+\section{Problem 3}
+\subsection{Proof that $\norm{A\vec{x}} \leq \norm{A}\norm{\vec{x}}$:}
+\begin{proof}
+  Let $A \in R^{l\times m}$ and $\vec{x} \in R^m$, then:
+    \begin{align*}
+    \norm{A\vec{x}} &= \frac{\norm{A\vec{x}}}{\norm{\vec{x}}} \norm{\vec{x}} \\
+                    &\leq \max_{\vec{y}\neq \vec{0}}\frac{\norm{A\vec{y}}}{\norm{\vec{y}}} \norm{\vec{x}}  = \norm{A}\norm{\vec{x}}
+  \end{align*}
+\end{proof}
+
+\subsection{Proof that $\norm{AB} \leq \norm{A}\norm{B}$:}
+\begin{proof}
+  \begin{align*}
+    \norm{AB} &=  \max_{\vec{x}\neq \vec{0}}\frac{\norm{AB\vec{x}}}{\norm{\vec{x}}} \\
+              &=  \max_{\vec{x}\neq \vec{0}}\frac{\norm{AB\vec{x}}}{\norm{\vec{x}}}\frac{\norm{B\vec{x}}}{\norm{\vec{Bx}}} && &&\text{(let $B\vec{x}=\vec{y}$)}\\
+              &=  \max_{\vec{x}\neq \vec{0}}\frac{\norm{A\vec{y}}}{\norm{\vec{y}}}\frac{\norm{B\vec{x}}}{\norm{\vec{x}}} \\
+              &\leq  \left(\max_{\vec{y}\neq \vec{0}}\frac{\norm{A\vec{y}}}{\norm{\vec{y}}}\ \right) \left(\max_{\vec{x}\neq \vec{0}} \frac{\norm{B\vec{x}}}{\norm{\vec{x}}} \right) \\ 
+              &= \norm{A}\norm{B}
+  \end{align*}
+\end{proof}
+
+\section{Problem 4: proof the following inequalities}
+For $\vec{x} \in R^m$, and $A\in R^{m\times n}$:
+
+\begin{enumerate}[(a)] % (a), (b), (c), ...
+\item $\normi{x} \leq \normt{x}$
+\item $\normt{x} \leq \sqrt{m} \normi{x}$
+\item $\normi{A} \leq \sqrt{n}\normt{A}$
+\end{enumerate}
+
+\begin{proof}
+For (a) we have:
+ \begin{align*}
+    \normi{x} &= \max_i |x_i| \\
+              &= \max_i \sqrt{x_i^2} \\
+              &\leq \sqrt{\sum_{i=1}^{m} x_i^2}\\
+              &= \normt{x}
+ \end{align*}
+  because the maximum element absolute value is included in the 2-norm sum.
+\end{proof}
+
+\begin{proof}
+For (b)
+ \begin{align*}
+    \normt{x} &= \sqrt{\sum_{i=1}^{m} x_i^2} \\
+              &\leq  \sqrt{\sum_{i=1}^{m} \max_i x_i^2} \\
+              &= \sqrt{\max_i x_i^2 \sum_{i=1}^m} \\
+              &= \max_i \sqrt{ x_i^2} \sqrt{\sum_{i=1}^m}\\
+              &= \max_i |x_i| \sqrt{m} \\
+              &= \sqrt{m}\normi{\vec{x}} 
+ \end{align*}
+\end{proof}
+
+
+\begin{proof}
+  let $\vec{y}\in R^n$, then:
+  \[
+    \normi{A} = \max_{\vec{y}\neq 0} \frac{\normi{A\vec{y}}}{\normi{\vec{y}}}
+  \]
+    using the proof in (a) ($\normi{\vec{y}} \leq \normt{\vec{y}}$), we have:
+  \[
+    \normi{A} \leq \max_{\vec{y}\neq 0} \frac{\normt{A\vec{y}}}{\normi{\vec{y}}}
+  \]
+   now, we can use the inequality from proof (b):
+  \begin{align*}
+   \normi{A} &\leq \max_{\vec{y}\neq 0} \frac{\normt{A\vec{y}}}{\normt{\vec{y}}/\sqrt{n}} \\ 
+             & = \sqrt{n} \max_{\vec{y}\neq 0} \frac{\normt{A\vec{y}}}{\normt{\vec{y}}}
+  \end{align*}
+  Hence, $\normi{A} \leq \sqrt{n} \normt{A}$
+\end{proof}
+
+
+\section{problem 5}
+
+
+Here I have the function abc(n):
+\begin{verbatim}
+function [A,B,C] = abc(n)
+%
+% This function returns 5 matrices A,B,C
+%
+  X = zeros(n,n);
+  for i=1:n
+    for j=1:n
+      X(i,j) = sqrt(2./(n+1))*sin(i*j*pi/(n+1));
+    end
+  end
+
+  T = zeros(n,n);
+  for i=1:n
+    T(i,i) = 2.0; %main diagonal
+  end
+  for i=1:n-1
+    T(i+1,i  ) = -1; % lower diagonal
+    T(i  ,i+1) = -1; % upper diagonal
+  end
+
+  A = X -X';
+  B = X*X;
+  C = X*T*X;
+end 
+\end{verbatim}
+
+And the main.m function that produces the printouts:
+\begin{verbatim}
+clear;
+clc; 
+format short e; 
+diary output.txt 
+for n=2:4 
+  fprintf('number of columns n=%d\n',n);
+  [A,B,C] = abc(n)
+end
+diary off
+\end{verbatim}
+
+From the printouts of main.m, I can conclude the following about X:
+\begin{itemize}
+\item the matrix X is orthogonal since (1) $A=0$, hence $X^T=X$, and (2) 
+      $B = I$, therefore $X=X^{-1}$.
+\item Given that C is a diagonal matrix, and $X^-1 = X$, we can say that 
+      $XC = TX 	\Rightarrow XCX = T$. Since T is symmetric, then C can
+be interpreted as the eigenvalues of T, and $X$ its eigen-vectors.
+\end{itemize}
+
+Also, we can see some small errors for matrices B and C. For A, we
+have a zero matrix. In A, we have an element to element addition, whereas
+for B and C we have a product of 2 and 3 matrices, respectively. It is 
+expected that the error in B and C is bigger than that of A.
+
+\end{document}

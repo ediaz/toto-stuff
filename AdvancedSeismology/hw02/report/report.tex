@@ -1,0 +1,90 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{setspace,enumerate}
+
+\usepackage{graphicx,caption,subfig}
+
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\doublespacing
+
+\author{Esteban D\'{i}az}
+\title{Homework 2}{}
+\begin{document}
+
+\maketitle
+
+\section{Question 1}
+The approximation seems to work pretty well for $\theta<35^\circ$ 
+for all three cases, as shown in Figure 1-3. For higher angles 
+the approximated phase velocity overestimates the  exact one.
+
+Also, for all the cases both velocities are equal for $\theta=90^\circ$.
+The difference between exact and approximated decreases as we increase
+$\delta$. This is probably related to the Taylor expansion term
+$x$ in the derivation. The expansion is valid if $x\approx0$, which 
+must be the case for high values of $\delta$.
+
+
+\begin{figure}
+  \center
+  \includegraphics[width=0.8\textwidth]{Fig/q1_delta1.png}
+  \caption{Approximation comparison for $\delta=0.1$}
+\end{figure}
+
+\begin{figure}
+  \center
+  \includegraphics[width=0.8\textwidth]{Fig/q1_delta3.png}
+  \caption{Approximation comparison for $\delta=0.3$}
+\end{figure}
+
+\begin{figure}
+  \center
+  \includegraphics[width=0.8\textwidth]{Fig/q1_delta5.png}
+  \caption{Approximation comparison for $\delta=0.5$}
+\end{figure}
+
+
+\section{Question 2}
+Analysing the dependence of the phase velocity with respect
+to $Vp0/Vs0$. I test this dependence in two TI models ($\epsilon=0.6,\delta=0.1$,$\epsilon=0.6,\delta=0.5$) as shown in Figures 5-6.
+For the first model (Figure 5) we can observe some dependence with Vp0/Vs0
+as we decrease it.  As we increase $\delta$, the dependence seems
+to diminish. 
+
+To get a better insight, I plot the Phase velocity with a fixed angle $\theta=45$
+where I see the maximum difference among the plots. For the first model (Figure 6)
+the change in velocity is abut 2\%, whereas for Figure 7 (model 2) is almost non-existing.
+
+The dependence with Vp0/Vs0 decays almost exponentially as we increase Vp0/Vs0. The biggest
+influence is between 1.5 and 2.0.
+
+\begin{figure}
+  \center
+  \includegraphics[width=0.8\textwidth]{Fig/q2_model1.png}
+  \caption{Dependence with $\gamma$ for $\epsilon=0.6,\delta=0.1$}
+\end{figure}
+
+\begin{figure}
+  \center
+  \includegraphics[width=0.8\textwidth]{Fig/q2_model2.png}
+  \caption{Dependence with $\gamma$ for $\epsilon=0.6,\delta=0.5$}
+\end{figure}
+
+\begin{figure}
+  \center
+  \includegraphics[width=0.8\textwidth]{Fig/dependance1.png}
+  \caption{Phase velocity change with $\gamma$ for $\epsilon=0.6,\delta=0.1, \theta=45^\circ$}
+\end{figure}
+
+\begin{figure}
+  \center
+  \includegraphics[width=0.8\textwidth]{Fig/dependance2.png}
+  \caption{Phase velocity change with $\gamma$ for $\epsilon=0.6,\delta=0.5,\theta=45^\circ$}
+\end{figure}
+
+
+
+
+\end{document}

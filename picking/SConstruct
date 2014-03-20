@@ -1,0 +1,79 @@
+from rsf.proj import *
+from rsf.recipes import fdmod
+
+par = {'ox':3.8345,'dx':0.75,'nx':46,
+       'ot':0,'dt':0.008,'nt':882,
+       'nz':0,'dz':0.05,'nz':105}
+
+opar = {
+      'ox':0.0845,'dx':0.75,'nx':51,
+      'ot':0,'dt':0.004,'nt':1763,
+      'nz':0,'dz':0.05,'nz':105}
+
+fdmod.param(par)
+
+semb= 'w_semblance'
+cmps = 'w_cmp'
+
+
+vels = []
+for ipick in range(0,par['nx'],4):
+  sembtmp = 'tmp%03d'%ipick+semb
+  cmpstmp = 'tmp%03d'%ipick+cmps
+  veltmp  = 'tmp%03d'%ipick+'vel'
+  Flow(cmpstmp,cmps,'window n3=%d f3=%d'%(min(4,46-ipick),ipick))
+  Flow(sembtmp,semb,'window n3=%d f3=%d'%(min(4,46-ipick),ipick))
+
+  Flow(veltmp,[sembtmp,cmpstmp],
+    '''
+    python ./velan.py cmp=${SOURCES[1]} useoffset=f
+    ''')
+  vels.append(veltmp)
+
+
+Flow('velstack',vels,'cat axis=2 ${SOURCES[1:%d]} |'%len(vels)+
+      'put o2=%(ox)g d2=%(dx)g n2=%(nx)d '%par)
+
+def coord():
+  return '''
+    math n1=%(nt)d d1=%(dt)g o1=%(ot)g output=x1
+    ''' % (opar)
+
+Flow('coords',None,coord())
+
+Flow('velstacksm','velstack',
+  '''
+  smooth rect1=10 rect2=2 repeat=10 out=stdout
+  ''')
+
+#Flow('velstacksm','velstack coords',
+#  '''
+#  smooth rect1=10 rect2=2 repeat=10|
+#  inttest1 interp="cub" nw=2 coord=${SOURCES[1]} >$TARGET; 
+#  echo n2=%(nx)d d2=%(dx)g o2=%(ox)g >> $TARGET;
+#  echo 
+#  '''%par,stdout=0)
+
+Flow('vint_time','velstacksm','dix rect1=10 rect2=3 ')
+
+Flow('vint_depth','vint_time',
+  'time2depth velocity=$SOURCE nz=%(nz)d dz=%(dz)g oz=%(oz)g  intime=y'%par)
+
+Result('velstack','velstack',fdmod.dgrey('color=j mean=y scalebar=y',par))
+Result('velstacksm','velstacksm',fdmod.dgrey('color=j mean=y scalebar=y',par))
+Result('vint_depth','vint_depth',fdmod.cgrey('color=j mean=y',par))
+
+
+
+
+def interp(out,inp):
+  Flow(out,inp,
+    '''
+    transp plane=12 |
+    spline n1=%(nx)d d1=%(dx)g o1=%(ox)g |
+    transp plane=12|
+    spline n1=%(nt)d d1=%(dt)g o1=%(ot)g
+    '''%opar)
+
+interp('out','velstacksm')
+End()

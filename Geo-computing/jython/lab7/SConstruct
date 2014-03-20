@@ -1,6 +1,6 @@
 #Java(".",".",JAVAVERSION="1.6")
 import os
 
-env = Environment(ENV={'PATH':os.environ['PATH']}, JAVACLASSPATH = './edu_mines_jtk.jar')
+env = Environment(ENV={'PATH':os.environ['PATH']}, JAVACLASSPATH = '../edu_mines_jtk.jar')
 
 env.Java(".",".",JAVAVERSION="1.6")

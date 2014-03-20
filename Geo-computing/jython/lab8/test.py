@@ -36,11 +36,11 @@ seed = 1678961
 def main(args):
 #  interp1d()
 #  interp2d()
-  interp3d()
+#  interp3d()
 #  dt3()
 #  dt2()
 #  dt1()
-#  galilee()
+  galilee()
 
 
 ##########################################################################

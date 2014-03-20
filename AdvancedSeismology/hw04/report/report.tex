@@ -1,0 +1,104 @@
+\documentclass[10pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{setspace,enumerate}
+
+\usepackage{graphicx,caption,subfigure}
+
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\doublespacing
+
+\author{Esteban D\'{i}az}
+\title{Ray tracing in VTI media}{}
+\begin{document}
+
+\maketitle
+
+A ray tracing code for homogeneous VTI media is built.
+I solved the transmission problem numerically at the interface:
+\[
+  \min_{\theta_2 \in (-90,90)} \left|\frac{\sin(\theta_1)}{V_1(\theta_1)} -\frac{\sin(\theta_2)}{V_2(\theta_2)}\right|
+\]
+where $V_1$ and $V_2$ are the phase velocity on the first layer and second layer, respectively. The angles $\theta_1$ and $\theta_2$ are the phase angles for the respective layer. 
+
+Once we know the phase angle we can solve for the group angle, and compute the ray trajectory and its travel time.
+
+
+For the P waves, the traveltimes at the surface increase slightly  for $\epsilon_2=-0.2$. For a negative $\epsilon$
+the P waves travel slowly close to the horizontal direction, therefore is expected that the traveltime should
+increase at long offsets.
+
+For explaining the traveltime differences for SV waves we can take a look at the magnitude of $\sigma$ for both 
+cases. In the first case:
+    \[
+     \sigma_2 = \left(\frac{V_{P0}}{V_{S0}}\right)^2(\epsilon-\delta) = -0.4.
+    \]
+In the second case $\sigma_2 = -2$. This value for $\sigma$ is quite large and is the main reason 
+for the cusp in the traveltimes seen in Figure~\ref{fig:tt_slow_eps-2}. 
+
+For the first case, with $\sigma_2$ relatively small, we see how the group angle decreases at the interface, this
+is due to the fact that $V_{S0}$ decreases in the second layer. 
+
+
+
+
+\begin{figure}
+	\begin{center}
+		\subfigure[]{
+			\includegraphics[height=0.4\textheight]{Fig/tt_slow_eps2.png}
+      \label{fig:tt_slow_eps2}
+		} 
+		\subfigure[]{
+			\includegraphics[height=0.4\textheight]{Fig/rays_slow_eps2.png}
+      \label{fig:rays_slow_eps2}
+		} 
+		\caption{SV-waves traveltimes (a) and ray plots (b) for $\epsilon_2=0.2$}	
+  \end{center}
+\end{figure}
+
+\begin{figure}
+	\begin{center}
+		\subfigure[]{
+			\includegraphics[height=0.4\textheight]{Fig/tt_slow_eps-2.png}
+      \label{fig:tt_slow_eps-2}
+		} 
+		\subfigure[]{
+			\includegraphics[height=0.4\textheight]{Fig/rays_slow_eps-2.png}
+      \label{fig:rays_slow_eps-2}
+		} 
+		\caption{SV-waves traveltimes (a) and ray plots (b) for $\epsilon_2=-0.2$}	
+  \end{center}
+\end{figure}
+
+
+\begin{figure}
+	\begin{center}
+		\subfigure[]{
+			\includegraphics[height=0.4\textheight]{Fig/tt_fast_eps2.png}
+      \label{fig:tt_fast_eps2}
+		} 
+		\subfigure[]{
+			\includegraphics[height=0.4\textheight]{Fig/rays_fast_eps2.png}
+      \label{fig:rays_fast_eps2}
+		} 
+		\caption{P-waves traveltimes (a) and ray plots (b) for $\epsilon_2=0.2$}	
+  \end{center}
+\end{figure}
+
+\begin{figure}
+	\begin{center}
+		\subfigure[]{
+			\includegraphics[height=0.4\textheight]{Fig/tt_fast_eps-2.png}
+      \label{fig:tt_fast_eps-2}
+		} 
+		\subfigure[]{
+			\includegraphics[height=0.4\textheight]{Fig/rays_fast_eps-2.png}
+      \label{fig:rays_fast_eps-2}
+		} 
+		\caption{P-waves traveltimes (a) and ray plots (b) for $\epsilon_2=-0.2$}	
+  \end{center}
+\end{figure}
+
+\end{document}

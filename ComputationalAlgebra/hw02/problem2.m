@@ -1,0 +1,13 @@
+clear all
+clc; 
+diary problem2.txt
+format short e; 
+A = [1/3 1/3 2/3;...
+     2/3 2/3 4/3;...
+     1/3 2/3 3/3;...
+     2/5 2/5 4/5;...
+     3/5 1/5 4/5]
+
+[U,S,V] = svd(A,0);
+S
+diary off

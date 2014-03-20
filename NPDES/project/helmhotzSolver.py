@@ -13,7 +13,7 @@ def run():
   goImpulse(1,1,fname=dirFig+'FirstDerivative.pdf') # creates the impulse response for different Fornberg's filters for first derivatives
   goImpulse(2,2,fname=dirFig+'SecondDerivative.pdf') # creates the impulse response for different Fornberg's filters for second derivatives
 #  goError(3)  # prints the tables for convergence analysis
-#  goPluto(5)  # shows the Pluto related figures
+  goPluto(5)  # shows the Pluto related figures
   plt.show() 
 
 

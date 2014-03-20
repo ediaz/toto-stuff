@@ -1,0 +1,87 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{setspace,enumerate}
+
+\usepackage{graphicx,caption,subfig}
+
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\doublespacing
+
+\author{Esteban D\'{i}az}
+\title{Homework 3}{}
+\begin{document}
+
+\maketitle
+
+\section{Question 1}
+I implemented the 1D Helmholtz equation in Python, which allows for simple
+switch between complex and real variables. The way I constructed the impedance matrix assumes zero displacement at the off-grid elements $x_{-1},x_{N}$. Therefore, the solution exist for $x_i; i=0,1,...,N-1$. This problem is then equivalent to a vibrating string. 
+
+For the first test I use a point source function at the beginning of the string, and a constant velocity of 1.5km/s. For generating a complete wavelength I test the impulse response at 1.5Hz in a 11 grid points string (Figure 1). If I sample the wavefield better (Figure 2) one can see a sine function over the space domain. This is the response at $f=15Hz$ for a 1001 points grid.
+
+\subsection{part a}
+I introduce the complex velocity for account for attenuation. Figure 3 shows the effect of introducing Q into the model (Q=10). One can see how the amplitude of the wave gets attenuated as it moves away from the source. Even though my source function is real ($\delta(x-xo)$) with attenuation we now have complex valued wavefields, whereas before only the real part was not zero.
+\subsection{part b}
+One could use a increasingly attentive layer to absorb the energy as it reaches close to the boundaries. A similar approach is done with the Perfectly Matched Layer (PML) to stretch the coordinates (making the grid spacing further apart as we get into the absorbing layer).
+
+Figure 3 shows the effect of introducing an absorbing layer into the model, which could be used as a boundary condition to avoid reflections from the end points of the domain.
+
+\subsection{part c}
+The frequency response of the wavefield for variable velocities shows how the wavelength of the wavefield increases with the velocity. It is not apparent the reflection. To see the reflected wavefield I have to do a inverse DFT and look at it in the time domain. I think variable attenuation should not produce reflections as long as is introduced smoothly into the model.
+
+\subsection{part d-e}
+I do observe time wrap-around after the inverse DFT summation. Figure 6 shows the reconstructed time snapshot without damping. One can see that the wavefield is very contaminated. After I introduce the damping term in the frequency, and boost back in the time domain I recover a clean arrival for $\tau=1s$.
+
+
+\subsection{part f}
+To simulate plane waves in a 2D code, one needs to implement a distributed source which is triggered at different times. The delay of each source depends on the angle of the plane wave. In the frequency domain, the delay can be introduced with a phase shift. 
+
+ 
+\begin{figure}
+  \center
+  \includegraphics[width=0.8\textwidth]{Fig/1aFreqResponse15Hz11.png}
+  \caption{Frequency response for a point source at $x=0$ and $\omega=15\times2\pi/s$ for a grid of 11 elements}
+\end{figure}
+
+\begin{figure}
+  \center
+  \includegraphics[width=0.8\textwidth]{Fig/1aFreqResponse15Hz.png}
+  \caption{Frequency response for a point source at $x=0$ and $\omega=1.5\times2\pi/s$ for a grid of 101 elements}
+\end{figure}
+
+
+\begin{figure}
+  \center
+  \includegraphics[width=0.8\textwidth]{Fig/Boundary.png}
+  \caption{Absorbing boundary via Q attenuation (a) Q=10 for $x>0.5km$, (b) no attenuation}
+\end{figure}
+
+\begin{figure}
+  \center
+  \includegraphics[width=0.8\textwidth]{Fig/Attenuation.png}
+  \caption{Effect of attenuation on the wavefield: (a) no attenuation, (b) high attenuation (constant Q=10)}
+\end{figure}
+
+
+
+\begin{figure}
+  \center
+  \includegraphics[width=0.8\textwidth]{Fig/no-wrapp.png}
+  \caption{Time snapshots without damping, (every curve depicts the wavefield at different time), time marching forward from left to right.}
+\end{figure}
+
+
+
+\begin{figure}
+  \center
+  \includegraphics[width=0.8\textwidth]{Fig/wrapp.png}
+  \caption{Time snapshots without damping, (every curve depicts the wavefield at different time).}
+\end{figure}
+
+
+
+
+
+\end{document}

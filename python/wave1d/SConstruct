@@ -1,0 +1,96 @@
+from rsf.proj import *
+
+
+par = {'nt':1801,'dt':0.001,'ot':0.0,'tunit':'s','tlabel':'time',
+       'nx':401,'dx':0.005,'ox':0.0,'xunit':'km','xlabel':'x'}
+
+
+
+
+
+def graph(imodel,name):
+  Result(imodel,imodel,'graph title="%s" '%name)
+
+def grey(imodel,name):
+  Result(imodel,imodel,'grey title="%s" '%name)
+
+
+
+# 3km/s constant velocity
+Flow('vel',None,
+  '''
+  spike n1=%(nx)d d1=%(dx)g o1=%(ox)g label1="%(xlabel)s" unit1="%(xunit)s"|
+  math output="3" 
+  '''%par)      
+
+Flow('den',None,
+  '''
+  spike n1=%(nx)d d1=%(dx)g o1=%(ox)g label1="%(xlabel)s" unit1="%(xunit)s" nsp=5 
+        k1=50,120,200,290,370 mag=1,-1,0.5,-1|
+  math output="2+input" 
+  '''%par)      
+
+#constant density for migration
+Flow('cden','den',
+  '''
+  math output="1" 
+  '''%par)      
+
+
+Flow('wavelet',None,
+  '''
+  spike n1=%(nt)d d1=%(dt)g o1=%(ot)g nsp=1 k1=60|
+  ricker2 frequency=20 |
+  deriv
+  '''%par)
+
+
+
+
+Flow('wavefield',['wavelet','vel','den'],
+  '''
+  python wave1drsf.py vel=${SOURCES[1]} den=${SOURCES[2]} nb=700 sx=0.0
+  ''')
+
+Flow('data','wavefield','window n2=1')
+Flow('mdata','data','mutter t0=0.12|deriv ')
+
+
+#####
+#
+#   Migration
+#
+#####
+Flow('rwfl',['mdata','vel','cden'],
+  '''
+  reverse which=1 opt=i |
+  python wave1drsf.py vel=${SOURCES[1]} den=${SOURCES[2]} nb=700 sx=0.0
+  ''')
+
+
+Flow('swfl',['wavelet','vel','cden'],
+  '''
+  python wave1drsf.py vel=${SOURCES[1]} den=${SOURCES[2]} nb=700 sx=0.0
+  ''')
+
+Flow('image',['rwfl','swfl'],
+   '''
+   reverse which=1 opt=i|
+   add mode=p ${SOURCES[1]} |
+   stack axis=1
+   ''')
+
+
+
+
+for onedplots in ['vel','den','wavelet','data','mdata','image']:
+  graph(onedplots,onedplots)
+
+
+for wavefields in ['wavefield','swfl','rwfl']:
+  grey(wavefields,wavefields)
+
+
+
+
+End()

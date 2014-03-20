@@ -145,12 +145,16 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
       // source injection:
       source_inject(it, utmp);
       // time step: 
-      up1 = sub(add(mul(2.0f,uo),mul(rhov2,utmp)),um1);
+      for (int ix=0; ix<_nx; ++ix){
+        up1[ix] = 2.0f*uo[ix] +rhov2[ix]*utmp[ix]-um1[ix];
+      }
       // circulate arrays:
-      um1 = uo;
-      uo  = up1; 
+      for (int ix=0; ix<_nx; ++ix){
+        um1[ix] = uo[ix];
+        uo[ix]  = up1[ix];
+      }
       // send uo to movie:
-      _movie[it] = uo;       
+      copy(uo,_movie[it]);
     }
   }
 
@@ -181,7 +185,7 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
     float [] u = new float[n1];
 
     float gi=0.0f;
-    for (int i1=1; i1<n1;++i1){
+    for (int i1=1; i1<n1-1;++i1){
       gi  = f[i1  ];  // gather 
       gi -= f[i1-1];  //  = g[i] = f[i] - f[i-1] //backward
       gi *= k[i1  ];    // scale: g[i] *= 1/rho[i] 
@@ -191,37 +195,7 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
     return mul(-1.0f/(_dx*_dx),u); // proper scaling
   }
   
-
-
-
-  private float[] div_rho_grad_old (float [] f, float [] k){
-    int n1 = f.length;
-    float [] u = new float[n1];
-  
-    d_dx(f,u);
-    mul(k,u,u);
-    d_dx(u,u); 
-    return u; 
-  }
-
-  private void d_dx (float[] u, float[] du ){
-    float cm2 = -1.0f/(12.0f*_dx);
-    float cm1 = +8.0f/(12.0f*_dx);
-    float cp1 = -cm1;
-    float cp2 = cm2; 
-
-    for (int ix=2 ; ix<_nx-2; ++ix){
-      du[ix] = cm2*u[ix-2] + cm1*u[ix-1] + cp1*u[ix+1] + cp2*u[ix+2];
-    }
-
-  }
-
-
-
-
-
   private void get_sourceXgrided(){
-
     // Nearest neighbor gridding
     _sourceXi = new int[_ns];
     for (int is=0; is<_ns; ++is){

@@ -1,0 +1,489 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{setspace,enumerate}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{graphicx,caption,subfig}
+
+\floatstyle{ruled}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert_p}
+\newcommand{\normi}[1]{\left\lVert#1\right\rVert_\infty}
+\newcommand{\normt}[1]{\left\lVert#1\right\rVert_2}
+
+\doublespacing
+\author{Esteban D\'{i}az}
+\title{Homework 3}{}
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\floatname{program}{Program}
+\newfloat{printout}{thp}{lop}
+\floatname{printout}{Printout}
+\DeclareMathOperator{\sinc}{sinc}
+
+\begin{document}
+
+\maketitle
+
+\section{Problem 1}
+\subsection{Part a}
+  The matrix $A \in R^{m\times n}$ has rank $n$.
+  \begin{proof}
+    the matrix $A=[\vec{a}_1;\vec{a}_2;\dots;\vec{a}_n]$. Each 
+  column element is of the form $a_{i,1} = 1$, $a_{i,j} = t_ia_{i,j-1}, j=2,\dots,n$. From 
+  here we can see that the columns of A are linearly independent. 
+  The only way that the columns of A are linearly dependent is 
+  when the observations are taken at the same place $t_i=0\forall i=1,\dots,n$.  
+  Hence, $Rank A = dim\{\vec{a}_1,\dots,\vec{a}_n\} = n$.
+  \end{proof}
+\subsection{Part b}
+    For the first setup $(m,n)=(100,15)$ the matrix $A^TA$ is 
+    not positive definite. Hence, the Cholesky factorization
+    cannot be obtained. For $(m,n)=(10,5)$ both methods (i) and (ii)
+    give similar results. For $(m,n)=(100,15)$ methods (i)-(iv)
+    give accurate results upto 7 significant digits. 
+
+
+\section{Problem 2}
+  Since $A$ is non singular, then there exist $A^{-1}$; and the
+  columns of $A$ form a basis such that:
+      \[
+      \vec{b} = \sum_{j=1}^m x_j \vec{a}_j = A\vec{x}, x_j\in R 
+      \]
+    So we can think of $\vec{b}$ to be a linear function of $\vec{x}$.
+  Hence, a perturbation of $\vec{b}$ results in a perturbation of $\vec{x}$:
+
+   \[
+    \vec{\delta b} = A(\vec{x} +\vec{\delta x})-A\vec{x}
+    \] 
+   \[
+    \vec{\delta b} = A(\vec{x} +\vec{\delta x})-\vec{b}
+   \] 
+    \[
+    \vec{\delta b}+\vec{b}= A(\vec{x} +\vec{\delta x})
+    \]
+    Hence,
+    \[
+    \vec{\delta b} = A\vec{\delta x}
+    \]
+    And 
+    \[
+    \vec{\delta x} = A^{-1} \vec{\delta b}
+    \]
+    \begin{equation}
+    \norm{\vec{\delta x}} =\norm{ A^{-1} \vec{\delta b}}
+    \end{equation}
+
+    Now, 
+    \[
+    \norm{A^{-1}} = \max_{\vec{\delta b}\neq \vec{0}}\frac{\norm{A^{-1}\vec{\delta b}}}{\norm{\vec{\delta b}}} \geq \frac{\norm{A^{-1}\vec{\delta b}}}{\norm{\vec{\delta b}}}
+    \]
+    Assuming that $\vec{\delta b} \neq \vec{0}$ satisfies the maximum, we have: 
+    \[
+    \norm{A^{-1}} =\frac{\norm{A^{-1}\vec{\delta b}}}{\norm{\vec{\delta b}}}
+      \]
+    Using (1), we obtain:
+    \[
+    \norm{A^{-1}}\norm{\vec{\delta b}} = \norm{\vec{\delta x}}
+    \]
+
+    We can divide both sides by $\norm{\vec {x}}$:
+    \begin{equation}
+    \norm{A^{-1}}\norm{\vec{\delta b}}\frac{1}{\norm{\vec{x}}} = \norm{\vec{\delta x}}\frac{1}{\norm{\vec{x}}}
+    \end{equation}
+
+    We now that $\norm{\vec{b}} =\norm{A\vec{x}}$. Following similar
+    logic as for the previous steps we have:
+    \[
+    \norm{A} = \max_{\vec{ x}\neq \vec{0}}\frac{\norm{A\vec{ x}}}{\norm{\vec{x}}} \geq \frac{\norm{A\vec{ x}}}{\norm{\vec{x}}}
+    \]
+    If we assume that $\vec{x}$ satisfies the equality, then:
+    \begin{equation}
+      \norm{A}\norm{\vec{x}} = \norm{A\vec{x}} = \norm{\vec{b}}
+    \end{equation}
+    from which we obtain:
+    \[
+    \norm{\vec{x}} = \norm{\vec{b}}\frac{1}{\norm{A}}
+    \] 
+    which we can substitute in equation (2):
+    \begin{equation}
+    \norm{A^{-1}}\norm{\vec{\delta b}}\frac{\norm{A}}{\norm{\vec{b}}} = \norm{\vec{\delta x}}\frac{1}{\norm{\vec{x}}}
+    \end{equation}
+
+    \begin{equation}
+ \frac{\norm{\vec{\delta x}}}{\norm{\vec{x}}}=
+    \norm{A^{-1}}\norm{A}\frac{\norm{\vec{\delta b}}}{\norm{\vec{b}}} 
+    \end{equation}
+    \begin{equation}
+ \frac{\norm{\vec{\delta x}}}{\norm{\vec{x}}}=
+    \kappa_p(A)\frac{\norm{\vec{\delta b}}}{\norm{\vec{b}}} 
+    \end{equation}
+     
+    
+\section{problem 3}
+ We want to know if $f(x) = \frac{1-\cos x}{x^2}$ is well-conditioned.
+ To do that we want to see if the condition number is low at $x=0$. This
+ expression gets inaccurate in a computer as $x\approx 0$. 
+
+  \[
+  \kappa(f) = \left|\frac{f'(x) x}{f(x)}\right|=
+  \left( \frac{-2(1-\cos x)}{x^3} + \frac{\sin x}{x^2}\right)\frac{x^3}{1-\cos x} =
+  -2 + \frac{\sin x}{1-\cos x} x 
+  \]
+  \[
+  \lim_{x \to 0} \frac{x \sin x}{1-\cos x} = \lim_{x \to 0} \frac{\sin x + x\cos x}{\sin x} =
+   \lim_{x \to 0} 1 +\frac{x\cos x}{\sin x} = 2
+  \]
+  Hence, $\kappa(f) = 0$. The problem is well-conditioned.
+  In order to avoid subtraction of nearly equal numbers one can
+  find an equivalent expression where the subtraction does not occur:
+  \[
+  f(x) = \frac{1-\cos x}{x^2} = \frac{1-\cos x }{x^2}\frac{1+\cos x}{1+\cos x} = \frac{1-\cos^2 x}{x^2(1+\cos x)} = \frac{\sin^2 x}{x^2(1+\cos x)}=\frac{\sinc^2 x}{1+\cos x}
+  \]  
+
+\section{problem 4}
+  In order to avoid subtraction of nearly equal numbers we can 
+  find an equivalent expression in a similar way as in previous problem:
+  \[
+  f_2(x) = \sqrt{x+1}-\sqrt{x} = \sqrt{x+1}-\sqrt{x}\frac{\sqrt{x+1}+\sqrt{x}}{\sqrt{x+1}+\sqrt{x}} = \frac{1}{\sqrt{x+1}+\sqrt{x}}
+  \]
+  The expression in this problem gets inaccurate as x gets large. 
+  The equivalent expression avoids subtraction, and therefore can 
+  be considered the machine representation of the function, so 
+we can measure the error of method 1 with respect to method 2:
+   \[
+    err = \left |\frac{f_2(x)-f_1(x)}{f_2(x)}\right|
+  \]
+  The number of correct significant digits ranges
+  from 13 to 6 for $i=1,\dots,5$, respectively.
+  The most innacurate result was for $x=100^4$.
+
+\section{problem 5}
+Let $\widetilde{w}=(x\oplus y)\otimes z$ be the machine
+representation of $w$. Each machine operation
+introduces a round off error $\epsilon\leq u$.
+\[
+  \widetilde{w}=(x+y)(1+\epsilon_1)z(1+\epsilon_2)
+\]
+let $\delta=\epsilon_1+\epsilon_2+\epsilon_1\epsilon_2\approx \epsilon_1+\epsilon_2$.
+\[
+  \widetilde{w}=(x+y)z(1+\delta)=w(1+\delta)
+\]
+Now, $|\delta| \approx |\epsilon_1+\epsilon_2| \approx <|\epsilon_1|+|\epsilon_2| \approx < 2u$.
+
+So, the relative error is 
+\[
+  \left|\frac{w-\widetilde{w}}{w}\right| = |\delta| <2u
+\]
+Hence, the problem is backward stable since a small perturbation on the
+input results in a small perturbation on the output. We can think
+of $\widetilde{w}$ to be $w(z+\delta)$.
+
+\section{Appendix}
+\begin{program}
+\begin{verbatim}
+function [A,b] = problem1(m,n); 
+
+pts = linspace(0,1,m)';
+
+A = zeros(m,n);
+b = zeros(m,1);
+A(:,1) = 1;
+for j=2:n
+  A(:,j) = pts.*A(:,j-1);
+end
+
+for i=1:m
+  b(i) = exp(sin(4*pts(i)));
+end  
+\end{verbatim}
+  \caption{Problem 1 setup}
+\end{program}
+
+\begin{program}
+\begin{verbatim}
+function [x] = backsub(U,d)
+[n,m] = size(U);
+
+x = zeros(n,1);
+x(n)= d(n)/U(n,n);
+
+for i=n-1:-1:1
+  suma = 0;
+  for j=i+1:n
+    suma = suma+U(i,j)*x(j);
+  end
+  x(i) = (d(i)-suma)/U(i,i);
+end
+\end{verbatim}
+  \caption{Problem 1: back substitution routine}
+\end{program}
+
+\begin{program}
+\begin{verbatim}
+function [x] = forwsub(L,d)
+[n,m] = size(L);
+
+x = zeros(n,1);
+x(1) = d(1)/L(1,1);
+
+for i=2:n
+  suma=0;
+  for j=1:i-1
+    suma = suma +L(i,j)*x(j);
+  end
+  x(i) = (d(i)-suma)/L(i,i);
+end
+\end{verbatim}
+  \caption{Problem 1: forward substitution routine}
+\end{program}
+
+\begin{program}
+\begin{verbatim}
+function [x_chol] = problem_1bi(A,b);
+R = chol(A'*A);
+c = A'*b;
+y = forwsub(R',c);
+x_chol = backsub(R,y);
+\end{verbatim}
+  \caption{Problem 1: LS solution via Cholesky factorization}
+\end{program}
+
+\begin{program}
+\begin{verbatim}
+function [x_qr] = prob_1bii(A,b)
+[Q,R] = qr(A,0); 
+c = Q'*b;
+x_qr = backsub(R,c);
+\end{verbatim}
+  \caption{Problem 1: LS solution via QR factorization}
+\end{program}
+
+\begin{program}
+\begin{verbatim}
+function [x_svd] = prob_1biii(A,b)
+[U,S,V] = svd(A,0);
+
+[m,n] = size(A);
+r = size(S,1);
+y = zeros(n,1);
+c = U'*b;
+for i=1:r
+  y(i) = c(i)/S(i,i);
+end
+x_svd = V*y;
+\end{verbatim}
+  \caption{Problem 1: LS solution via SVD factorization}
+\end{program}
+
+\begin{program}
+\begin{verbatim}
+
+format long e;
+clear;
+clc; 
+
+% m,n=15,10
+m=100;
+n=15;
+[A,b]=problem1(m,n);
+%x_chol = prob_1bi(A,b)
+fprintf('--------------------\n')
+fprintf('    m=100,n=15      \n')
+x_qr = prob_1bii(A,b);
+x_svd = prob_1biii(A,b);
+x_mlab = A\b;
+fprintf('QR solution x(n)\n')
+x_qr(n)
+fprintf('SVD solution x(n)\n')
+x_svd(n)
+fprintf('Matlab solution x(n)\n')
+x_mlab(n)
+
+m=10;
+n=5;
+xn = 2.006787453080206e03;
+[A,b]=problem1(m,n);
+x_chol = prob_1bi(A,b);
+x_qr = prob_1bii(A,b);
+x_svd = prob_1biii(A,b);
+x_mlab = A\b;
+
+fprintf('--------------------\n')
+fprintf('    m=10,n=5      \n')
+fprintf('Cholesky solution x(n)\n')
+x_chol(n)
+fprintf('QR solution x(n)\n')
+x_qr(n)\end{verbatim}
+  \caption{Problem 1: driver}
+\end{program}
+
+\begin{printout}
+\begin{verbatim}
+--------------------
+    m=100,n=15      
+QR solution x(n)
+
+ans =
+
+     2.006786880606435e+03
+
+SVD solution x(n)
+
+ans =
+
+     2.006786880599539e+03
+
+Matlab solution x(n)
+
+ans =
+
+     2.006787731242561e+03
+
+--------------------
+    m=10,n=5      
+Cholesky solution x(n)
+
+ans =
+
+     2.281522755027906e+01
+
+QR solution x(n)
+
+ans =
+
+     2.281522755029681e+01
+\end{verbatim}
+  \caption{Problem 1: driver output}
+\end{printout}
+
+
+
+\begin{program}
+\begin{verbatim}
+clear;
+clc;
+format long e;
+for i=1:5
+  x = (100)^i
+  fx1=sqrt(x+1)-sqrt(x)
+  fx2=1/(sqrt(x+1)+sqrt(x))
+  err = abs(fx2-fx1)/fx2*100
+end
+\end{verbatim}
+  \caption{Problem 4: driver}
+\end{program}
+
+
+
+\begin{printout}
+\begin{verbatim}
+x =
+
+   100
+
+
+fx1 =
+
+     4.987562112088995e-02
+
+
+fx2 =
+
+     4.987562112089027e-02
+
+
+err =
+
+     6.538826106910213e-13
+
+
+x =
+
+       10000
+
+
+fx1 =
+
+     4.999875006248544e-03
+
+
+fx2 =
+
+     4.999875006249609e-03
+
+
+err =
+
+     2.130293683178898e-11
+
+
+x =
+
+     1000000
+
+
+fx1 =
+
+     4.999998750463419e-04
+
+
+fx2 =
+
+     4.999998750000625e-04
+
+
+err =
+
+     9.255879628564401e-09
+\end{verbatim}
+  \caption{Problem 4: printout}
+\end{printout}
+
+\begin{printout}
+\begin{verbatim}
+
+x =
+
+   100000000
+
+
+fx1 =
+
+     5.000000055588316e-05
+
+
+fx2 =
+
+     4.999999987500000e-05
+
+
+err =
+
+     1.361766334613046e-06
+
+
+x =
+
+     1.000000000000000e+10
+
+
+fx1 =
+
+     4.999994416721165e-06
+
+
+fx2 =
+
+     4.999999999875000e-06
+
+
+err =
+
+     1.116630767065646e-04
+\end{verbatim}
+  \caption{Problem 4: printout (continued)}
+\end{printout}
+
+
+
+\end{document}

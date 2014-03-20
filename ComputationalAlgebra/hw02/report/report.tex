@@ -1,0 +1,396 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{setspace,enumerate}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{graphicx,caption,subfig}
+
+\floatstyle{ruled}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert_p}
+\newcommand{\normi}[1]{\left\lVert#1\right\rVert_\infty}
+\newcommand{\normt}[1]{\left\lVert#1\right\rVert_2}
+
+\doublespacing
+\author{Esteban D\'{i}az}
+\title{Homework 2}{}
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\floatname{program}{Program}
+\begin{document}
+
+\maketitle
+
+\section{Problem 1}
+let $s = {\vec{v}_{r+1},\dots,\vec{v}_n}$ be the set of the last $n-r$ 
+columns of V, then if that set is an orthonormal basis for $N(A)$ then it
+follows that:
+\[
+  { A}\vec{v}_j = \vec{0}; \forall j=r+1,\dots,n
+\]
+
+\begin{proof}
+  Let $A \in R^{m \times n}$ and $A= U \Sigma V^T$ is the full SVD of
+A.
+
+  Since $V$ is orthonormal by definition, then we have:
+    \[
+      A V = U \Sigma
+    \]
+  For a given column of $V$ we have $ A\vec{v}_j = \sigma_j \vec{u}_j$.
+  Now, since $\sigma_j =0,\forall j=r+1,\dots,n$ it follows that:
+
+    \[
+      A \vec{v}_j = \vec{0}; \forall j=r+1,\dots,n
+    \] 
+  Which proves that $\vec{v}_j \in N(A)$.
+
+  Let $\alpha_j \in R$, then 
+    \[
+      \alpha_j  A \vec{v}_j = \vec{0}; \forall j=r+1,\dots,n
+    \]
+    \[
+      A (\alpha_j\vec{v}_j) = \vec{0}
+    \]
+    \[
+      \sum_{j=r+1}^n A (\alpha_j \vec{v}_j) = \vec{0}
+    \]
+    \[
+      A \left(\sum_{j=r+1}^n \alpha_j \vec{v}_j\right) = \vec{0}
+    \]
+  Which implies that $\vec{y} = \sum_{j=r+1}^n \alpha_j \vec{v}_j \in R^m$
+  also belongs to $N(A)$:
+    \[
+     A \vec{y} = \vec{0}
+    \]
+  Now, each $\vec{v}_j; \forall j=r+1,\dots,n$ is orthonormal, that
+  is $\vec{v}_i^T \vec{v}_j = \delta_{ij}; \forall i,j=1,\dots,n$,
+  hence $N(A) = span(\vec{v}_{r+1},\dots,\vec{v}_n)$ and $dim N(A) = n-r$.  
+
+\end{proof}
+
+\section{problem 2}
+\textbf{part a}: the rank of A can be computed numerically by 
+counting the nonzero eigenvalues in $\Sigma$. In this case 
+$rank(A) = 2$ (the last eigenvalue $\sigma_3 = 9.8864e-17 <\epsilon$),
+where $\epsilon$ is the machine precision for Matlab\textsuperscript{\textregistered}.
+\begin{verbatim}
+S =
+
+   2.5987e+00            0            0
+            0   3.6815e-01            0
+            0            0   9.8864e-17
+
+\end{verbatim}
+
+\textbf{part b}: given that $\vec{a}_3 = \vec{a}_2 +\vec{a}_1$, and 
+$\vec{a}_1,\vec{a}_2$ are linearly independent, that is $\alpha_1 \vec{a}_1+\alpha_2\vec{a}_2 = 0 $ iff $ \alpha_1=\alpha_2=0$, then we can say
+that $rank(A) = dim R(A) = 2$.
+
+
+\section{problem 3}
+matrix $A\in R^{m\times n}; m>n$ becomes closer to be
+ linearly independent as $\epsilon$ gets 
+smaller, hence for very small $\epsilon$ it violates the assumptions
+that $rank(A) = n$.
+ For the numerical tests in this problem, we see the following results:
+
+\begin{verbatim}
+epsilon = 1.000000e-03
+   ||A - QR||:
+   cgs = 0.000000e+00   mgs = 0.000000e+00 
+   ||I - Q^T*Q||:
+   cgs = 2.879680e-11   mgs = 4.078417e-14 
+
+epsilon = 1.000000e-05
+   ||A - QR||:
+   cgs = 0.000000e+00   mgs = 0.000000e+00 
+   ||I - Q^T*Q||:
+   cgs = 4.782791e-08   mgs = 6.764166e-13 
+
+epsilon = 1.000000e-07
+   ||A - QR||:
+   cgs = 1.323489e-23   mgs = 1.323489e-23 
+   ||I - Q^T*Q||:
+   cgs = 1.328004e-02   mgs = 1.878247e-09 
+\end{verbatim}
+
+both algorithms, Gram-Schmidt (CGS) and modified Gram-Schmidt (MGS) 
+perform well for decomposing $A = \hat{Q}\hat{R}$. However,
+we can see that MGS performs much better in the orthogonalization
+for $Q$ since $\normt{I-Q^T_{CGS} Q_{CGS}} \gg \normt{I-Q^T_{MGS} Q_{MGS}}$. Even for
+bigger $\epsilon$ MGS error is several orders of magnitude smaller
+than that of CGS.
+
+
+
+\section{problem 4}
+Householder matrix is defined as 
+\[F = I - \frac{2}{\vec{v}^T\vec{v}}\vec{v}\vec{v}^T  \in R^{n\times n}\]
+with $\vec{v} \in R^n$.
+
+The SVD of $\vec{v}$ can be written as:
+\[
+  \vec{v} = U \Sigma V^T
+\]
+with 
+\[
+\Sigma =
+ \begin{pmatrix}
+  \sigma \\
+    0    \\
+    \vdots \\
+    0
+ \end{pmatrix} 
+\]
+where $U \in R^{n\times n}, \Sigma \in R^{n\times 1}, V\in R$, hence
+
+we can also write:
+\[
+\vec{v}^T\vec{v} = V \Sigma^T U^T U \Sigma V^T 
+\] 
+\begin{align*}
+  \vec{v}^T\vec{v} &= V \Sigma^T U^T U \Sigma V^T\\ 
+                   &= V \Sigma^T \Sigma V^T\\
+                   &= \sigma^2
+\end{align*}
+since $VV^T = 1 \in R$
+Now, 
+
+\begin{align*}
+  \vec{v}\vec{v}^T &= U \Sigma V^T V \Sigma^T U^T \\
+                   &= U \Sigma \Sigma^T U^T \\
+\end{align*}
+note that:
+\[
+\Sigma \Sigma^T =
+ \begin{pmatrix}
+  \sigma^2 &0& 0 & \dots & 0 \\
+       0   &0& 0 & \dots & 0 \\
+       0   &\vdots& \ddots & \dots & 0 \\
+  \vdots   &\vdots& \vdots & \ddots & \vdots \\
+       0   & 0&0 & 0  & 0 \\
+ \end{pmatrix} = \sigma^2
+ \begin{pmatrix}
+  1 &0& 0 & \dots & 0 \\
+       0   &0& 0 & \dots & 0 \\
+       0   &\vdots& \ddots & \dots & 0 \\
+  \vdots   &\vdots& \vdots & \ddots & \vdots \\
+       0   & 0&0 & 0  & 0 \\
+ \end{pmatrix} \]
+
+hence:
+\begin{align*}
+F  &= I - \frac{2}{\vec{v}^T\vec{v}}\vec{v}\vec{v}^T \\
+   &= I - \frac{2}{\sigma^2}U \Sigma \Sigma^T U^T \\
+   &= U I U^T -2 U
+ \begin{pmatrix}
+  1 & 0 & \dots & 0 \\
+       0   & \ddots & \dots & 0 \\
+  \vdots   & \vdots & \ddots & \vdots \\
+       0   & 0 & 0  & 0 \\
+ \end{pmatrix} U^T \\
+   &= U \begin{pmatrix}
+  -1   & 0 & \dots & 0 \\
+   0   & 1 & \dots & 0 \\
+   0   & 0 & \ddots & 0 \\
+   0   & 0 &  0 & 1 \\
+ \end{pmatrix}U^T 
+\end{align*}
+
+which is the SVD of $F$. From $\Sigma$ we can see that $\sigma_i=1; i=2,...,n$ and $\sigma_1=-1$. Therefore, the $det(F) = \prod_{i=1}^{n} \sigma_i=-1$.
+
+\section{problem 5}
+
+\textbf{part a:} implemented in function house.m
+ 
+\textbf{part b:} here are the numerical results  for the 
+error analysis:
+\begin{verbatim}
+   ||A - QR||:
+   mgs = 1.223729e-15   house = 3.551902e-15  matlab = 2.155632e-15 
+   ||I - Q^T*Q||:
+   mgs = 4.204729e-04   house = 1.397023e-15  matlab = 8.453691e-16 
+\end{verbatim}
+
+we can see that all three functions perform a similar decomposition
+for $A=QR$. However, the matrix $Q$ is computed much better in 
+house(A) and MATLAB's qr(A,0) function. The error in mgs(A) much greater
+than those of house and qr.
+
+\begin{program}
+\begin{verbatim}
+clear all
+clc; 
+diary problem2.txt
+format short e; 
+A = [1/3 1/3 2/3;...
+     2/3 2/3 4/3;...
+     1/3 2/3 3/3;...
+     2/5 2/5 4/5;...
+     3/5 1/5 4/5];
+
+[U,S,V] = svd(A,0);
+S
+diary off
+\end{verbatim}
+  \caption{Numerical estimation of rank(A) for problem 2}
+\end{program}
+
+\begin{program}
+\begin{verbatim}
+function [hatQ,hatR] = cgs(A) 
+%
+% This function does the reduced QR
+% factorization of A using the Gram-Schmidt
+% 
+  [m,n] = size(A);
+  hatR = zeros(n,n);
+  hatQ = zeros(m,n);
+  for j = 1:n
+    vj = A(:,j);
+
+    for i = 1:j-1
+      hatR(i,j) = hatQ(:,i)'*A(:,j);
+      vj = vj - hatR(i,j)*hatQ(:,i);  
+    end
+    hatR(j,j) = norm(vj);
+    hatQ(:,j) = vj/hatR(j,j);
+  end
+end
+\end{verbatim}
+  \caption{Function cgs(A) implementation}
+\end{program}
+
+
+\begin{program}
+\begin{verbatim}
+function [hatQ,hatR] = mgs(A) 
+%
+% This function does the modified reduced QR
+% factorization of A using the Gram-Schmidt
+% 
+  [m,n] = size(A);
+  hatR = zeros(n,n);
+  hatQ = zeros(m,n);
+  for j = 1:n
+    vj = A(:,j);
+
+    for i = 1:j-1
+      hatR(i,j) = hatQ(:,i)'*vj;
+      vj = vj - hatR(i,j)*hatQ(:,i);  
+    end
+    hatR(j,j) = norm(vj);
+    hatQ(:,j) = vj/hatR(j,j);
+  end
+end
+\end{verbatim}
+  \caption{Function mgs(A) implementation}
+\end{program}
+
+\begin{program}
+\begin{verbatim}
+function [A] = matrixp3A(epsilon)
+  A = [1    1    1;...
+       epsilon 0 0;...
+       0 epsilon 0;...
+       0 0 epsilon]; 
+end
+\end{verbatim}
+  \caption{Function matrix($\epsilon$) implementation for constructing matrix A}
+\end{program}
+
+\begin{program}
+\begin{verbatim}
+clear all;
+clc;
+
+epsv = [10e-4 10e-6 10e-8];
+diary problem3.txt
+for i=1:3
+  epsilon = epsv(i);
+  A = matrixp3A(epsilon);
+
+  [hatQ,hatR] = cgs(A);
+  QTQ = hatQ'*hatQ;
+  errAcgs = norm(A-hatQ*hatR);
+  errIcgs = norm(eye(size(QTQ))-QTQ);
+
+  [hatQ,hatR] = mgs(A);
+  QTQ = hatQ'*hatQ;
+  errAmgs = norm(A-hatQ*hatR);
+  errImgs = norm(eye(size(QTQ))-QTQ);
+
+  fprintf('epsilon = %e\n',epsilon);
+  fprintf('   ||A - QR||:\n   cgs = %e   mgs = %e \n',errAcgs,errAmgs);
+  fprintf('   ||I - Q^T*Q||:\n   cgs = %e   mgs = %e \n\n\n',errIcgs,errImgs);
+end
+
+diary off;
+\end{verbatim}
+  \caption{Driver problem3.m for problem 3}
+\end{program}
+
+
+\begin{program}
+\begin{verbatim}
+function [hatQ,hatR] = house(A)
+  
+  [m,n] = size(A);
+  V = zeros(m,n);
+
+  for k=1:n
+    x = A(k:m,k);
+    v = x + (sign(x(1,1))*norm(x)*eye(m-k+1,1));
+    V(k:m,k) = v/norm(v);
+    A(k:m,k) = -sign(x(1,1))*norm(x)*eye(m-k+1,1);
+    
+    for j= k+1:n
+      A(k:m,j) = A(k:m,j)-(V(k:m,k)'*A(k:m,j)*2)*V(k:m,k);
+    end
+  end
+  hatR = A(1:n,1:n);
+  hatQ = eye(m,n);
+
+  for j=1:n
+    for k=j:-1:1
+      hatQ(k:m,j) = hatQ(k:m,j)-V(k:m,k)*(V(k:m,k)'*hatQ(k:m,j)*2);  
+    end
+  end
+end
+\end{verbatim}
+  \label{fig:house}
+  \caption{Function house(A)}
+\end{program}
+
+\begin{program}
+\begin{verbatim}
+clear all;
+clc;
+format short e;
+diary problem5.txt
+m = 30;
+n = 20;
+pts = linspace(1/n,1,n);
+A = zeros(m,n);
+
+A(1,:) =ones(1,20);
+for i=2:m
+  A(i,:) = pts.*A(i-1,:);
+end
+
+[cQ,cR]=mgs(A);
+[hQ,hR]=house(A);
+[mQ,mR]=qr(A,0);
+I = eye(size(mQ'*mQ));
+
+fprintf('   ||A - QR||:\n   mgs = %e   house = %e  matlab = %e \n',...
+            norm(A-cQ*cR),norm(A-hQ*hR),norm(A-mQ*mR));
+fprintf('   ||I - Q^T*Q||:\n   mgs = %e   house = %e  matlab = %e \n',...
+            norm(I-cQ'*cQ),norm(I-hQ'*hQ),norm(I-mQ'*mQ));
+
+diary off;
+\end{verbatim}
+  \caption{driver for numerical analysis in problem 5}
+\end{program}
+
+\end{document}

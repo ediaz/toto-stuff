@@ -1,0 +1,15 @@
+1.6-svn	sfmath	Desktop/toto-stuff/picking:	ediaz@wl-dhcp207-185.mines.edu	Mon Feb  3 10:17:22 2014
+
+	o1=0
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/Desktop/toto-stuff/picking/coords.rsf@"
+	x1=0
+	d1=0.004
+	n1=1763
+1.6-svn	sfinttest1	Desktop/toto-stuff/picking:	ediaz@wl-dhcp207-185.mines.edu	Mon Feb  3 10:27:54 2014
+
+	data_format="native_float"
+	esize=4
+	in="/var/tmp/tmp2@"
+n2=46

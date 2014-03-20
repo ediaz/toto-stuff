@@ -22,19 +22,17 @@ import static edu.mines.jtk.util.ArrayMath.*;
  **/
 
 
-public class Awefd1d{
-
-public static int nthread = Runtime.getRuntime().availableProcessors();
+public class Awefd1dp{
 
   // problem geometry:
   private float _dx, _dt;
-  private int   _nx, _nt; 
+  private int   _nx, _nt, _nxx; 
   private float _ox, _ot;
 
   private int _snap; // snapshot par: skip every _snap
                      // samples of the movie
 
-  private int _ns;
+  private int _ns,_nb;
   private float[] _v,_rho; // velocity and density
 
   private float[][] _source; // source function
@@ -46,28 +44,38 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
 
 
   // constructor:
-  public Awefd1d(float ox, float dx, int nx,
+  public Awefd1dp(float ox, float dx, int nx,
                  float ot, float dt, int nt,
                  float[] v, float[] rho,
                  float[][] source,float[] sourceX){
     this(ox,dx,nx,ot,dt,nt,v,rho,source,sourceX,1);
   } 
+         
+  public Awefd1dp(float ox, float dx, int nx,
+                 float ot, float dt, int nt,
+                 float[] v, float[] rho,
+                 float[][] source,float[] sourceX, int snap){
+    this(ox,dx,nx,ot,dt,nt,v,rho,source,sourceX,snap,1);
+  } 
                  
   // constructor:
-  public Awefd1d(float ox, float dx, int nx,
+  public Awefd1dp(float ox, float dx, int nx,
                  float ot, float dt, int nt,
                  float[] v, float[] rho,
                  float[][] source,float[] sourceX,
-                 int snap){
+                 int snap,int nb){
 
     _ox = ox; _dx = dx; _nx = nx; 
     _ot = ot; _dt = dt; _nt = nt; 
-    _v = v ; 
-    _rho = rho;
     _source = source;
     _sourceX = sourceX;
     _snap = snap;
     _ns = sourceX.length;
+    _nb = nb; 
+    _nxx = _nx + 2*_nb;
+
+    _v = pad(v) ; 
+    _rho = pad(rho);
     get_sourceXgrided();
     _movie = zerofloat(_nx,(int)(_nt));
 
@@ -120,24 +128,22 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
    *   u[x][t+1] = utmp +2*u[x][t] -u[x][t-1]
    *
    */
-
-
   private void fd1d_forward(){
 
     // Snapshot temporarly arrays:
-    float [] um1   = new float[_nx];
-    float [] uo   = new float[_nx];
-    float [] up1   = new float[_nx];
-    float [] utmp = new float[_nx];
+    float [] um1   = new float[_nxx];
+    float [] uo   = new float[_nxx];
+    float [] up1   = new float[_nxx];
+    float [] utmp = new float[_nxx];
 
-    float [] rhov2 = new float[_nx]; // precompute v^2*dt^2
-    float [] buoyancy = new float[_nx];  // 
+    float [] rhov2 = new float[_nxx]; // precompute v^2*dt^2
+    float [] buoyancy = new float[_nxx];  // 
     
-    for (int ix=0; ix<_nx; ++ix){
+    for (int ix=0; ix<_nxx; ++ix){
       rhov2[ix] = _rho[ix]*_v[ix]*_v[ix]*_dt*_dt;
       buoyancy[ix] = 1.0f/(_rho[ix]); //buoyancy*1/dx^2
     }
-    float [] up1_aux = zerofloat(_nx);
+    float [] up1_aux = zerofloat(_nxx);
 
     for (int it=0; it<_nt ; ++it){
       // spacial derivatives:
@@ -145,12 +151,17 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
       // source injection:
       source_inject(it, utmp);
       // time step: 
-      up1 = sub(add(mul(2.0f,uo),mul(rhov2,utmp)),um1);
+      for (int ix=0; ix<_nxx; ++ix){
+        up1[ix] = 2.0f*uo[ix] +rhov2[ix]*utmp[ix]-um1[ix];
+      }
       // circulate arrays:
-      um1 = uo;
-      uo  = up1; 
+      for (int ix=0; ix<_nxx; ++ix){
+        um1[ix] = uo[ix];
+        uo[ix]  = up1[ix];
+      }
       // send uo to movie:
-      _movie[it] = uo;       
+      for (int ix=0; ix<_nx; ++ix)
+        _movie[it][ix] = uo[ix+_nb];
     }
   }
 
@@ -191,50 +202,36 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
     return mul(-1.0f/(_dx*_dx),u); // proper scaling
   }
   
-
-
-
-  private float[] div_rho_grad_old (float [] f, float [] k){
-    int n1 = f.length;
-    float [] u = new float[n1];
-  
-    d_dx(f,u);
-    mul(k,u,u);
-    d_dx(u,u); 
-    return u; 
-  }
-
-  private void d_dx (float[] u, float[] du ){
-    float cm2 = -1.0f/(12.0f*_dx);
-    float cm1 = +8.0f/(12.0f*_dx);
-    float cp1 = -cm1;
-    float cp2 = cm2; 
-
-    for (int ix=2 ; ix<_nx-2; ++ix){
-      du[ix] = cm2*u[ix-2] + cm1*u[ix-1] + cp1*u[ix+1] + cp2*u[ix+2];
-    }
-
-  }
-
-
-
-
-
   private void get_sourceXgrided(){
-
     // Nearest neighbor gridding
     _sourceXi = new int[_ns];
     for (int is=0; is<_ns; ++is){
       int ix =(int)(Math.round((_sourceX[is]-_ox)/_dx));
-      _sourceXi[is]=ix;
+      _sourceXi[is]=ix+_nb;
     }
   }
 
 
   private void source_inject(int it,float[] ux){
-    for (int ix=0; ix<_nx;++ix){
-      ux[ix] += _source[it][ix];
+    for (int is=0; is<_ns;++is){
+      int ix = _sourceXi[is];
+      ux[ix] += _source[is][it];
     }
+  }
+
+  private float[] pad(float[] u){
+    float [] out = zerofloat(_nxx);
+
+    for (int ix=0; ix<_nb; ++ix)
+      out[ix] = u[0];
+
+    for (int ix=_nb; ix<_nb+_nx; ++ix)
+      out[ix] = u[ix-_nb];
+
+    for (int ix=_nb+_nx; ix<_nxx; ++ix)
+      out[ix] = u[_nx-1];
+
+    return out;
   }
 
 }

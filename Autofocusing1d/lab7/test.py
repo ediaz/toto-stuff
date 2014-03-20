@@ -16,72 +16,58 @@ from edu.mines.jtk.util.ArrayMath import *
 import lab7
 
 
-'''
-1D acoustic wave equation script:
-
-The reflected amplitudes 
-compare very well with the normal incidence
-coefficients.
-
-I would like to thank Gino for the 
-discussions about the proper input source
-function.
-
-First I was trying to inject a gaussian
-directly, and I was obtaining a trapezoidal
-wavefield (because of the input DC component of 
-the Gaussian).
-
-'''
-
-
 plotWidth = 800
 plotHeight = 800
 plotPngDir = "./png/"
 
-ox,nx,dx =    0.0, 401, 1.0
-ot,nt,dt =    0.0, 801, .5
+ox,nx,dx =    0.0, 401, 0.005
+ot,nt,dt =    0.0, 1801, 0.001
 
 
 ###########################################################################
 def main(args):
-  for rho in [0.5,0.3,0.2,0.1]:
+  for rho in [0.5]:
     awefd1d(rho) 
 
 def awefd1d(rho):
   global plotPngDir
 
-  tdelay = 20
-  source,sourceX = d_dt_gaussian(0,5,ot+tdelay,5)
+  tdelay = .05
+  source,sourceX = d_dt_gauss_time(ox,tdelay,20)
 
   vel = zerofloat(nx)
   den = zerofloat(nx)
 
   for i in range(nx):
-    vel[i] = 1.0
-    if i > int(nx/2):
-      den[i] = rho
-    else:
-      den[i] = 1.0
+    vel[i] = 2.0
+  for ix in range(nx/3):
+    den[ix]=1
+  for ix in range(nx/3,2*nx/3,1):
+    den[ix]=2.
+  for ix in range(2*nx/3,nx,1):
+    den[ix]=3.
 
-  fd1d = lab7.Awefd1d(ox,dx,nx,ot,dt,nt,vel,den,source,sourceX)
+  fd1d = lab7.Awefd1dp(ox,dx,nx,ot,dt,nt,vel,den,source,sourceX,1,501)
   movie = fd1d.apply()
-  plot(source,"") 
+  plotSequence(source[0],max(abs(source[0])))
   plot(movie,"")
-
-  clip = max(movie[tdelay+20])*1.05
-  plotPngDir = "./png/"+"rho%d/"%(rho*10)
-
-  for frame in range(nt-10,10,-80):
-    title = "time=%5.1fs, rho2=%3.1f"%(frame*dt+ot,rho)
-    png = "time_%04d_%d"%(frame*dt+ot,rho*10)
-    plotSequence(movie[frame],clip,png,title)
-
-  
-
 
 ################################
 # Utility functions:
+def d_dt_gauss_time(_os,t0,f):
+  sourceX = zerofloat(1)
+  sourceX[0] = _os
+  s = 1./(4*f)
+
+  source = zerofloat(nt,1)
+  is2 = 1./(2.*s*s)
+  ct = 1.0/(math.sqrt(2*math.pi)*s)
+  
+  for it in range(nt):
+    t = ot+it*dt
+    source[0][it]  = math.exp(-(t-t0)*(t-t0)/(2*s*s))
+    source[0][it] *= ct*(-2*(t-t0)/(2*s*s))
+  return source,sourceX
 
 def d_dt_gaussian(_os,ss,_ot,st):
   source = zerofloat(nx,nt)

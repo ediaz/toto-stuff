@@ -9,12 +9,12 @@ import static edu.mines.jtk.util.ArrayMath.*;
 /**
  * 1D ACOUSTIC WAVE EQUATION FINITE DIFFERENCE
  * 
- * 1  d^2      d  1  d
- * -- --- u  - -- -- -- u = s
- * pv dt^2     dx p  dx
+ *   1      d^2      d   1   d
+ * -------  --- u  - -- ---  -- u = s
+ * rho v^2  dt^2     dx rho  dx
  * 
  *
- * p = density (closest look to \rho is ascii characters)
+ * rho = density 
  *  
  * @author Esteban Diaz
  * @version 2012.11.04
@@ -24,7 +24,6 @@ import static edu.mines.jtk.util.ArrayMath.*;
 
 public class Awefd1d{
 
-public static int nthread = Runtime.getRuntime().availableProcessors();
 
   // problem geometry:
   private float _dx, _dt;
@@ -82,6 +81,42 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
   }
 
 
+  public float[][] applyb(){
+    for (int it=0; it<_nt/2; ++it){
+      for(int ix=0; ix<_nx; ++ix){
+        float tmp = _source[_nt-1-it][ix]; 
+        _source[_nt-1-it][ix]= _source[it][ix];
+        _source[it][ix]=tmp;
+      }
+    }
+    
+    fd1d_forward();
+    for (int it=0; it<_nt/2; ++it){
+      for(int ix=0; ix<_nx; ++ix){
+        float tmp = _movie[_nt-1-it][ix]; 
+        _movie[_nt-1-it][ix]= _movie[it][ix];
+        _movie[it][ix]=tmp;
+      }
+    }
+    for (int it=0; it<_nt/2; ++it){
+      for(int ix=0; ix<_nx; ++ix){
+        float tmp = _source[_nt-1-it][ix]; 
+        _source[_nt-1-it][ix]= _source[it][ix];
+        _source[it][ix]=tmp;
+      }
+    }
+    return _movie;
+  }
+
+
+
+  public float[][] applyb2(){
+    fd1d_backward();
+    return _movie;
+  }
+  
+
+
 
   /*
     Solves the 1d wave acoustic wave equation 
@@ -135,8 +170,13 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
     
     for (int ix=0; ix<_nx; ++ix){
       rhov2[ix] = _rho[ix]*_v[ix]*_v[ix]*_dt*_dt;
-      buoyancy[ix] = 1.0f/(_rho[ix]); //buoyancy*1/dx^2
     }
+    for (int ix=0; ix<_nx-1; ++ix){
+      buoyancy[ix] = 2.0f/(_rho[ix]+_rho[ix+1]); //buoyancy*1/dx^2
+    }
+    buoyancy[_nx-1] =1/_rho[_nx-1];
+
+
     float [] up1_aux = zerofloat(_nx);
 
     for (int it=0; it<_nt ; ++it){
@@ -144,13 +184,60 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
       utmp = div_rho_grad(uo,buoyancy); 
       // source injection:
       source_inject(it, utmp);
-      // time step: 
-      up1 = sub(add(mul(2.0f,uo),mul(rhov2,utmp)),um1);
+      // time step:
+      for (int ix=0; ix<_nx; ++ix){ 
+        up1[ix] = 2.f*uo[ix] +rhov2[ix]*utmp[ix]-um1[ix];  
+      }
       // circulate arrays:
-      um1 = uo;
-      uo  = up1; 
+      for (int ix=0; ix<_nx; ++ix){ 
+        um1[ix] = uo[ix];
+        uo[ix]  = up1[ix];
+      }
       // send uo to movie:
-      _movie[it] = uo;       
+      for (int ix=0; ix<_nx; ++ix)
+        _movie[it][ix] = uo[ix];       
+    }
+  }
+
+
+  private void fd1d_backward(){
+
+    // Snapshot temporarly arrays:
+    float [] um1   = new float[_nx];
+    float [] uo   = new float[_nx];
+    float [] up1   = new float[_nx];
+    float [] utmp = new float[_nx];
+
+    float [] rhov2 = new float[_nx]; // precompute v^2*dt^2
+    float [] buoyancy = new float[_nx];  // 
+    
+    for (int ix=0; ix<_nx; ++ix){
+      rhov2[ix] = _rho[ix]*_v[ix]*_v[ix]*_dt*_dt;
+    }
+    for (int ix=0; ix<_nx-1; ++ix){
+      buoyancy[ix] = 2.0f/(_rho[ix]+_rho[ix+1]); //buoyancy*1/dx^2
+    }
+    buoyancy[_nx-1] =1/_rho[_nx-1];
+
+
+    for (int it=_nt-1; it>-1 ; --it){
+
+      // spacial derivatives:
+      utmp = div_rho_grad(uo,buoyancy); 
+      // source injection:
+      source_inject(it, utmp);
+      // time step:
+      for (int ix=0; ix<_nx; ++ix){ 
+        um1[ix] = 2.0f*uo[ix] +rhov2[ix]*utmp[ix]-up1[ix];  
+      }
+      // circulate arrays:
+      for (int ix=0; ix<_nx; ++ix){ 
+        up1[ix] = uo[ix];
+        uo[ix]  = um1[ix];
+      }
+      // send uo to movie:
+      for (int ix=0; ix<_nx; ++ix)
+        _movie[it][ix] = uo[ix];       
     }
   }
 
@@ -181,7 +268,7 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
     float [] u = new float[n1];
 
     float gi=0.0f;
-    for (int i1=1; i1<n1;++i1){
+    for (int i1=1; i1<n1-1;++i1){
       gi  = f[i1  ];  // gather 
       gi -= f[i1-1];  //  = g[i] = f[i] - f[i-1] //backward
       gi *= k[i1  ];    // scale: g[i] *= 1/rho[i] 
@@ -236,5 +323,9 @@ public static int nthread = Runtime.getRuntime().availableProcessors();
       ux[ix] += _source[it][ix];
     }
   }
+
+
+  
+
 
 }

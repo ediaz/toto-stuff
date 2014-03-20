@@ -1,0 +1,72 @@
+\documentclass[10pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{setspace,enumerate}
+
+\usepackage{graphicx,caption,subfigure}
+
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\doublespacing
+
+\author{Esteban D\'{i}az}
+\title{Nonhyperbolic moveout for P-waves reflection data}{}
+\begin{document}
+
+\maketitle
+
+In this homework we invert for effective parameters
+for the traveltime approximation with quartic terms (equation 7.17 from 
+the book). 
+
+For the first approach (inverting for C) we assume we know the effective
+velocities. The L2 error plot is shown in Figure 1. The minimum
+value corresponds to $C=1.155$. The obtained traveltime curve is very
+close to the observed one, this is why I plot the difference instead
+(blue curve in Figure 3). 
+
+For the second approach we do not assume any known velocity and search
+for Vnmo and Vhor. The error in this 2D space search is shown in  
+Figure 2. The minimum corresponds to $Vnmo=2.088km/s$ and $Vhor=2.512km/s$.
+
+The retrieved traveltime corresponds to the red curve in Figure 3. 
+
+The tuning parameter C could be worthwhile looking if we know
+the medium velocities. However, we do not have that luxury very often. 
+The second approach resulted more effective and yields to very good 
+traveltimes.
+
+Plugging in the inverted velocities from the second approach results
+in $\eta_{eff} = 0.2237$ which is very similar to the
+real effective one $\eta(N) = 0.24474$. For P-wave kinematics 
+the long offset traveltime is dominated by $\eta$, so as long
+as we preserve this parameter we should obtain a
+ very good approximation.
+
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[height=0.4\textheight]{Fig/Error_C.pdf}
+  \end{center}
+  \caption{L2 error as a function of parameter C}
+\end{figure}
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[height=0.4\textheight]{Fig/Contour_L2_plot.pdf}
+  \end{center}
+  \caption{Contour error plot for searching for effective Vhor, Vnmo}
+\end{figure}
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[height=0.4\textheight]{Fig/Error_traveltimes.pdf}
+  \end{center}
+  \caption{Differences between inverted traveltimes and%
+          observed traveltimes. The red curve corresponds to the search%
+          for Vhor and Vnmo. The blue curve comes from the search for C}
+\end{figure}
+
+
+\end{document}

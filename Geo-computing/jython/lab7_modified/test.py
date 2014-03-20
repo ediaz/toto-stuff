@@ -31,7 +31,6 @@ First I was trying to inject a gaussian
 directly, and I was obtaining a trapezoidal
 wavefield (because of the input DC component of 
 the Gaussian).
-
 '''
 
 
@@ -39,15 +38,15 @@ plotWidth = 800
 plotHeight = 800
 plotPngDir = "./png/"
 
-ox,nx,dx =    0.0, 401, 1.0
-ot,nt,dt =    0.0, 801, .5
-
+ox,nx,dx =    0.0, 401, 0.05
+ot,nt,dt =    0.0, 801, .002
 
 ###########################################################################
 def main(args):
   for rho in [0.5,0.3,0.2,0.1]:
     awefd1d(rho) 
-
+  #awefd1d(0.5) 
+#  awefd1dvel(1.5)
 def awefd1d(rho):
   global plotPngDir
 
@@ -67,26 +66,81 @@ def awefd1d(rho):
   fd1d = lab7.Awefd1d(ox,dx,nx,ot,dt,nt,vel,den,source,sourceX)
   movie = fd1d.apply()
   plot(source,"") 
-  plot(movie,"")
+#  plot(movie,"")
+#
+#  clip = max(movie[tdelay+20])*1.05
+#  plotPngDir = "./png/"+"rho%d/"%(rho*10)
+#
+#  for frame in range(nt-10,10,-80):
+#    title = "time=%5.1fs, rho2=%3.1f"%(frame*dt+ot,rho)
+#    png = "time_%04d_%d"%(frame*dt+ot,rho*10)
+#    plotSequence(movie[frame],clip,png,title)
+#
 
-  clip = max(movie[tdelay+20])*1.05
-  plotPngDir = "./png/"+"rho%d/"%(rho*10)
+def awefd1dvel(v):
+  global plotPngDir
 
-  for frame in range(nt-10,10,-80):
-    title = "time=%5.1fs, rho2=%3.1f"%(frame*dt+ot,rho)
-    png = "time_%04d_%d"%(frame*dt+ot,rho*10)
-    plotSequence(movie[frame],clip,png,title)
+  tdelay = 20
+  sourceF,sourceX = rand_source(9721761) #d_dt_gaussian(0,5,ot+tdelay,5)
+  sourceB,sourceX = rand_source(41761) #d_dt_gaussian(0,5,ot+tdelay,5)
 
-  
+  vel = zerofloat(nx)
+  den = zerofloat(nx)
 
+  for i in range(nx):
+    den[i] = 1.0
+    if i > int(nx/2):
+      vel[i] = v
+    else:
+      vel[i] = 2.0
+
+  fd1dF = lab7.Awefd1d(ox,dx,nx,ot,dt,nt,vel,den,sourceF,sourceX)
+  movieF = fd1dF.apply()
+
+  fd1dB = lab7.Awefd1d(ox,dx,nx,ot,dt,nt,vel,den,sourceB,sourceX)
+  movieB = fd1dB.applyb2()
+
+  plot(sourceF,"source F") 
+  plot(movieF,"wavefield F")
+
+  plot(sourceB,"source B") 
+  plot(movieB,"wavefield B")
+  xLty = dotprod(sourceF,movieB)
+  yLx = dotprod(sourceB,movieF)
+  print "x*Lty :",xLty
+  print "y*Lx  :",yLx
+  print "diff  :",abs(xLty - yLx) <1.e-1
+ 
+def dotprod(a,b):
+  n2=len(a)
+  n1=len(a[0])
+  s = 0.0 
+  for i2 in range(n2):  
+    for i1 in range(n1):  
+      s += a[i2][i1]*b[i2][i1]
+  return s
 
 ################################
 # Utility functions:
 
+def rand_source(seed):
+  source = zerofloat(nx,nt)
+  sourceX = zerofloat(nx)
+  for isou in range(nx):
+    x = isou*dx+ox
+    sourceX[isou] = x
+  rand = RandomFloat(seed)
+  
+  for it in range(nt):
+    for isou in range(nx):
+      source[it][isou] = rand.uniform()
+  return source,sourceX
+
+
+
 def d_dt_gaussian(_os,ss,_ot,st):
   source = zerofloat(nx,nt)
   sourceX = zerofloat(nx)
-  
   for isou in range(nx):
     x = isou*dx+ox
     sourceX[isou] = x
@@ -103,6 +157,25 @@ def d_dt_gaussian(_os,ss,_ot,st):
       source[it][isou] *= math.exp(-(t-_ot)*(t-_ot)/(2*st*st)) 
 
   return source,sourceX
+
+def d_dt_gaussian2(_os,ss,_ot,st):
+  source = zerofloat(nx,nt)
+  sourceX = zerofloat(nx)
+  
+  for isou in range(nx):
+    x = isou*dx+ox
+    sourceX[isou] = x
+
+  cx = 1.0/(math.sqrt(2*math.pi)*ss)
+  ct = 1.0/(math.sqrt(2*math.pi)*st)
+  isou=0 
+  for it in range(nt):
+    t = ot+it*dt
+    source[it][isou] = ct*(-2*(t-_ot)/(2*st*st))
+    source[it][isou] *= math.exp(-(t-_ot)*(t-_ot)/(2*st*st)) 
+
+  return source,sourceX
+
 
 
 def mean(x):
