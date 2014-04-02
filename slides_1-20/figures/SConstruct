@@ -1,0 +1,47 @@
+from rsf.proj import *
+from rsf.recipes import fdmod
+import slides_fig 
+
+par = {'ox':0,'dx':1,'nx':512,'labelx':'x',
+       'oz':0,'dz':1,'nz':512,'labelz':'z'}
+
+fdmod.param(par)
+
+
+# Download data
+Fetch('mona.img','imgs')
+# Convert to standard format
+Flow('mona','mona.img',
+     '''
+     echo n1=512 n2=513 in=$SOURCE data_format=native_uchar |
+     dd type=float|transp|window n1=512
+     ''',stdin=0)
+
+slides_fig.custom_set(2,3)
+slc = slides_fig.slideFig(par,ratio='custom',font=20,width=1,height=2)
+slc.printratio()
+
+
+
+for ratios in ['4:3','16:9']:
+  rname = '-'+ratios.replace(":","to")
+
+  slide = slides_fig.slideFig(par,ratio=ratios,font=20) #init object
+  slide.printratio()
+
+  Result('mona'+rname,'mona',fdmod.cgrey('',par))
+  Result('mona70'+rname,'mona',slide.cgrey('',scalar=0.7))
+  Result('mona50'+rname,'mona',slide.cgrey('',scalar=0.5))
+  Result('mona20'+rname,'mona',slide.cgrey('',scalar=0.2))
+  Result('mona100'+rname,'mona',slide.cgrey('',scalar=1.0))
+  Result('mona120'+rname,'mona',slide.cgrey('',scalar=1.2))
+  Result('monaMaxH'+rname,'mona',slide.vcgrey('',scalar=1))
+
+
+
+
+
+
+
+
+End()

@@ -183,13 +183,7 @@ class interact:
     else:
       d = rsf.nmo(velocity=vel,half="n")[c]
     b = np.array(d)
-
     return b    
-
-
-
-
-
     
 
 def get_axis(File,axis):
