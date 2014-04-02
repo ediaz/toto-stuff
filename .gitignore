@@ -23,4 +23,8 @@ Geo-computing/test/cachedir/
 *.bbl
 *.mpeg
 *.rsf
-*.vpl*.vpl
+*.vpl
+*.eps
+*.snm
+.rsfproj
+*.nav
