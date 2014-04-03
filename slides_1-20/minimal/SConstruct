@@ -1,0 +1,48 @@
+from rsf.proj import *
+from rsf.recipes import fdmod
+import slides_fig 
+
+par = {'ox':0,'dx':1,'nx':512,'labelx':'x',
+       'oz':0,'dz':1,'nz':512,'labelz':'z'}
+
+fdmod.param(par)
+
+
+# Download data
+Fetch('mona.img','imgs')
+# Convert to standard format
+Flow('mona','mona.img',
+     '''
+     echo n1=512 n2=513 in=$SOURCE data_format=native_uchar |
+     dd type=float|transp|window n1=512
+     ''',stdin=0)
+
+
+# the par file is the one initialized by fdmod
+slide4to3 = slides_fig.slideFig(par,ratio='4:3',font=20)  # object initialization for a beamer slide with 
+                                                          # 4:3 aspect ratio 
+                                                          # using 1/20 rule (you can make your own rule)
+
+slide16to9 = slides_fig.slideFig(par,ratio='16:9',font=20) # almost the same as above, here I use 16:9 aspect
+                                                           # ratio
+
+Result('mona_fdmod','mona',fdmod.cgrey('',par))
+
+'''
+object.cgrey(custom,scalar) is almost the same as fdmod.cgrey(custom,par)
+  1) Here you don't need to pass the par file since is inside the object already.
+  2) You can pass custom instructions to cgrey
+  3) the scalar parameter is a fraction of the slide with or height (object.hcgrey())
+     you want to use. The idea of this is that you don't need to scale the figure
+     in the beamer slides.
+  4) Avoid re-scale in beamer, that will mess up the font size calculations.
+'''
+Result('mona_4to3' ,'mona',slide4to3.cgrey('',scalar=0.6)) # here i create
+                                                           # a fig that uses
+                                                           # 60% of slide width
+Result('mona_16to9','mona',slide16to9.cgrey('',scalar=0.6))
+
+
+
+
+End()

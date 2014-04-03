@@ -1,1 +1,267 @@
-slides_4to3.tex
+\input{Share/pcsmacros}
+\include{pythonlisting}
+
+\title[]{The art of the CWP slides}
+\subtitle{Madagascar perspective}
+\author[]{Esteban  D\'{i}az}
+\institute{Center for Wave Phenomena \\
+Colorado School of Mines }
+\date{}
+\logo{}
+\Large
+
+\def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
+\def\cen#1{\begin{center}        \textbf{#1} \end{center}}
+
+\newlength\textwidthcm
+\textwidthcm=.03514598035146\textwidth
+% ------------------------------------------------------------
+\mode<beamer> { \cwpcover }
+\begin{frame}
+\begin{center}
+1 in = 72 pt
+\end{center}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\begin{picture}(60,40)
+\linethickness{.5mm}
+\thicklines
+\put(-60,10){\vector(-1,0){80}}
+\hspace{-.3in}\the\textwidth
+\put(10,10){\vector(1,0){80}}
+\end{picture}
+\end{center}
+\end{frame}
+
+
+\begin{frame}
+\begin{center}
+\begin{picture}(60,40)
+\linethickness{.5mm}
+\thicklines
+\put(-0,30){\vector(0,1){90}}
+\hspace{-.7in}\the\textheight
+\put(-70,-20){\vector(0,-1){90}}
+\end{picture}
+\end{center}
+\end{frame}
+
+\usebackgroundtemplate{}
+
+\inputdir{XFig}
+%\begin{frame}
+%\plot{ruler}{}{}
+%\end{frame}
+
+\begin{frame}\frametitle{Ken's rule}
+\[
+font = height/20 \approx 13.45pt
+\]
+\end{frame}
+
+
+
+\inputdir{figures}
+\begin{frame}
+\plot{mona-16to9}{width=0.7\textwidth}{}
+\end{frame}
+
+\begin{frame}
+\plot{mona70-16to9}{}{}
+\end{frame}
+
+\usebackgroundtemplate{\includegraphics[height=\paperheight]{XFig/Fig/ruler.pdf}}
+\begin{frame}
+\plot{mona70-16to9}{}{}
+\end{frame}
+
+\begin{frame}
+\plot{mona50-16to9}{}{}
+\end{frame}
+
+\begin{frame}
+  \begin{columns}
+    \column{0.5\textwidth}
+      \plot{mona50-16to9}{}{}
+    \column{0.5\textwidth}
+      \plot{mona50-16to9}{}{}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+\plot{mona20-16to9}{}{}
+\end{frame}
+
+\begin{frame}
+\plot{mona100-16to9}{}{}
+\end{frame}
+
+\begin{frame}
+\plot{mona120-16to9}{}{}
+\end{frame}
+
+
+\begin{frame}
+\plot{monaMaxH-16to9}{}{}
+\end{frame}
+
+\usebackgroundtemplate{}
+
+\begin{frame}
+Note: figure changes, font doesn't
+\end{frame}
+
+\begin{frame}
+  \big{is 1/20 too excessive?}
+\end{frame}
+
+\begin{frame}\frametitle{1/20}
+\plot{mona40-16to9-ken20}{}{}
+\end{frame}
+
+\begin{frame}\frametitle{1/22}
+\plot{mona40-16to9-ken22}{}{}
+\end{frame}
+
+\begin{frame}\frametitle{1/24}
+\plot{mona40-16to9-ken24}{}{}
+\end{frame}
+
+\begin{frame}\frametitle{1/26}
+\plot{mona40-16to9-ken26}{}{}
+\end{frame}
+
+\begin{frame}\frametitle{1/28}
+\plot{mona40-16to9-ken28}{}{}
+\end{frame}
+
+\begin{frame}\frametitle{1/30}
+\plot{mona40-16to9-ken30}{}{}
+\end{frame}
+
+\begin{frame}\frametitle{1/32}
+\plot{mona40-16to9-ken32}{}{}
+\end{frame}
+
+\begin{frame}\frametitle{1/34}
+\plot{mona40-16to9-ken34}{}{}
+\end{frame}
+
+\begin{frame}\frametitle{1/36}
+\plot{mona40-16to9-ken36}{}{}
+\end{frame}
+
+\begin{frame}\frametitle{1/38}
+\plot{mona40-16to9-ken38}{}{}
+\end{frame}
+
+\begin{frame}\frametitle{1/40}
+\plot{mona40-16to9-ken40}{}{}
+\end{frame}
+
+\begin{frame}
+  \big{the details}
+\end{frame}
+\begin{frame}[fragile]{the new way of plotting:}
+\centering
+$\vdots$
+\begin{python}
+# Initialize slide plotting object:
+slide16to9 = slides_fig.slideFig(par,ratio='16:9',font=20) 
+# Use:
+Result('mona_16to9','mona',slide16to9.cgrey(custom='',scalar=0.6)) 
+# Instead of:
+Result('mona_fdmod','mona',fdmod.cgrey(custom='',par))
+\end{python}
+$\vdots$
+
+\end{frame}
+
+
+\usebackgroundtemplate{}
+\begin{frame}\frametitle{\LaTeX Fonts}
+\tiny hello
+
+\scriptsize hello
+
+\footnotesize hello
+
+\small hello
+
+\normalsize hello
+
+\large hello
+
+\Large hello
+
+\LARGE hello
+
+\huge hello
+
+\Huge hello
+\end{frame}
+
+
+
+
+
+\usebackgroundtemplate{\includegraphics[height=\paperheight]{XFig/Fig/ruler.pdf}}
+\begin{frame}\frametitle{\LaTeX Fonts}
+\tiny hello
+
+\scriptsize hello
+
+\footnotesize hello
+
+\small hello
+
+\normalsize hello
+
+\large hello
+
+\Large hello
+
+\LARGE hello
+
+\huge hello
+
+\Huge hello
+\end{frame}
+
+\begin{frame}\frametitle{\LaTeX Fonts}
+\tiny tiny
+
+\scriptsize scriptsize
+
+\footnotesize footnotesize
+
+\small small
+
+\normalsize normal
+
+\large large
+
+\Large Large
+
+\LARGE LARGE 
+
+\huge huge
+
+\Huge Huge
+
+\end{frame}
+
+
+\usebackgroundtemplate{}
+
+\begin{frame}\frametitle{conclusions}
+
+\itab{do not scale figures in the slides}
+\vfill
+\itab{large $\approx$ Ken Larner's magic ratio}
+\vfill
+\itab{is it 1/20 the best way to go?}
+\end{frame}

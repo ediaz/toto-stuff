@@ -38,10 +38,9 @@ for ratios in ['4:3','16:9']:
   Result('monaMaxH'+rname,'mona',slide.vcgrey('',scalar=1))
 
 
-
-
-
-
-
-
+for rule in range(20,41,2):
+  ken = '-ken%02d'%rule
+  slide = slides_fig.slideFig(par,ratio='16:9',font=rule) #init object
+  Result('mona40-16to9'+ken,'mona',slide.cgrey('',scalar=.40))  
+  
 End()

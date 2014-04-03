@@ -22,12 +22,12 @@ for notes in glob.glob('notes*.tex'):
           use='multicol,color,overpic,listings,amsmath,amssymb,amsbsy')
     
 # ------------------------------------------------------------
-for slides in glob.glob('slide16to9*.tex'):
+for slides in glob.glob('Slides*.tex'):
     slidesname = os.path.splitext(slides)[0]
     Paper(slidesname,
           lclass='cwpslides',
           options='aspectratio=169',
-          use='geometry,mathtools,algorithm,algorithmic,multicol,color,overpic,listings,amsmath,amssymb,amsbsy,comment,xcolor')
+          use='color,listings,textcomp,setspace,palatino,geometry,mathtools,algorithm,algorithmic,multicol,color,overpic,listings,amsmath,amssymb,amsbsy,comment,xcolor')
     
 for notes in glob.glob('notes*.tex'):
     notesname = os.path.splitext(notes)[0]
