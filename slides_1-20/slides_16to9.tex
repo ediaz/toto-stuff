@@ -8,6 +8,17 @@
 Colorado School of Mines }
 \date{}
 \logo{}
+
+\title[]{Getting away from the font police}
+\subtitle{The pro Madagascar tips}
+\author[]{Esteban  D\'{i}az}
+\institute{Center for Wave Phenomena \\
+Colorado School of Mines }
+\date{}
+\logo{}
+
+
+
 \Large
 
 \def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
@@ -28,9 +39,9 @@ Colorado School of Mines }
 \begin{picture}(60,40)
 \linethickness{.5mm}
 \thicklines
-\put(-60,10){\vector(-1,0){80}}
+\put(-60,6){\vector(-1,0){80}}
 \hspace{-.3in}\the\textwidth
-\put(10,10){\vector(1,0){80}}
+\put(30,5){\vector(1,0){80}}
 \end{picture}
 \end{center}
 \end{frame}
@@ -41,9 +52,9 @@ Colorado School of Mines }
 \begin{picture}(60,40)
 \linethickness{.5mm}
 \thicklines
-\put(-0,30){\vector(0,1){90}}
-\hspace{-.7in}\the\textheight
-\put(-70,-20){\vector(0,-1){90}}
+\put(30,30){\vector(0,1){90}}
+\the\textheight
+\put(-40,-16){\vector(0,-1){90}}
 \end{picture}
 \end{center}
 \end{frame}
@@ -57,7 +68,7 @@ Colorado School of Mines }
 
 \begin{frame}\frametitle{Ken's rule}
 \[
-font = height/20 \approx 13.45pt
+font = height/20 \approx 12.6pt
 \]
 \end{frame}
 
@@ -65,7 +76,7 @@ font = height/20 \approx 13.45pt
 
 \inputdir{figures}
 \begin{frame}
-\plot{mona-16to9}{width=0.7\textwidth}{}
+\plot{mona-16to9}{width=0.6\textwidth}{}
 \end{frame}
 
 \begin{frame}
@@ -82,42 +93,31 @@ font = height/20 \approx 13.45pt
 \end{frame}
 
 \begin{frame}
-  \begin{columns}
-    \column{0.5\textwidth}
-      \plot{mona50-16to9}{}{}
-    \column{0.5\textwidth}
-      \plot{mona50-16to9}{}{}
-  \end{columns}
+\plot{mona40-16to9}{}{}
 \end{frame}
+
+\begin{frame}
+\plot{mona30-16to9}{}{}
+\end{frame}
+
 
 
 \begin{frame}
 \plot{mona20-16to9}{}{}
 \end{frame}
 
-\begin{frame}
-\plot{mona100-16to9}{}{}
-\end{frame}
-
-\begin{frame}
-\plot{mona120-16to9}{}{}
-\end{frame}
-
-
-\begin{frame}
-\plot{monaMaxH-16to9}{}{}
-\end{frame}
 
 \usebackgroundtemplate{}
 
 \begin{frame}
-Note: figure changes, font doesn't
+\cen{Note: figure changes, font doesn't}
 \end{frame}
 
 \begin{frame}
   \big{is 1/20 too excessive?}
 \end{frame}
 
+\usebackgroundtemplate{\includegraphics[height=\paperheight]{XFig/Fig/ruler.pdf}}
 \begin{frame}\frametitle{1/20}
 \plot{mona40-16to9-ken20}{}{}
 \end{frame}
@@ -162,6 +162,12 @@ Note: figure changes, font doesn't
 \plot{mona40-16to9-ken40}{}{}
 \end{frame}
 
+
+\begin{frame}\frametitle{1/40}
+\plot{mona40-16to9-ken40}{}{}
+\end{frame}
+\usebackgroundtemplate{}
+
 \begin{frame}
   \big{the details}
 \end{frame}
@@ -183,6 +189,7 @@ $\vdots$
 
 \usebackgroundtemplate{}
 \begin{frame}\frametitle{\LaTeX Fonts}
+\centering
 \tiny hello
 
 \scriptsize hello
@@ -201,7 +208,9 @@ $\vdots$
 
 \huge hello
 
+\centering
 \Huge hello
+
 \end{frame}
 
 
@@ -210,6 +219,7 @@ $\vdots$
 
 \usebackgroundtemplate{\includegraphics[height=\paperheight]{XFig/Fig/ruler.pdf}}
 \begin{frame}\frametitle{\LaTeX Fonts}
+\centering
 \tiny hello
 
 \scriptsize hello
@@ -228,10 +238,13 @@ $\vdots$
 
 \huge hello
 
+\centering
 \Huge hello
+
 \end{frame}
 
 \begin{frame}\frametitle{\LaTeX Fonts}
+\centering
 \tiny tiny
 
 \scriptsize scriptsize
@@ -264,4 +277,6 @@ $\vdots$
 \itab{large $\approx$ Ken Larner's magic ratio}
 \vfill
 \itab{is it 1/20 the best way to go?}
+\vfill
+\itab{\url{https://github.com/ediaz/toto-stuff/tree/master/slides_1-20}}
 \end{frame}

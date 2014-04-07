@@ -17,30 +17,27 @@ Flow('mona','mona.img',
      dd type=float|transp|window n1=512
      ''',stdin=0)
 
-slides_fig.custom_set(2,3)
-slc = slides_fig.slideFig(par,ratio='custom',font=20,width=1,height=2)
-slc.printratio()
 
 
 
 for ratios in ['4:3','16:9']:
   rname = '-'+ratios.replace(":","to")
 
-  slide = slides_fig.slideFig(par,ratio=ratios,font=20) #init object
+  slide = slides_fig.slideFig(par,ratio=ratios,font=24,labelfat=2) #init object
   slide.printratio()
 
   Result('mona'+rname,'mona',fdmod.cgrey('',par))
-  Result('mona70'+rname,'mona',slide.cgrey('',scalar=0.7))
-  Result('mona50'+rname,'mona',slide.cgrey('',scalar=0.5))
-  Result('mona20'+rname,'mona',slide.cgrey('',scalar=0.2))
-  Result('mona100'+rname,'mona',slide.cgrey('',scalar=1.0))
-  Result('mona120'+rname,'mona',slide.cgrey('',scalar=1.2))
+  
+  for scales in range(20,121,10):
+    scalar=scales/100
+    Result('mona%d'%scales+rname,'mona',slide.cgrey('',scalar=scalar))
+
   Result('monaMaxH'+rname,'mona',slide.vcgrey('',scalar=1))
 
 
 for rule in range(20,41,2):
   ken = '-ken%02d'%rule
-  slide = slides_fig.slideFig(par,ratio='16:9',font=rule) #init object
+  slide = slides_fig.slideFig(par,ratio='16:9',font=rule+4) #init object
   Result('mona40-16to9'+ken,'mona',slide.cgrey('',scalar=.40))  
   
 End()

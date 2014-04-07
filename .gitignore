@@ -28,3 +28,7 @@ Geo-computing/test/cachedir/
 *.snm
 .rsfproj
 *.nav
+*.ltx
+*.img
+*.vrb
+*.bak
