@@ -24,7 +24,7 @@ for ratios in ['4:3','16:9']:
   rname = '-'+ratios.replace(":","to")
 
   slide = slides_fig.slideFig(par,ratio=ratios,font=24,labelfat=2) #init object
-  slide.printratio()
+  slide.print_dimensions()
 
   Result('mona'+rname,'mona',fdmod.cgrey('',par))
   

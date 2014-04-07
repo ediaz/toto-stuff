@@ -35,7 +35,7 @@ class slideFig:
 
     self.par['labelattr']='xll=2  parallel2=n labelsz=%f labelfat=%d titlesz=12 titlefat=3 '%(self.one20,labelfat)
 
-  def printratio(self):
+  def print_dimensions(self):
     print "width = %f in, height = %f in"%(self.width,self.height)
 
   def cgrey(self,custom,scalar=None):

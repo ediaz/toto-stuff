@@ -1,0 +1,13 @@
+Required software:
+ 1- Madagascar
+ 2- XFig.
+    If you don't have XFig, you cannot use
+    the ruler.
+    Compile Slides_16to9_noXfig.pdf 
+
+Slides demo:
+ 1- go to figures; run:
+   scons lock
+ 2- go back
+ 3- run:
+   scons Slides_16to9.pdf
