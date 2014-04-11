@@ -23,7 +23,7 @@ Flow('mona','mona.img',
 for ratios in ['4:3','16:9']:
   rname = '-'+ratios.replace(":","to")
 
-  slide = slides_fig.slideFig(par,ratio=ratios,font=24,labelfat=2) #init object
+  slide = slides_fig.slideFig(par,ratio=ratios,font=20,labelfat=2) #init object
   slide.print_dimensions()
 
   Result('mona'+rname,'mona',fdmod.cgrey('',par))
@@ -32,12 +32,18 @@ for ratios in ['4:3','16:9']:
     scalar=scales/100
     Result('mona%d'%scales+rname,'mona',slide.cgrey('',scalar=scalar))
 
-  Result('monaMaxH'+rname,'mona',slide.vcgrey('',scalar=1))
+  Plot('monaMaxH'+rname,'mona',slide.vcgrey('',scalar=1))
 
+
+fdmod.point('eye',200,150,par)
+
+Plot('ss70-16to9','eye',slide.ssplot('',scalar=1))
+
+Result('monaMaxH-16to9',['monaMaxH-16to9','ss70-16to9'],'Overlay')
 
 for rule in range(20,41,2):
   ken = '-ken%02d'%rule
-  slide = slides_fig.slideFig(par,ratio='16:9',font=rule+4) #init object
+  slide = slides_fig.slideFig(par,ratio='16:9',font=rule) #init object
   Result('mona40-16to9'+ken,'mona',slide.cgrey('',scalar=.40))  
   
 End()
