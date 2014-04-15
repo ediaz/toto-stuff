@@ -8,8 +8,8 @@ four2three = {'width':356.96794*pt2in,
               'height':269.14662*pt2in
               }
 
-sixteen2nine = {'width':448.01666*pt2in,
-              'height':252.0748*pt2in
+sixteen2nine = {'width':455.24408*pt2in,
+              'height':256.0748*pt2in
               }
 
 parratio = {'4:3':four2three,
