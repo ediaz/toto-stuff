@@ -1,0 +1,284 @@
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  4.178856e-18.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  1.060924e-16.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  5.052017e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  5.850398e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate. RCOND
+=  4.178856e-18.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate. RCOND
+=  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate. RCOND
+=  1.060924e-16.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate. RCOND
+=  5.052017e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate. RCOND
+=  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate. RCOND
+=  5.850398e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+
+diff =
+
+    0.0000
+    2.0000
+    0.0000
+    2.0000
+    2.0000
+    0.0000
+
+
+sum =
+
+    2.0000
+    0.0000
+    2.0000
+    0.0000
+    0.0000
+    2.0000
+
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  4.178856e-18.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  1.060924e-16.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  5.052017e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  5.850398e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+
+diff =
+
+    0.0000
+    0.0000
+    0.0000
+    2.0000
+    2.0000
+    0.0000
+
+
+sum =
+
+    2.0000
+    2.0000
+    2.0000
+    0.0000
+    0.0000
+    2.0000
+
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  4.178856e-18.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  1.060924e-16.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  5.052017e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  5.850398e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+
+diff =
+
+    0.0000
+    0.0000
+    0.0000
+    0.0000
+    2.0000
+    0.0000
+
+
+sum =
+
+    2.0000
+    2.0000
+    2.0000
+    2.0000
+    0.0000
+    2.0000
+
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  4.178856e-18.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  1.060924e-16.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  5.052017e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  5.850398e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+
+diff =
+
+    0.0000
+    2.0000
+    0.0000
+    2.0000
+    2.0000
+    0.0000
+
+
+sum =
+
+    2.0000
+    0.0000
+    2.0000
+    0.0000
+    0.0000
+    2.0000
+
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  4.178856e-18.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  1.060924e-16.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  5.052017e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  5.850398e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+
+diff =
+
+    0.0000
+    0.0000
+    0.0000
+    0.0000
+    2.0000
+    0.0000
+
+
+sum =
+
+    2.0000
+    2.0000
+    2.0000
+    2.0000
+    0.0000
+    2.0000
+
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate. RCOND
+=  4.178856e-18.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate. RCOND
+=  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate. RCOND
+=  1.060924e-16.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate. RCOND
+=  5.052017e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate. RCOND
+=  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate. RCOND
+=  5.850398e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+
+diff =
+
+     8.326672684688674e-17
+     2.000000000000000e+00
+     4.677452743560216e-16
+     3.644445536494150e-15
+     2.000000000000000e+00
+     2.000000000000000e+00
+
+
+sum =
+
+     2.000000000000000e+00
+     6.162737906427329e-16
+     2.000000000000000e+00
+     2.000000000000000e+00
+     1.073534572671659e-15
+     8.851374477315529e-16
+
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  4.178856e-18.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  1.060924e-16.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  5.052017e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  2.935852e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+{Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  5.850398e-17.} 
+{> In <a href="matlab: opentoline('/Users/ediaz/Desktop/toto-stuff/ComputationalAlgebra/hw06/problem1.m',38,1)">problem1 at 38</a>} 
+
+diff =
+
+     8.326672684688674e-17
+     1.073534572671659e-15
+     8.903441835098303e-16
+     2.000000000000000e+00
+     8.317415680509753e-16
+     2.000000000000000e+00
+
+
+sum =
+
+     2.000000000000000e+00
+     2.000000000000000e+00
+     2.000000000000000e+00
+     3.825842074281555e-16
+     2.000000000000000e+00
+     1.256687134651077e-15
+

@@ -88,7 +88,8 @@ class slideFig:
     scalar:  horizontal scalar for the figure space
     '''
     self._scale(scalar,horizontal)
-    return fdmod.dgrey(custom,self.par)
+    toplot = ' plotfat=1 screenratio=%(ratio)g screenht=%(height)g '%self.par +custom
+    return fdmod.dgrey(toplot,self.par)
 
   def hdgrey(self,custom,scalar=None):
     '''
@@ -120,7 +121,8 @@ class slideFig:
     scalar:  horizontal scalar for the figure space
     '''
     self._scale(scalar,horizontal)
-    return fdmod.waveplot(custom,self.par)
+    toplot = ' plotfat=1 screenratio=%(ratio)g screenht=%(height)g '%self.par +custom
+    return fdmod.waveplot(toplot,self.par)
 
   def hwaveplot(self,custom,scalar=None):
     '''

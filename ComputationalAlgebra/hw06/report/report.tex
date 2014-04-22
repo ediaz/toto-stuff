@@ -1,0 +1,611 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{setspace,enumerate}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{graphicx,caption,subfig}
+
+\floatstyle{ruled}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert_p}
+\newcommand{\normi}[1]{\left\lVert#1\right\rVert_\infty}
+\newcommand{\normt}[1]{\left\lVert#1\right\rVert_2}
+
+\doublespacing
+\author{Esteban D\'{i}az}
+\title{Homework 3}{}
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\floatname{program}{Program}
+\newfloat{printout}{thp}{lop}
+\floatname{printout}{Printout}
+\DeclareMathOperator{\sinc}{sinc}
+
+\begin{document}
+
+\maketitle
+
+\section{problem 6}
+From the results, we can see that we converge in one iteration. Because of 
+the random number vector $\vec{v}$, the sign of the computed eigenvector
+changes randomly. However, the magnitude of each entry is the same as
+the exact entries of the correct eigenvectors. The solution for
+the linear system $(T-\lambda_i I) \vec{x} = \vec{v}$ becomes unstable
+since the shifts introduces eigenvalues close to zero. 
+
+\begin{program}
+\begin{verbatim}
+clear; clc;
+m = 6;
+
+T = zeros(m);
+for i=1:m
+  T(i,i) = 2; % main diagonal
+end
+for i=1:m-1
+  T(i,i+1) = -1; % upper diag
+end
+for i=2:m
+  T(i,i-1) = -1; %lower diag
+end
+
+lambda = zeros(m,1);
+Q_exact = zeros(m);
+
+diary problem1.txt
+
+
+for j=1:m
+  lambda(j) = 4*(sin(j*pi/(2*(m+1))))^2;
+  for k=1:m
+    Q_exact(k,j) = (sqrt(2/(m+1)))*sin(k*j*pi/(m+1));
+  end
+end
+
+Q_inv_iteration = zeros(m);
+
+w = zeros(m,1);
+sum = zeros(m,1);
+diff = zeros(m,1);
+
+v0 = rand(m,1);
+v0 = v0/norm(v0);
+for j=1:m
+  
+  w = (T-lambda(j)*eye(m))\v0;
+  v = w/norm(w,2);
+  
+  Q_inv_iteration(:,j) = v;
+  diff(j) = norm(Q_exact(:,j)-Q_inv_iteration(:,j));
+  sum(j) = norm(Q_exact(:,j)+Q_inv_iteration(:,j));
+end
+
+diff = diff
+sum = sum
+
+diary off
+\end{verbatim}
+  \caption{Problem 1: inverse iteration}
+\end{program}
+
+
+\begin{program}
+ \begin{verbatim}
+Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  4.178856e-18. 
+> In problem1 at 38 
+Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  2.935852e-17. 
+> In problem1 at 38 
+Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  1.060924e-16. 
+> In problem1 at 38 
+Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  5.052017e-17. 
+> In problem1 at 38 
+Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  2.935852e-17. 
+> In problem1 at 38 
+Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  5.850398e-17. 
+> In problem1 at 38 
+diff =
+
+     8.326672684688674e-17
+     1.073534572671659e-15
+     8.903441835098303e-16
+     2.000000000000000e+00
+     8.317415680509753e-16
+     2.000000000000000e+00
+
+sum =
+
+     2.000000000000000e+00
+     2.000000000000000e+00
+     2.000000000000000e+00
+     3.825842074281555e-16
+     2.000000000000000e+00
+     1.256687134651077e-15
+  \end{verbatim}
+\caption{problem 1: printout}
+\end{program}
+
+
+\section{problem 2}
+$A\in R^{m \times m}$ is upper Hessemberg.
+
+\begin{proof}
+  In order to compute R, we need to create zeroes below the main diagonal. Since $A$ is Hessemberg, then
+this can be achieved using Givens matrices. I will assume $m=4$ for simplicity but, this can be 
+extrapolated to any $m\in N$.
+
+  \[
+    A =  \begin{bmatrix}
+            x_{11}  & x & x & x \\
+            x_{21}  & x & x & x \\
+            0       & x & x & x \\
+            0       & 0 & x & x 
+            \end{bmatrix}
+  \]
+
+  \[
+    G_1 =  \begin{bmatrix}
+            c_1  &-s_1 & 0 & 0 \\
+           -s_1  & c_1 & 0 & 0 \\
+            0    & 0   & 1 & 0 \\
+            0    & 0   & 0 & 1 
+            \end{bmatrix}
+  \]
+$c_1 = x_{11}/\sqrt{x_{11}^2 + x_{21}^2}$, $s_1= -x_{21}/\sqrt{x_{11}^2 + x_{21}^2}$.
+
+
+Applying $G_1$ to $A$ results into:
+
+\[
+  G_1A =  
+            \begin{bmatrix}
+            x'_{11}  & x      & x & x \\
+            0        & x_{22} & x & x \\
+            0        & x_{32} & x & x \\
+            0        & 0      & x & x 
+            \end{bmatrix}
+\]
+Note that this operation only affects only two rows of A (actually requires to compute 6 entries).
+
+We then compute
+  \[
+    G_2 =  \begin{bmatrix}
+            1    & 0   & 0   & 0 \\
+            0    & c_2 &-s_2 & 0 \\
+            0    &-s_2 & c_1 & 0 \\
+            0    & 0   & 0 & 1 
+            \end{bmatrix}
+  \]
+, multiply it with $G_2 G_1 A$. After doing this process $m-1=3$ times
+ we obtain:
+$R = G_3 G_2 G_1 A$. Let's introduce matrix $Q = G_{m-1} \dots G_1$. Then $R = Q A$. $Q$ is orthogonal; hence,
+$A = QR$.
+
+We want to verify that $B= RQ$ is also upper Hessemberg matrix.
+
+Let's start by computing $R G_1$:
+
+
+  \[
+    R G_1 = 
+            \begin{bmatrix}
+            x  & x & x & x \\
+            0  & x & x & x \\
+            0  & 0 & x & x \\
+            0  & 0 & x & x 
+            \end{bmatrix}
+          \begin{bmatrix}
+            c_1  &-s_1 & 0 & 0 \\
+           -s_1  & c_1 & 0 & 0 \\
+            0    & 0   & 1 & 0 \\
+            0    & 0   & 0 & 1 
+            \end{bmatrix} =
+            \begin{bmatrix}
+            x  & x & x & x \\
+            x  & x & x & x \\
+            0  & 0 & x & x \\
+            0  & 0 & 0 & x 
+            \end{bmatrix}
+  \]
+Applying $G_2$ produces:
+\[
+            \begin{bmatrix}
+            x  & x & x & x \\
+            x  & x & x & x \\
+            0  & x & x & x \\
+            0  & 0 & 0 & x 
+            \end{bmatrix}
+  \]
+And $G_3$:
+\[
+            \begin{bmatrix}
+            x  & x & x & x \\
+            x  & x & x & x \\
+            0  & x & x & x \\
+            0  & 0 & x & x 
+            \end{bmatrix} = B
+  \]
+Is also upper Hessemberg.
+
+\end{proof}
+\subsection{cost}
+  The cost of computing each entry of $G_kA$ is 4 for the entries in the rotation block. We need
+ to compute all $m$ entries  from the block. So each Givens matrix multiplication cost is $4m$
+  (neglecting the cost of computing $c,s$). 
+We need to repeat the process $m-1$ times, so the $R_{cost}\approx 4m\sum_{k=1}^{m-1} k = 4m(m-1)/2 \approx 2m^2$.
+The cost of computing $Q=G_{m-1}\dots G_1$ is only $2m$ for each new Givens matrix multiplication (we have to do $m-2$). 
+$Q_{cost}= 2m\sum_{k=1}^{m-2} k  \approx m^2$. So, the total cost $cost=Q_{cost}+R_{cost}\approx 3m^2$.
+
+\section{problem 3}
+\subsection{part a}
+  \begin{proof}
+  We want to show that the first $m-1$ columns of $T$ are linearly independent, that is:
+  $\sum_{i=0}^{m-1} \alpha_i \vec{t}_i = \vec{0}, \Rightarrow \alpha_i \in R =0 \forall i=1,2,...,m-1$.
+\[
+\sum_{i=0}^{m-1} \alpha_i \vec{t}_i = 
+            \begin{bmatrix}
+            \alpha_1 t_{11} + \alpha_2 t_{12} \\ 
+            \alpha_1 t_{12} + \alpha_2 t_{22} + \alpha_3 t_{23} \\ 
+            \vdots \\
+                  \alpha_{m-2} t_{m-2,m-1} + \alpha_{m-1} t_{m-1,m-1} \\ 
+                  \alpha_{m-1} t_{m-1,m}
+            \end{bmatrix} 
+\]
+Since $T$ is unreduced, then $\alpha_{m-1} t_{m-1,m} = 0 \Rightarrow  \alpha_{m-1,m} =0$. 
+Then, $\alpha_{m-2} t_{m-2,m-1} + \alpha_{m-1} t_{m-1,m-1} = 0 \Rightarrow \alpha_{m-2} =0$. Repeating this 
+process for each entri of $\sum_{i=0}^{m-1} \alpha_i \vec{t}_i $ we have that 
+$\alpha_1 = \alpha_2 = \alpha_{m-1}=0$. 
+  \end{proof}
+\subsection{part b}
+ $T = QR$. Let $\hat{T},\hat{Q} \in R^{m \times m-1}$ be defined as following blocks:
+  \[
+    Q = \left[ \hat{Q} | \vec{q}_{m} \right],
+  \]
+  similarly
+  \[
+    T = \left[ \hat{T} | \vec{t}_{m} \right]
+  \]
+
+  and $\hat{R} \in R^{m-1,m-1}$ is defined as the folowing block:
+
+  \[
+    R = 
+\left[\begin{array}{cccc|c}
+ & & & &r_{1m}\\
+ & &\hat{R} & &\vdots\\ 
+ & & & &\\ \hline
+ 0& &\cdots &0&r_{mm}\\  
+\end{array}\right] 
+  \]
+Then,
+\[
+  T=QR
+\]
+\[
+ \left[ \hat{T} | \vec{t}_{m} \right]=
+  \left[ \hat{Q} | \vec{q}_{m} \right]
+\left[\begin{array}{cccc|c}
+ & & & &r_{1m}\\
+ & &\hat{R} & &\vdots\\ 
+ & & & &\\ \hline
+ 0& &\cdots &0&r_{mm}\\  
+\end{array}\right] 
+\]
+
+From where we can see:
+\[
+ \left[ \hat{T} | \vec{t}_{m} \right]=
+  \left[ \hat{Q}\hat{R} | Q\vec{r}_{m} \right]
+\]
+
+
+$\hat{R}$ non singular implies $\hat{r}_{jj} =0$ for some $j$. 
+We know that $\vec{t}_j\neq \vec{0}$, also:
+$\vec{t}_j = \hat{Q}\hat{\vec{r}}_j$.
+Since R is a upper tridiagonal matrix, then:
+
+\[
+\vec{t}_j = r_{j-1,j} \vec{q}_{j-1} + r_{j-2,j} \vec{q}_{j-2}
+\]
+would imply that the columns of Q are linearly dependent, 
+which is a contradiction. Hence, $\hat{R}$ cannot have $r_{jj}=0$,
+which implies that $\hat{R}^{-1}$ exists. 
+
+$\hat{R}^{-1}$ is also upper triangular (proved on first hw), then:
+
+$\hat{R}^{-1} T = Q$
+Since $\hat{R}^{-1}$ is upper triangular, and $T$ is tridiagonal, then:
+$\vec{q}_j = \hat{R}^{-1} \vec{t}_j$ will contain entries in the 
+first subdiagonal. Hence, $Q=H$ is upper Hessemberg.
+
+\subsection{part c}
+
+\[
+  R =   \left(
+    \begin{array}{c c c c c}
+     x &  x &  x &  0 &  0 \\
+     0 &  x &  x &  x &  0 \\
+     0 &  0 &  x &  x &  x \\
+     0 &  0 &  0 &  x &  x \\
+     0 &  0 &  0 &  0 &  x \\
+  \end{array}\right)
+\]
+\[
+  Q =   \left(
+    \begin{array}{c c c c c}
+     x &  x &  x &  x &  x \\
+     x &  x &  x &  x &  x \\
+     0 &  x &  x &  x &  x \\
+     0 &  0 &  x &  x &  x \\
+     0 &  0 &  0 &  x &  x \\
+  \end{array}\right)
+\]
+\[
+T' = R Q = \left(
+    \begin{array}{c c c c c}
+     x &  x &  x &  0 &  0 \\
+     0 &  x &  x &  x &  0 \\
+     0 &  0 &  x &  x &  x \\
+     0 &  0 &  0 &  x &  x \\
+     0 &  0 &  0 &  0 &  x \\
+  \end{array}\right)\left(
+    \begin{array}{c c c c c}
+     x &  x &  x &  x &  x \\
+     x &  x &  x &  x &  x \\
+     0 &  x &  x &  x &  x \\
+     0 &  0 &  x &  x &  x \\
+     0 &  0 &  0 &  x &  x \\
+  \end{array}\right)
+\]
+
+we can see that $T'_{21} = \vec{r}_{2,:}^T \vec{q}_1 \neq 0$ and $T'_{31} = \vec{r}_{3,:}^T \vec{q}_1 =0$. 
+Repeating this process, we find out htat $T'$ is upper Hessemberg. Since T is tridiagonal then
+$T'$ must be tridiagonal as well. 
+
+\section{problem 4}
+
+\subsection{part a}
+We can see how the eigenvalues of $T$ using the QR algorithm converge quickly. Every 
+10 iterations the residual $\norm{sort(diag(T_0)) -\vec{\lambda}}$ decreases 3 orders
+of magnitude.
+
+The off-diagonal elements of $T_0$ converge at a faster rate to zero than the difference
+between eigenvalues.
+ 
+\subsection{part b}
+We can see that with shifts, the eigenvalue $\lambda=2.61803398...$ converges very fast. The
+error decreases 10 orders of magnitude in the last iteration. The entry $T_{4,3}$ converges
+very fast as well. However, does not converges as fast as the eigenvalue. After 4 iterations
+$T_{4,3}$ is in the order of $10^{-8}$. 
+
+
+\begin{program}
+ \begin{verbatim}
+clear; clc;
+m = 4;
+T = zeros(m);
+for i=1:m
+  T(i,i) = 2; % main diagonal
+end
+for i=1:m-1
+  T(i,i+1) = -1; % upper diag
+end
+for i=2:m
+  T(i,i-1) = -1; %lower diag
+end
+
+lambda = zeros(m,1);
+for j=1:m
+  lambda(j) = 4*(sin(j*pi/(2*(m+1))))^2;
+end
+
+diary problem4a.txt
+T_0 = T;
+for k = 1:40
+  [Q,R] = qr(T_0);
+  T_0 = R*Q;
+  if rem(k,10) == 0
+    fprintf('i=%d\n',k);
+    t = diag(T_0);
+    disp(T_0);
+    
+    fprintf('norm (convergence):');
+    disp(norm(sort(t)-lambda)); 
+  end
+end
+  \end{verbatim}
+\caption{problem 4a: code}
+\end{program}
+
+
+\begin{program}
+ \begin{verbatim}
+i=10
+     3.613994995535316e+00 -6.342484720698278e-02   1.401121652403552e-17  1.902247916848588e-16
+    -6.342484720698234e-02  2.622055506837488e+00  -4.651798208616937e-03 -8.705123035054955e-17
+                         0 -4.651798208616339e-03   1.381983486359369e+00 -4.209827327720278e-06
+                         0                      0  -4.209827327703661e-06  3.819660112678279e-01
+
+norm (convergence):     5.699682385510402e-03
+
+i=20
+     3.618027707037105e+00 -2.506326660110953e-03   4.873429373194666e-17  1.951827147497314e-16
+    -2.506326660110472e-03  2.618040270413492e+00  -7.797768720901538e-06 -7.521493767660519e-17
+                         0 -7.797768720305928e-06   1.381966011299297e+00 -1.095305990487345e-11
+                         0                      0  -1.095304298111726e-11  3.819660112501054e-01
+
+norm (convergence):     8.883648637578583e-06
+
+i=30
+     3.618033979019426e+00 -9.864311507265428e-05   5.016516638689464e-17  1.953632432592062e-16
+    -9.864311507217128e-05  2.618033998480362e+00  -1.309754266965650e-08 -7.474467328221039e-17
+                         0 -1.309754207416182e-08   1.381966011250106e+00 -4.542183385280573e-17
+                         0                      0  -2.849760534188853e-17  3.819660112501054e-01
+
+norm (convergence):     1.376095979532901e-08
+
+i=40
+     3.618033988734819e+00 -3.882336397982546e-06   5.022159059239212e-17  1.953703252455340e-16
+    -3.882336397499482e-06  2.618033988764971e+00  -2.199998424655865e-11 -7.472615999443840e-17
+                         0 -2.199938875663533e-11   1.381966011250106e+00 -1.692430344651314e-17
+                         0                      0  -7.414501263605475e-23  3.819660112501054e-01
+
+norm (convergence):     2.132059952139035e-11
+  \end{verbatim}
+\caption{problem 4a: printout}
+\end{program}
+
+
+\begin{program}
+ \begin{verbatim}
+for i=2:m
+  T(i,i-1) = -1; %lower diag
+end
+
+lambda = zeros(m,1);
+for j=1:m
+  lambda(j) = 4*(sin(j*pi/(2*(m+1))))^2;
+end
+i=4
+T1 = T;
+for k = 1:4
+  a_m = T1(i,i);
+  a_m1 = T1(i-1,i-1);
+  b_m1= T1(i-1,i);
+
+  det = sqrt(((a_m-a_m1)/2)^2+b_m1^2);
+
+  if a_m >= a_m1
+    mu = (a_m+a_m1)/2+det;
+  else
+    mu = (a_m+a_m1)/2-det;
+  end
+  [q,r] = qr(T1(1:i,1:i)-mu*eye(i));
+  T1 = r*q+mu*eye(i);
+  disp(T1);
+  fprintf('T_{4,4}');
+  T1(4,4)-2.618033988749895e+00
+end
+  \end{verbatim}
+\caption{problem 4a: code}
+\end{program}
+
+
+\begin{program}
+ \begin{verbatim}
+i =
+     4
+
+     1.000000000000000e+00  7.071067811865475e-01                      0 1.110223024625157e-16
+     7.071067811865475e-01  2.000000000000000e+00  1.224744871391589e+00 1.110223024625157e-16
+                         0  1.224744871391589e+00  2.333333333333333e+00 4.714045207910317e-01
+                         0                      0  4.714045207910317e-01 2.666666666666667e+00
+T_{4,4}
+ans =
+     4.863267791677162e-02
+
+     6.666666666666670e-01  4.714045207910319e-01  1.778445129187947e-16 8.352931325021991e-17
+     4.714045207910317e-01  1.333333333333333e+00 -7.071067811865470e-01 1.110223024625157e-16
+                         0 -7.071067811865474e-01  3.333333333333333e+00 2.357022603955159e-01
+                         0                      0  2.357022603955160e-01 2.666666666666667e+00
+
+T_{4,4}
+ans =
+     4.863267791677162e-02
+
+     4.865715160530222e-01  3.130658242772984e-01 -4.288983003554976e-17-4.631167713082147e-17
+     3.130658242772982e-01  1.416245069232067e+00  5.490340877299101e-01 6.938893903907228e-17
+                         0  5.490340877299098e-01  3.479114745537570e+00-6.237581946482246e-03
+                         0                      0 -6.237581946482479e-03 2.618068669177340e+00
+
+T_{4,4}
+ans =
+     3.468042744492195e-05
+
+     4.161807094530419e-01  1.843383255144472e-01  5.585592903356402e-17 5.573997042318755e-17
+     1.843383255144469e-01  1.436000022679105e+00 -4.377500613993697e-01 4.336808689942018e-17
+                         0 -4.377500613993699e-01  3.529785279117954e+00 6.477965191348245e-08
+                         0                      0  6.477965215133550e-08 2.618033988749899e+00
+
+T_{4,4}
+ans =
+     3.996802888650564e-15
+  \end{verbatim}
+\caption{problem 4b: printout}
+\end{program}
+
+\section{problem 5}
+
+We can see that the diagonal elements of $H_1$ and $H_2$ converge very well to 
+the eigenvalues of H computed with eig(). 
+The QR algorithm using Householder matrices converges very well, even in the
+event of having eigenvalues close to zero (as it happens for H2). 
+The eigenvalues computed with the Householder algorithm are good up to 
+17 decimal places for H2 and up to 15 digits for H1. 
+
+\begin{program}
+ \begin{verbatim}
+clc; clear;
+format long e;
+H_1 = [2 2 3;
+       2 4 5;
+       0 1 2];
+
+H_2 = [1 2 3;
+       1 0 1;
+       0 -2 -2];
+
+H=H_1;
+for i=1:50
+  [Q,R] = house(H);
+  H = R*Q;
+end
+H1 = H
+
+H=H_2;
+for i=1:50
+  [Q,R] = house(H);
+  H = R*Q;
+end
+H2 = H
+=====================
+H1 =
+
+     6.372281323269015e+00     4.836230483805389e+00     1.185315987612669e+00
+     1.244899192012025e-39     1.000000000023263e+00    -4.537628422470950e-01
+                         0     1.908514458006472e-11     6.277186767077244e-01
+
+
+H2 =
+
+    -2.000000000000000e+00     4.041451884327414e+00     8.164965809277331e-01
+     6.922665670979466e-15     9.999999999999893e-01     1.414213562373094e+00
+                         0                         0    -3.845925372767132e-16
+
+>> diag(H1) - eig(H_1)
+
+ans =
+
+     6.217248937900877e-15
+     2.326527859253247e-11
+    -2.326316916878568e-11
+
+>> diag(H2) - eig(H_2)
+
+ans =
+
+    -4.440892098500626e-16
+    -1.088018564132653e-14
+     2.078482547250977e-17
+  \end{verbatim}
+\caption{problem 5: program. Function house is copied from hw02.}
+\end{program}
+
+
+
+
+\end{document}
