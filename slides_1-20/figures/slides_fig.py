@@ -226,7 +226,7 @@ class slideFig:
     
   def _v_scale(self,scalar):
     if scalar:
-      self.par['height'] = self.par['ratio']*self.height*scalar
+      self.par['height'] = self.height*scalar
     else:
       self.par['height'] = self.par['ratio']*self.width
     if self.par['height'] >self.height : self.par['height']= self.height

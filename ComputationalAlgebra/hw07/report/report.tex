@@ -1,0 +1,496 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{setspace,enumerate}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{graphicx,caption,subfig}
+
+\floatstyle{ruled}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert_p}
+\newcommand{\normi}[1]{\left\lVert#1\right\rVert_\infty}
+\newcommand{\normt}[1]{\left\lVert#1\right\rVert_2}
+
+\doublespacing
+\author{Esteban D\'{i}az}
+\title{Homework 7}{}
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\floatname{program}{Program}
+\newfloat{printout}{thp}{lop}
+\floatname{printout}{Printout}
+\def\q#1{\vec{q}_{#1}}
+\def\krylov#1{K_{#1}(A,\vec{b})}
+\def\krylovs#1{K_{#1}(A,\vec{b})=span \{\vec{b},A\vec{b},\dots,A^{#1}\vec{b}\}}
+
+\DeclareMathOperator{\sinc}{sinc}
+
+\begin{document}
+
+\maketitle
+\section{problem 1}
+  Let $\vec{q}_1,\dots,\vec{q}_n$ be the vectors resulting 
+for AI without stop for j=n-1, with $n\geq 2 \in N$. We want to 
+show that each $\vec{q}_j$ span $K_n(A,\vec{b}$. 
+
+\begin{proof}
+  In order to proof the equivalence of the subspaces we need to proof
+that (a) $A^{j-1}\vec{b} \in span{\vec{q}_1,\dots,\vec{q}_n}$ and (b)
+$\vec{q}_j \in span{\vec{b},A\vec{b},\dots,A^{j-1}\vec{b}}$.
+
+
+ \begin{proof}
+  (a) Using mathematical induction:
+
+    Assuming $\vec{q}_1,\dots,\vec{q}_j \in K_j(A,\vec{b}) = span\{\vec{b},A\vec{b},\dots,A^{j-1}\vec{b}\}$, that is:
+
+  \[
+  \vec{q}_j = \sum_{k=0}^{j-1} \alpha_k A^k\vec{b}, \alpha_k\in R
+  \]
+
+  we need to proof that $\vec{q}_1,\dots,\vec{q}_{j+1} \in K_{j+1}(A,\vec{b}) $
+  \[
+    h_{j+1,j} \q{j+1} = A\q{j}-\sum_{i=1}^j h_{ij}\q{i}
+  \] 
+  using our assumption, we have:
+  \[
+    h_{j+1,j} \q{j+1} = A\sum_{k=1}^j \alpha_k A^{k-1}\vec{b}-\sum_{i=1}^j h_{ij}\q{i}
+  \] 
+  \[
+    h_{j+1,j} \q{j+1} = \sum_{k=1}^j \alpha_k A^{k}\vec{b}-\sum_{i=1}^j h_{ij}\q{i}
+  \] 
+  since both sums in the rhs $\in K_{j+1}(A,\vec{b})$, then $ h_{j+1,j} \q{j+1} \in K_{j+1}(A,\vec{b})$, and 
+  $\q{j+1} \in K_{j+1}(A,\vec{b})$. 
+
+  Furthermore,
+  \[\q{1},\dots,\q{j},\q{j+1} \in \krylovs{j+1}\]
+  \end{proof} 
+
+
+  \begin{proof}
+    (b) clearly $\vec{b} \in span \{\q{1},\dots,\q{j} \}$ because $\q{1} = \vec{b}/\normt{b}$.
+
+    for $j=1$:
+    \[h_{2,1}\q{2} = A\q{1} - h_{11}\q{i}\]
+    \[h_{2,1}\q{2} = A\vec{b}/\normt{b} - h_{11}\q{1}\]
+    which implies:
+    \[
+     A\vec{b} = h_{2,1}\q{2} + h_{11}\q{1}
+    \], hence $   A\vec{b}  \in span \{\q{1},\dots,\q{j} \}$
+
+    for $j=2$:
+    \[h_{3,2}\q{3} = A\q{2} - \sum_{k=1}^2 h_{ij}\q{i}\]
+
+    but 
+  \[\q{2} = \frac{1}{h_{3,2}}\left( A\vec{b}/\normt{b} - \sum_{k=1}^1 h_{ij}\q{i} \right)\]
+    Hence,
+
+    \[
+    A^2 \vec{b} = \gamma\left( h_{3,2}\q{3} +\sum_{k=1}^2 h_{ij}\q{i} +A\sum_{k=1}^1 h_{ij}\q{i} \right), \gamma \in R
+    \]
+    which is a linear combination of $\q{1},\dots,\q{3}$. 
+
+    In general:
+    \[
+      h_{j,j-1}\q{j} = A\q{j-1} - \sum_{k=1}^{j-1} h_{ij}\q{i},
+    \]
+    and
+    \[
+      h_{j+1,j}\q{j+1} = A\q{j} - \sum_{k=1}^{j} h_{ij}\q{i}.
+    \]
+    By combining these two relations, we can always write $A^{j-1}\vec{b}$ in terms of linear combination of $\q{j}$
+    which proves that 
+    \[
+    A^{j-1}\vec{b} \in span \{\q{1},\dots,\q{j}\}
+    \]
+  \end{proof}
+\end{proof}
+
+\section{problem 2}
+
+We first want to show that $\vec{v} = Q_n\vec{x}, \vec{x}\neq \vec{0}$, we have $\vec{v}\neq \vec{0}$.
+  \begin{proof}
+    Since AI does not stop for $j=1,\dots,n-1$, then we have $Q_n = [\q{1} |\dots|\q{n}]$ matrix with 
+  orthonormal colums. Hence, the only way $\vec{v}=\vec{0}$ is if $Q_n \vec{x} = \sum_{j=1}^{n} \q{j}x_j =0$ which 
+  can only occur if $\vec{x}=\vec{0}$. But $\vec{x}$ is always different from $\vec{0}$ since is an eigenvector of
+  $H_n$.
+  \end{proof}
+ 
+  If AI does not stop for $j=n$, we have that:
+    \[
+     AQ_n = Q_{n+1} \hat{H} 
+    \]
+
+    where 
+  \[
+  \hat{H}_n = 
+\begin{array}{|cccc|}
+ & & &  \\
+ & &H_n& \\ 
+ & & &\\ \hline
+ 0 & \cdots &h_{n+1,n}\\  
+\end{array} = [H_n^T | h^T]^T
+  \]
+
+  With that we can start analyzing
+\begin{align*} 
+   \normt{A \vec{v} - \mu \vec{v}}  & = \normt{AQ_n\vec{x} -\mu Q_n\vec{x} } \\ 
+                                    & = \normt{Q_{n+1} \hat{A}\vec{x}-\mu Q_n\vec{x} }\\
+                                    & = \normt{ [ Q_n |\q{n+1} ][ H_n^T|\vec{h}^T]^T \vec{x} -Q_n H_n\vec{x} } \\
+                                    & = \normt{ \left( Q_n H_n + \q{n+1}\vec{h} -Q_n H_n\right)\vec{x}} \\
+                                    & =  \normt{ \q{n+1}\vec{h} \vec{x}}\\
+                                    & = \normt{ \q{n+1}[0,0,\dots,0,h_{n+1,n}]^T\vec{x}} \\
+                                    & = \normt{ \q{n+1} h_{n+1,n}x_n}  \\
+                                    & = | h_{n+1,n}| |x_n| \normt{\q{n+1}} \\
+                                    & = | h_{n+1,n}| |x_n|
+\end{align*} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{problem 3}
+We can see from the printout that $\vec{x}_n$ converges to 
+$\vec{x}_*$ very fast, it decreases $10^{-3}$ every 5 iterations. After
+25 iterations converges almost exactly to the correct answer $\vec{x}_* = [1,\dots,1]^T$ producing a residual $\normt{\vec{x}_n \vec{x}_*} = 1.579016623903676e-14$
+\begin{program}
+ \begin{verbatim}
+format long e;
+clear; clc;
+A = zeros(64,64);
+[n,m] = size(A);
+
+for i=1:n
+    A(i,i)=4;
+end
+
+for i=1:n-1
+    A(i,i+1)=-1+1/100;
+end
+
+for i=2:n
+    A(i,i-1)=-1-1/100;
+end
+
+e= ones(n,1);
+
+k=30;
+x_star= ones(n,1);
+
+b=A*x_star;
+
+Q=zeros(n,k+1);
+
+Q(:,1)=b/norm(b);
+H=zeros(k+1,k);
+
+for n=1:k
+    v= A*Q(:,n);
+    for i= 1:n
+        H(i,n) = Q(:,i)'*v;
+        v = v-H(i,n)*Q(:,i);
+    end
+    H(n+1,n)=norm(v);
+
+    if H(n+1,n)== 0
+        e1_exact=zeros(n,1);
+        e1_exact(1,1)=1;
+        y= H(1:n,1:n)\e1_exact;
+        x_star_computed=norm(b)*Q(:,1:n)*y;
+        break;
+    end
+
+    e1=zeros(n+1,1);
+    e1(1,1)=1;
+    [Q_h,R_h]=qr(H(1:n+1,1:n),0);
+    y = R_h\(norm(b)*(Q_h)'*e1);
+    x=Q(:,1:n)*y;
+    Q(:,n+1)= v/(H(n+1,n));
+
+    if rem(n,5)== 0
+        norm(x_star-x)
+    end
+end
+
+ \end{verbatim}
+\caption{problem 3: algorithm implementation and printout}
+\end{program}
+
+\begin{printout}
+  \begin{verbatim}
+
+ans =
+
+     3.595465204746845e-03
+
+
+ans =
+
+     4.973430477411210e-06
+
+
+ans =
+
+     6.882585007285816e-09
+
+
+ans =
+
+     9.501691175088472e-12
+
+
+ans =
+
+     1.579016623903676e-14
+
+
+ans =
+
+     1.024537965138290e-14
+
+  \end{verbatim}
+\end{printout}
+
+\section{problem 4}
+We can see that the eigenvalues of $T_{40}$ approximate very well
+those of $A$. After 40 steps the eigenvalues are almost exact, both
+the minimum and the maximum. The difference is smaller for the largest 
+eigenvalue of $A$. 
+
+\begin{program}
+  \begin{verbatim}
+clear; clc;
+A = zeros(64,64);
+[n,m] = size(A);
+
+for i=1:n
+    A(i,i)=i;
+end
+for i=1:n-1
+    A(i,i+1)=1;
+end
+for i=2:n
+    A(i,i-1)=1;
+end
+eigA = eig(A);
+b = ones(n,1);
+k=40;
+Q = zeros(n, k+1);
+Q(:,1) = b/norm(b);
+v = A*Q(:,1);
+H(1,1) = Q(:,1)'*v;
+v = v - H(1,1)*Q(:,1);
+H(2,1) = norm(v);
+if H(2,1) == 0
+    break;
+end
+H(1,2) = H(2,1);
+Q(:,2) = v/(H(2,1));
+for j = 2:k
+    v = A*Q(:,j);
+    H(j-1,j) = Q(:,j-1)'*v;
+    v = v - H(j-1,j)*Q(:,j-1);
+    H(j,j) = Q(:,j)'*v;
+    v = v - H(j,j)*Q(:,j);
+    H(j+1,j) = norm(v);  
+    if H(j+1,j) == 0
+        break;
+    end
+    Q(:,j+1) = v/(H(j+1,j));  
+end
+ 
+T = H(1:k,1:k);
+eigT = eig(T);
+
+min_lambda_A = min(eigA)
+max_lambda_A = max(eigA)
+
+min_lambda_T = min(eigT)
+max_lambda_T = max(eigT) 
+
+min_diff = abs(min_lambda_A - min_lambda_T)
+max_diff = abs(max_lambda_A - max_lambda_T)
+  \end{verbatim}
+  \caption{implementation of Lanczos iteration}
+\end{program}
+
+\begin{printout}
+  \begin{verbatim}
+
+min_lambda_A =
+
+     2.538058170966425e-01
+
+
+min_lambda_T =
+
+     2.538058170984281e-01
+
+
+max_lambda_T =
+
+     6.474619418290328e+01
+
+
+max_lambda_A =
+
+     6.474619418290335e+01
+
+
+min_diff =
+
+     1.785571690504639e-12
+
+
+max_diff =
+
+     7.105427357601002e-14
+  \end{verbatim}
+  \caption{printout of Lanczos iteration}
+\end{printout}
+
+
+\section{problem 5}
+We can see the dramatic difference between CG and PCG. The first 3
+steps of PCG yield to a smaller error than 30 steps of CG. The CG
+algorithm does not decrease significantly after 30 iterations,
+ in fact is still very far. After only 10 iterations of PCG, we converge
+to an error of $\normt{\vec{x}_n-\vec{x}_*}=4.83764825636924e-13$.
+
+\begin{program}
+  \begin{verbatim}
+clc;
+clear;
+format long e
+ 
+N = 64; 
+k = 30; 
+
+A = zeros(N,N);
+for i=1:N 
+    A(i,i) = 2 +1/100;
+end
+for i=1:N-1
+    A(i,i+1) = -1;
+end
+for i=2:N
+    A(i,i-1) = -1;
+end
+x_exact = ones(N,1);
+b = A*x_exact;
+x = zeros(N,1); % initial model
+r = b;
+p = r;
+for n = 1:k
+    if r == zeros(64,1)
+        x_exact_obtained = x;
+        break;
+    end    
+    z = r'*r;    
+    alpha = z/(p'*A*p);
+    x = x + alpha*p;    
+    r = r - alpha*A*p;  
+    beta = r'*r/z;
+    p = r + beta*p;    
+    if rem(n,5) == 0
+        fprintf('n=%2d l2=%16.14e\n',n,norm(x_exact - x))
+    end
+end
+
+  \end{verbatim}
+  \caption{Conjugate Gradient (CG) implementation and application}
+\end{program}
+
+
+
+\begin{program}
+  \begin{verbatim}
+clc;clear;
+format long e
+N = 64; 
+k = 10; 
+
+A = zeros(N,N);
+for i=1:N 
+    A(i,i) = 2 +1/100;
+end
+for i=1:N-1
+    A(i,i+1) = -1;
+end
+for i=2:N
+    A(i,i-1) = -1;
+end
+% preconditioner: 
+M = zeros(N,N);
+for i=1:N 
+    M(i,i) = 2;
+end
+
+for i=1:N-1
+    M(i,i+1) = -1;
+end
+
+for i=2:N
+    M(i,i-1) = -1;
+end
+% ============================
+x_exact = ones(64,1);
+b = A*x_exact;
+ 
+x = zeros(64,1); % initial model
+r = b;
+z = M\r;
+p = z;
+ 
+for n = 1:k
+    if r == zeros(64,1)
+        x_exact_obtained = x;
+        break;
+    end
+    s = z'*r;   
+    alpha = s/(p'*A*p);
+    x = x + alpha*p;
+    r = r - alpha*A*p;   
+    z = M\r;
+    beta = z'*r/s;
+    p = z + beta*p;   
+    fprintf('n=%2d l2=%16.14e\n',n,norm(x_exact - x)) 
+end
+  \end{verbatim}
+  \caption{Preconditioned CG (PCG) implementation and application}
+\end{program}
+
+\begin{printout}
+  \begin{verbatim}
+n= 5 l2=7.02705839571509e+00
+n=10 l2=5.08584170022683e+00
+n=15 l2=2.90592595251957e+00
+n=20 l2=1.49548314818783e+00
+n=25 l2=7.46603450624850e-01
+n=30 l2=3.26818063739776e-01  
+============================
+n= 1 l2=3.85938881352141e+00
+n= 2 l2=6.49613419224674e-01
+n= 3 l2=3.72356304017511e-02
+n= 4 l2=1.45045311630154e-03
+n= 5 l2=3.67353155616708e-05
+n= 6 l2=6.42450536837768e-07
+n= 7 l2=8.16446591494207e-09
+n= 8 l2=1.60630275902612e-10
+n= 9 l2=1.86292952937680e-10
+n=10 l2=4.83764825636924e-13
+  \end{verbatim}
+  \caption{convergence for CG (top), and PCG (bottom)}
+\end{printout}
+
+\end{document}

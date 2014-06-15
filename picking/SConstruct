@@ -18,9 +18,9 @@ cmps = 'w_cmp'
 
 vels = []
 for ipick in range(0,par['nx'],4):
-  sembtmp = 'tmp%03d'%ipick+semb
-  cmpstmp = 'tmp%03d'%ipick+cmps
-  veltmp  = 'tmp%03d'%ipick+'vel'
+  sembtmp = 'picks/tmp%03d'%ipick+semb
+  cmpstmp = 'picks/tmp%03d'%ipick+cmps
+  veltmp  = 'picks/tmp%03d'%ipick+'vel'
   Flow(cmpstmp,cmps,'window n3=%d f3=%d'%(min(4,46-ipick),ipick))
   Flow(sembtmp,semb,'window n3=%d f3=%d'%(min(4,46-ipick),ipick))
 
@@ -45,14 +45,6 @@ Flow('velstacksm','velstack',
   '''
   smooth rect1=10 rect2=2 repeat=10 out=stdout
   ''')
-
-#Flow('velstacksm','velstack coords',
-#  '''
-#  smooth rect1=10 rect2=2 repeat=10|
-#  inttest1 interp="cub" nw=2 coord=${SOURCES[1]} >$TARGET; 
-#  echo n2=%(nx)d d2=%(dx)g o2=%(ox)g >> $TARGET;
-#  echo 
-#  '''%par,stdout=0)
 
 Flow('vint_time','velstacksm','dix rect1=10 rect2=3 ')
 
