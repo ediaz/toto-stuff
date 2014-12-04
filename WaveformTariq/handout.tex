@@ -1,0 +1,56 @@
+
+\author{Esteban D\'{i}az}
+\title{Limits of the Born approximation}{a simple example}
+
+\inputdir{hw01}
+
+In this simple model, we have two arrivals: direct, and reflected from a deeper
+velocity discontinuity. For computing the kernels, we use a homogeneous background model
+which we perturb by some scalar $s$. Hence, the model is only capable of 
+creating the direct arrival. 
+
+In order for us to create meaningful updates we need our modeled and observed
+data to be within half-cycle $T$. The peak frequency  of our source wavelet is $f_p=10Hz$, hence our most representative period is $T=0.1s$. The distance between 
+source and receivers is 4km, which means that our observed direct arrival is at 2s. 
+For us to break the Born approximation (produce data shifts beyond half-cycle) we need 
+ a background velocity model that produces arrivals before 1.95s or after 2.05s:
+\[
+ \frac{4km}{2.05s} = 1.9512km/s = v_{min},
+\] 
+and
+\[
+ \frac{4km}{2.05s} = 2.0512km/s = v_{max}.
+\] 
+Any perturbation outside those bounds will result on meaningless updates. What we
+will see for either case beyond the limits is the auto-correlation of the 
+modeled data. This means that we loose the sense of direction of the update. 
+ Figure 2 shows the modeled data for different scalar perturbations outside
+the velocity bounds. Figure 3 shows the corresponding sensitivity kernels for
+such perturbations. As predicted, all the gradients show the same (meaningless) direction of
+update.
+
+For comparison, Figure 4 shows 2 gradients within the meaningful limits. Note that
+the contribution of the reflected arrival did not change, only the contribution from
+direct arrival did. 
+
+
+\plot{dat}{width=0.5\textwidth}{observed data}
+
+
+
+\multiplot{7}{dbk-085,dbk-090,dbk-095,dbk-100,dbk-105,dbk-110,dbk-115}%
+{width=0.35\textwidth}{Modeled data for perturbations ranging from 85\% (a) to
+115\%(g) in 5\% intervals}
+
+
+
+
+\multiplot{7}{grad-085,grad-090,grad-095,grad-100,grad-105,grad-110,grad-115}%
+{width=0.3\textwidth}{Sensitivity kernels for perturbations ranging from 85\% (a) to
+115\%(g) in 5\% intervals}
+
+
+\multiplot{2}{grad-099,grad-101}
+{width=0.3\textwidth}{Sensitivity kernels for 99\% (a) and 101\% (b). Note the change
+of direction} 
+

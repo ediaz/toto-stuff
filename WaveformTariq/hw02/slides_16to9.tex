@@ -1,0 +1,113 @@
+\input{Share/pcsmacros}
+\include{pythonlisting}
+
+\title[]{Adaptive Waveform Inversion: Theory}
+\subtitle{}
+\author[]{Mike Warner$^*$ and Llu\'{i}s Guasch}
+\date{}
+\logo{}
+
+
+
+\Large
+
+\def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
+\def\cen#1{\begin{center}        \textbf{#1} \end{center}}
+
+% ------------------------------------------------------------
+\mode<beamer> { \cwpcover }
+
+
+
+\begin{frame}
+  Key idea: get rid of the non-linearity. How? 
+\end{frame}
+
+\begin{frame}
+      FWI: \\
+      \[J = \frac{1}{2} \left | \left | \mathcal{L}({\bf m}) -d^{obs}(\xx_r,t)\right | \right|\]
+\end{frame}
+
+\begin{frame}
+      AWI: \\
+      \[J = \frac{1}{2} \frac{\left | \left | {\bf T} \vec{w} \right | \right|}{\left |\left| \vec{w} \right | \right|}\]
+      where:\\
+      \[ d^{mod} - w* d^{obs} \approx 0\]
+\end{frame}
+\begin{frame}
+      AWI: \\
+      \[J = \frac{1}{2} \frac{\left | \left | {\bf T} \vec{w} \right | \right|}{\left |\left| \vec{w} \right | \right|}\]
+      where:\\
+      \[ d^{mod} - w* d^{obs} \approx 0\]\\
+
+      \[w \rightarrow \delta(t), d^{obs}\rightarrow d^{mod} \]
+\end{frame}
+
+
+\begin{frame}
+  $w$ is a "matched filter", it matches $d^{obs}$ to $d^{mod}$.
+      \[ d^{mod} - w* d^{obs} \approx 0\]
+\end{frame}
+
+\begin{frame}
+  $w$ is a "matched filter", it matches $d^{obs}$ to $d^{mod}$.
+      \[ d^{mod} - {\bf W} d^{obs} \approx 0\]
+\end{frame}
+
+\begin{frame}
+  $w$ is a "matched filter", it matches $d^{obs}$ to $d^{mod}$.
+      \[ d^{mod} - {\bf D}^{obs} w \approx 0\]
+\end{frame}
+
+\begin{frame}
+  $w$ is a "matched filter", it matches $d^{obs}$ to $d^{mod}$.
+      \[ w = ({\bf D}^T {\bf D})^{-1}{\bf D}^T d^{mod} \]
+\end{frame}
+
+
+\begin{frame}
+  adjoint source:
+  \[
+  \delta s = {\bf D} ({\bf D}^T {\bf D})^{-1} \left( \frac{T^2 -2f {\bf I}}{w^tw} w\right)
+  \]
+\end{frame}
+
+
+
+\begin{frame}
+  \plot{img01}{width=0.8\textwidth}{}
+\end{frame}
+
+\begin{frame}
+  \plot{img02}{width=0.8\textwidth}{}
+\end{frame}
+
+\begin{frame}
+  \plot{img03}{width=0.8\textwidth}{}
+\end{frame}
+
+\begin{frame}
+  \plot{img04}{width=0.8\textwidth}{}
+\end{frame}
+
+
+\begin{frame}
+  \plot{img01}{width=0.8\textwidth}{}
+\end{frame}
+
+
+
+\begin{frame}
+  \plot{img05}{width=0.8\textwidth}{}
+\end{frame}
+
+\begin{frame}
+  \plot{img06}{width=0.8\textwidth}{}
+\end{frame}
+
+\begin{frame} \frametitle{improvements}
+\begin{itemize}
+  \item time-variant matched filter
+  \item use RFWI to better account for reflection data
+\end{itemize}
+\end{frame}

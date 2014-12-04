@@ -1,0 +1,252 @@
+from rsf.proj import *
+from rsf.recipes import fdmod
+import math
+
+#Assignment 3: the gradient improvement
+## 
+# QC plots
+##
+par= {'nz':126,'dz':0.024,'oz':0,
+      'nx':384,'dx':0.024,'ox':0}
+fdmod.param(par)
+# Parameters definition
+sz = 0.096
+sx = 3.0
+freq = 5.0
+nx=2301
+nz=751
+pi=math.pi
+## The fetching of the Marmousi Velocity model 
+############################
+raw=['marmvel.hh']
+for file in raw:
+    Fetch(file,"marm")
+    if file is 'marmvel.hh':
+        d=.004
+        fileOut='marmvel'
+        t='Velocity Model'
+    if file is 'marmsmooth.HH':
+        d=.024
+        fileOut='marmsmooth'
+        t='Smoothed Velocity Model'
+# Convert Files to RSF and update headers
+    Flow(fileOut,file,'''dd form=native | 
+        scale rscale=.001 | put
+        label1=Depth label2=Position unit1=km unit2=km
+        d1=%f d2=%f''' % (d,d))
+# Plotting Section
+    Result(fileOut,'''window $SOURCE  | 
+        grey color=j gainpanel=a allpos=y scalebar=y 
+        title=%s barlabel=kms screenratio=.326
+        screenht=6 wheretitle=t labelsz=4 titlesz=6 ''' % t)
+
+#Courser grid for speed, taking one sample from every six in each dimension dx=dz=0.024 km
+Flow('marml','marmvel','window j1=6 j2=6')
+Result('marml','''grey color=j gainpanel=a allpos=y scalebar=y
+        title= barlabel=kms screenratio=.326
+        screenht=6 wheretitle=t labelsz=4 titlesz=6 ''')
+
+#initial velocity model
+Flow('marmh','marml','math output="1.5+x1" ')
+Result('marmh','''grey color=j gainpanel=a allpos=y scalebar=y
+        title= barlabel=kms screenratio=.326
+        screenht=6 wheretitle=t labelsz=4 titlesz=6 ''')
+
+
+#File of zeros for the complex part
+Flow('zero','marml','math output="0.0" ')
+#receivers location
+Flow('receiver','marml','spike mag=1 k1=4 l1=4 k2=0 l2=383')
+#Complex number representation of receiver location
+Flow('recC','receiver zero','cmplx ${SOURCES[1]}')
+#complex number representation of the inital velocity model
+Flow('marmhc','marmh zero','cmplx ${SOURCES[1]}')
+#Initial gradient to sum the shot gather gradients
+Flow('grad0','zero zero','cmplx ${SOURCES[1]} ')
+
+###############################################################
+############### Source functions (dirac delta) ################
+################################################################
+
+## modeling:
+
+ns = 64 
+os = 1.008
+ds = 0.12
+
+pard= {'nz':384,'dz':0.024,'oz':0,'lz':'R','uz':'km',
+       'nx':ns,'dx':ds,'ox':os,'lx':'S','ux':'km'}
+fdmod.param(pard)
+
+
+
+dmask = 'window n1=1 f1=3 squeeze=n' # data mask at receiver locations (z= 0.096km )
+adjdmask = 'pad beg1=3 end1=122'
+
+# create source and offset:
+for isou in range(ns):
+  s    = os + isou*ds
+  sou  = 'source-%02d'%isou
+  data = 'data-%02d'%isou
+  vel  = 'marml'
+  offset = 'offset-%02d'%isou # offset attribute
+  Flow(sou,None,
+    '''
+    math n1=126 o1=0.0 d1=0.024 n2=384 o2=0.0 d2=0.024 
+         type=complex label1="Depth" unit1="km" label2="x" unit2="km" 
+         output="exp(-%d*%d*((x1-%g)*(x1-%g)+(x2-%g)*(x2-%g)))" 
+    ''' %(nz,nx,sz,sz,s,s))
+
+  Flow(offset,sou,dmask+'|window |real|math output="%g-x1"'%s)
+Flow('offset',map(lambda x:'offset-%02d'%x,range(ns)),'cat axis=2 ${SOURCES[1:-1]}')
+
+Flow('pos-offset','offset','mask min=0 |dd type=float')
+Flow('neg-offset','offset','mask max=0 |dd type=float')
+
+
+
+
+def modeling(model,name,wavefield=False):
+  # modeling with true velocity model
+  for isou in range(ns):
+    s    = os + isou*ds
+    sou  = 'source-%02d'%isou
+    data = name+'-%02d'%isou
+    wfl  = 'wfl-'+name+'-%02d'%isou
+    vel  = model
+    if wavefield==True:
+      Flow(wfl,[vel,sou],
+      './sfhelmLU source=${SOURCES[1]} freq=%g verb=y npw=50 eps=0.001 '%freq)
+      Flow(data,wfl,dmask)  
+    else:
+      Flow(data,[vel,sou],
+      './sfhelmLU source=${SOURCES[1]} freq=%g verb=y npw=50 eps=0.001 |'%freq+dmask)
+  Flow(name,map(lambda x:name+'-%02d'%x,range(ns)),'cat axis=3 ${SOURCES[1:-1]}')
+
+
+def gradient(model,name,ires):
+  ### 
+  # This function computes the gradient given the state variables computed by
+  # modeling(.,.,.)
+  ### 
+  for isou in range(ns):
+    swfl = 'wfl-'+name+'-%02d'%isou    # source wavefield 
+    sou  = 'source-%02d'%isou  # source function
+    res  = 'res-'+ires+'-%02d'%isou
+    adjsou = 'adjsou-'+ires+'-%02d'%isou # adjoint source 
+  
+    awfl = 'as-'+ires+'-%02d'%isou # adjoint wavefield new
+    grad = 'grad-'+ires+'-%02d'%isou # gradient for current grad
+    vel = model # velocity model
+  
+    Flow(res,[ires],
+      'window f3=%d n3=1 squeeze=n '%isou)
+  
+    Flow(adjsou,[res],'math output="conj(input)"|'+adjdmask)
+    # adjoint wavefield
+    Flow(awfl,[vel,adjsou],'./sfhelmLU source=${SOURCES[1]} freq=%g verb=y npw=50 eps=0.001'%freq)
+    Flow(grad,[swfl,awfl,vel],
+      '''
+      math a=${SOURCES[1]} output="(2*%g*%s)^2*input*a"|
+      real|math b=${SOURCES[2]} output="b^2*input" 
+      ''' % (pi,freq) )
+  
+
+  Flow('grad-'+ires,map(lambda x:'grad-'+ires+'-%02d'%x,range(ns)),
+       'add  ${SOURCES[1:-1]}') # total gradient
+
+
+modeling('marml','data',False)
+modeling('marmh','dmod',True)
+
+
+
+# build different residuals:
+
+# data difference
+Flow('data-diff-res',['dmod','data'],'add scale=1,-1 ${SOURCES[1]}')
+
+# phase difference
+Flow('phase-diff-res',['dmod','data'],
+  'math d=${SOURCES[1]} output="arg(input*conj(d))"'
+) 
+
+Flow('mag',['dmod','data'],
+  '''
+  math d=${SOURCES[1]} output="arg(input*conj(d))"|
+  real|put d3=%g o3=%g|window |nderiv order=1 length=11 axis=1 scale=y> dz.rsf &&
+  put d3=%g o3=%g <$SOURCE |real|window|
+  nderiv order=1 length=11 axis=2 scale=y> dx.rsf &&
+  math dz=dz.rsf dx=dx.rsf output="sqrt(dx^2+dz^2)" |
+  scale axis=123
+  '''%(ds,os,ds,os))
+
+Result('mag','window|'+fdmod.cgrey('color=E allpos=y ',pard))
+
+Flow('grad-mag-mask',['mag','pos-offset','neg-offset'],
+  '''
+  mask min=%g | 
+  dd type=float >tmp.rsf &&
+  add tmp.rsf ${SOURCES[1]} mode=p |
+  causint  adj=y>tmp1.rsf &&
+  add tmp.rsf ${SOURCES[2]} mode=p|
+  causint adj=n |add tmp1.rsf |
+  mask max=%g |dd type=float |
+  smooth rect1=7 rect2=5 repeat=4 |  
+  rtoc |spray axis=1 n=1 d=1 o=0
+  '''%(0.50,1.3))
+
+Result('grad-mag-mask','window|real|'+fdmod.cgrey('color=E allpos=y ',pard))
+
+Flow('masked-phase-diff-res',['phase-diff-res','grad-mag-mask'],
+  'add mode=p ${SOURCES[1]} ')
+Flow('masked-data-diff-res',['data-diff-res','grad-mag-mask'],
+  'add mode=p ${SOURCES[1]} ')
+
+
+# Here I compute the gradient with and without mask
+for diff in ['data-diff-res']:
+  for mask in ['masked-','']:
+    gradient('marmh','dmod',mask+diff)
+  i=0 
+  for mask in ['masked-','']:
+    Result('grad-'+mask+diff,'window f3=%d n3=1 |'%i+fdmod.cgrey('color=E scalebar=y',par))
+    Result('grad-sm-'+mask+diff,'grad-'+mask+diff,
+      'window f1=7 |pad beg1=7 |window f3=%d n3=1 |smooth rect1=5 rect2=5 repeat=5|math output="input*(3-x1)"|'%i+fdmod.cgrey('color=E pclip=99.9',par))
+    i+=1      
+
+
+
+
+Flow('byte-'+diff,['masked-'+diff,diff,'data','dmod'],'cat ${SOURCES[1:4]} axis=4|window |put d2=%g o2=%g|real|byte gainpanel=a pclip=99.9'%(ds,os))
+
+Result('masked-'+diff,'byte-'+diff,'window f3=0 n3=1 |'+fdmod.cgrey('color=E',pard))
+Result(diff,'byte-'+diff,          'window f3=1 n3=1 |'+fdmod.cgrey('color=E',pard))
+Result('data','byte-'+diff,        'window f3=2 n3=1 |'+fdmod.cgrey('color=E',pard))
+Result('dmod','byte-'+diff,        'window f3=3 n3=1 |'+fdmod.cgrey('color=E',pard))
+
+Result('phase-diff-res','window |real|put d2=%g o2=%g|'%(ds,os)+fdmod.cgrey('color=E',pard))
+
+
+
+
+
+Flow('diffv',['marml','marmh'], 'add scale=-1,1 ${SOURCES[1]} ')
+vels = {'true':'marml','starting':'marmh','diff':'diffv'}
+for key in ['true','starting']:
+  vfile = vels[key]
+  Result(key,vfile,'clip2 upper=4.5 lower=1.5|'+
+                    fdmod.cgrey('color=j minval=1.5 maxval=4.5 bias=3',par))
+
+Result('bar',vfile,'clip2 upper=4.5 lower=1.5|'+
+                    fdmod.cgrey('color=j minval=1.5 maxval=4.5 bartype=h barlabel=vel barunit="km/s" yll=1 barmove=y bias=3 wantscalebar=y',par)+
+      '''
+      |/WORK/rsf/bin/vppen vpstyle=n ywmax=1.4
+      ''')
+Result('diff','diffv',
+                    fdmod.cgrey('color=E',par))
+
+Result('offset','put d2=%g o2=%g|'%(ds,os)+fdmod.cgrey('color=E wantscalebar=y',pard))
+
+
+End()	

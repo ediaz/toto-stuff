@@ -63,7 +63,11 @@ class helmhotz:
       A = self.lhs(w)
       u = splinalg.spsolve(A,b)
       self.wavefield[iw] = np.reshape(u,(self.slo.n2,self.slo.n1)) 
+    self.A = A
     return self.wavefield
+
+  def returnA(self):
+    return self.A
 
   def solveE(self,w,b):
     A = self.lhs(w)

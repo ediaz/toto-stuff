@@ -1,0 +1,87 @@
+try:    from rsf.cluster import *
+except: from rsf.proj    import *
+from rsf.recipes import wplot,awe,geom
+import demo
+
+par=demo.param()
+par['vsc'] = 1.0201
+wplot.param(par)
+awe.param(par)
+
+demo.wavelet('wav',par) # wavelet
+demo.ss('so',par) # source
+demo.rr('ro',par) # receiver
+demo.vrefl('vel',par)                  # velocity (reflection)
+demo.vtran('vtr',par)                  # velocity (transmission)
+demo.vback('vbk','vtr',par['vsc'],par) # velocity (background)
+Result('vel',['vel','so','ro'],'Overlay')
+
+# ------------------------------------------------------------
+awe.cdafd2d('dat','wfl','wav','vel','so','ro','',par)
+awe.cdafd2d('dbk','wbk','wav','vbk','so','ro','',par)
+Result('dat-%03d'%(par['vsc']*100),'dat','scale axis=123 | transp |' + wplot.waveplot('',par))
+Result('dbk-%03d'%(par['vsc']*100),'dbk','scale axis=123 | transp |' + wplot.waveplot('',par))
+    
+awe.cdafd2d('uS_d','uS_w','wav', 'vbk','so','ro','adj=n jsnap=1',par)
+awe.cdafd2d('uR_d','uR_w','dat', 'vbk','ro','ro','adj=y jsnap=1',par)    
+
+# normalize uS and uR at the receiver
+for i in (['S','R']):
+    Flow('u'+i,['u'+i+'_d','u'+i+'_w'],
+         '''
+         window | findmax | math output="1/input" |
+         spray axis=1 n=%(nz)d o=%(oz)g d=%(dz)g |
+         spray axis=2 n=%(nx)d o=%(ox)g d=%(dx)g |
+         spray axis=3 n=%(nt)d o=%(ot)g d=%(dt)g |
+         add mode=p ${SOURCES[1]}
+         '''%par)
+awe.dWIN2d('dS_','uS',par['ixcip'],par['izcip'],par)
+awe.dWIN2d('dR_','uR',par['ixcip'],par['izcip'],par)
+
+Flow('uSfrm','uS',
+     '                         window f3=%(ffrm)d j3=%(jfrm)d n3=%(nfrm)d'%par)
+Flow('uRfrm','uR',
+     'reverse opt=i which=4 | window f3=%(ffrm)d j3=%(jfrm)d n3=%(nfrm)d'%par)
+for f in (['uS','uR']):
+    Flow(f+'byt',f+'frm','byte gainpanel=a pclip=99.5')
+    demo.myframes(f+'frm',f+'byt','',par)
+        
+Flow(  'gSdif','dbk dat',' add scale=+1,-1 ${SOURCES[1]}|reverse which=2 opt=i |scale axis=123')
+Result('gSdif-%03d'%(par['vsc']*100),'gSdif','reverse which=2 opt=i | window |' + wplot.waveplot('',par))
+awe.cdafd2d('aSdif_d','aSdif','gSdif','vbk','ro','so','adj=n jsnap=1',par)
+    
+Flow('kSdif'+'frm',['aSdif','uS'],
+     '''
+     reverse which=4 opt=i |
+     add mode=p ${SOURCES[1]} |
+     window f3=%(ffrm)d j3=%(jfrm)d n3=%(nfrm)d
+     '''%par)
+     
+Flow('iSdif'+'frm',['aSdif','uS'],
+     '''
+     reverse which=4 opt=i |
+     add mode=p ${SOURCES[1]} |
+     accumulate axis=3 |
+     window f3=%(ffrm)d j3=%(jfrm)d n3=%(nfrm)d
+     '''%par)
+Flow('aSdif'+'frm','aSdif',
+     '''
+     reverse which=4 opt=i | 
+     window f3=%(ffrm)d j3=%(jfrm)d n3=%(nfrm)d
+     '''%par)
+     
+Flow('aSdif'+'byt','aSdif'+'frm','byte gainpanel=a pclip=99.5')
+Flow('kSdif'+'byt','kSdif'+'frm','byte gainpanel=a pclip=99.5')
+Flow('iSdif'+'byt','iSdif'+'frm','byte gainpanel=a pclip=99.5')
+demo.myframes('aSdif'+'frm','aSdif'+'byt',       '',par)
+demo.myframes('kSdif'+'frm','kSdif'+'byt','color=e',par)
+demo.myframes('iSdif'+'frm','iSdif'+'byt','color=e',par)
+
+
+
+Result('grad-%03d'%(par['vsc']*100),'iSdif'+'frm', 'window f3=-1|'+wplot.igrey2d('color=E pclip=99.5',par))
+
+
+End()
+
+

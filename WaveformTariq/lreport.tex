@@ -1,0 +1,140 @@
+
+\author{Esteban D\'{i}az}
+\title{Improving the FWI gradient trough data selection in the frequency domain}
+
+\maketitle
+
+In class we have seen that the gradient formulation in FWI relies on the 
+Born approximation. This assumption imposes serious limitations on the velocity
+models we can recover. As rule of thumb, the Born assumption is said to be broken
+when the travel time misfit between observed and modeled data is bigger than
+half a period. However, despite how big is the velocity perturbation to recover,
+ the travel time misfit depends mostly on the source-receiver distance. 
+This observation have been used by several authors  \citep{liu2014,alejo} as a QC for FWI. The basic idea in 
+the data selection is to back-propagate the parts of the data that are
+compliant with the Born approximation. As the model improves the mask relax more and more, 
+and at the end probably most of the data can be included.
+
+In the frequency domain the half-cycle assumption translate in a phase difference bigger 
+than half-cycle $\Delta \phi > \pi$. This observation was used \cite{qa-fwi}
+to QC the initial velocity models before inversion starts. They say not to start a FWI 
+project if this Born conditions are not met.
+
+In this report, I use the same criterion to identify cycle-skipped phases as \cite{qa-fwi}
+does. Then, I use the magnitude of the phase difference gradient $\nabla \Delta \phi$
+to create a mute mask based on the limit of the data one can use for the current model. 
+ This approach should be the frequency-domain equivalent of \cite{liu2014,alejo}.
+
+\section{Results}
+ Figures~\ref{fig:truemod}-\ref{fig:vdiff} show the true velocity model, the starting model,
+and the difference, respectively. Figure \ref{fig:vdiff} is the ``perfect'' update direction,
+ which I use as benchmark for the different results. 
+
+Figure~\ref{fig:phase-diff} shows the phase difference between modeled and 
+observed data, measured as: $\Delta \phi = arg(d_{mod}d_{obs}^*) \in [-\pi,\pi]$ \citep{qa-fwi}.
+ Figure~\ref{fig:mag} shows the magnitude of the gradient of the phase difference, where 
+the gradient is defined with the source and receiver positions as follows:
+\[
+\nabla \Delta \phi := \partial_S\Delta\phi  \hat{S} + \partial_R \Delta\phi \hat{R}.
+\]
+
+To compute the inclusion mask, I do it automatically by setting it to 1 along the offset 
+axis until I find a spike, then is 0. Then, I smooth the mask so the inclusion/rejection region
+varies smoothly. The mask is shown in Figure~\ref{fig:mask}.  
+
+Figure~\ref{fig:gr-ddiff} shows the gradient computed using the direct difference as 
+adjoint source. Figure~\ref{fig:gr-mddiff} shows the gradient using the data selection
+approach proposed here. Figures~\ref{fig:gr-sm-ddiff}-\ref{fig:gr-sm-ddiff}
+ show the smoothed versions for direct difference and data-selection approach, respectively. 
+
+Which one is better? Our benchmark is Figure~\ref{fig:vdiff}. Without smoothing
+it is hard to appreciate the direction of update, this is probably due to the ringing that
+comes from the fact we are using only one frequency for the gradient $f=5Hz$. 
+
+Figure~\ref{fig:gr-sm-mddiff} is much better for the left side 
+of the model. Also, is better in the upper faulted part of the model (blue
+update), whereas the conventional update extends the blue update further 
+to the left. 
+
+
+\begin{figure}
+\centering
+  \subfloat[]{
+    \includegraphics[width=0.5\textwidth]{hw03/Fig/true.pdf} 
+    \label{fig:truemod}}
+
+  \subfloat[]{
+    \includegraphics[width=0.5\textwidth]{hw03/Fig/starting.pdf}
+    \label{fig:starting}} 
+
+  \subfloat[]{
+    \includegraphics[width=0.5\textwidth]{hw03/Fig/diff.pdf}
+    \label{fig:vdiff}}
+
+  \subfloat[]{\hspace*{.91cm}\includegraphics[width=0.47\textwidth]{hw03/Fig/bar.pdf}}
+  \caption{True Marmousi model (a), starting velocity model (b), difference between starting and true model
+ (c),  and colorbar for velocity models (d).}
+\label{fig:d2}
+\end{figure}
+
+\begin{figure}
+\centering
+  \subfloat[]{
+  \includegraphics[width=0.3\textwidth]{hw03/Fig/phase-diff-res.pdf} 
+  \label{fig:phase-diff}
+  }
+  \subfloat[]{
+  \includegraphics[width=0.3\textwidth]{hw03/Fig/mag.pdf} 
+  \label{fig:mag}
+  }
+  \subfloat[]{
+  \includegraphics[width=0.3\textwidth]{hw03/Fig/grad-mag-mask.pdf} 
+  \label{fig:mask}
+  }
+  \caption{Phase angle difference (a), magnitude of the gradient of the phase (cycle-skip indicator) (b) and the mute filter (b) based on attribute (b).}
+\end{figure}
+
+
+\begin{figure}
+\centering
+  \subfloat[]{
+    \includegraphics[width=0.3\textwidth]{hw03/Fig/dmod.pdf} 
+    \label{fig:dmod}}
+  \subfloat[]{
+    \includegraphics[width=0.3\textwidth]{hw03/Fig/data.pdf} 
+    \label{fig:dobs}}
+
+  \subfloat[]{
+    \includegraphics[width=0.3\textwidth]{hw03/Fig/data-diff-res.pdf} 
+    \label{fig:ddiff}}
+  \subfloat[]{
+    \includegraphics[width=0.3\textwidth]{hw03/Fig/masked-data-diff-res.pdf} 
+    \label{fig:mddiff}}
+
+  \caption{Real part of modeled data (a), data from true model (b), data difference (c),
+   and the masked data residuals (d).}
+\end{figure}
+
+
+\begin{figure}
+\centering
+  \subfloat[]{
+    \includegraphics[width=0.5\textwidth]{hw03/Fig/grad-data-diff-res.pdf} 
+    \label{fig:gr-ddiff}}
+  \subfloat[]{
+    \includegraphics[width=0.5\textwidth]{hw03/Fig/grad-masked-data-diff-res.pdf} 
+    \label{fig:gr-mddiff}}
+
+  \subfloat[]{
+    \includegraphics[width=0.5\textwidth]{hw03/Fig/grad-sm-data-diff-res.pdf} 
+    \label{fig:gr-sm-ddiff}}
+  \subfloat[]{
+    \includegraphics[width=0.5\textwidth]{hw03/Fig/grad-sm-masked-data-diff-res.pdf} 
+    \label{fig:gr-sm-mddiff}}
+\caption{ Original gradient (a), proposed gradient (b), original gradient after smoothing (c), and proposed gradient after smoothing (d). All gradients should be compared with Figure~\ref{fig:vdiff}.}
+\end{figure}
+
+
+\bibliographystyle{plain}
+\bibliography{biblio} 
+
