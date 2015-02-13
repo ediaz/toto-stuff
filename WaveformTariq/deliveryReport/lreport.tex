@@ -1,6 +1,6 @@
 
 \author{Esteban D\'{i}az}
-\title{Improving the FWI gradient trough data selection in the frequency domain}
+\title{Improving the FWI gradient through data selection in the frequency domain}
 
 \maketitle
 
@@ -8,11 +8,11 @@ In class we have seen that the gradient formulation in FWI relies on the
 Born approximation. This assumption imposes serious limitations on the velocity
 models we can recover. As rule of thumb, the Born assumption is said to be broken
 when the travel time misfit between observed and modeled data is bigger than
-half a period. However, despite how big is the velocity perturbation to recover,
- the travel time misfit depends mostly on the source-receiver distance. 
+half a period, $\Delta t > T/2$. However, despite how big is the velocity perturbation to recover,
+ the travel time misfit might be within the half-cycle for some distances. 
 This observation have been used by several authors  \citep{liu2014,alejo} as a QC for FWI. The 
-basic idea the data selection is to back-propagate the parts of the data that are
-compliant with the Born approximation. As the model improves the mask relax more and more, 
+basic idea in the data selection is to back-propagate the parts of the data that are
+compliant with the Born approximation. As the model improves, the mask relax more and more, 
 and at the end probably most of the data can be included.
 
 In the frequency domain the half-cycle assumption translates in a phase difference bigger 
@@ -21,10 +21,11 @@ to QC the initial velocity models before inversion starts. They say not to start
 project if this Born conditions are not met.
 
 In this report, I use the same criterion to identify cycle-skipped phases as \cite{qa-fwi}
-does. Whereas he does an interpretation, I implement an automatic approach. 
+does. Whereas he does an interpretation, I implement an automatic approach for identifying the 
+regions, and use it to create a mute zone mask. 
   I implement two maskig approaches.
  In the first one, I use the magnitude of the phase difference gradient $\nabla \Delta \phi$
-to create a mute mask based on the limit of the data one can use for the current model. The 
+to create a mute based on the limit of the data one can use for the current model. The 
 gradient is defined in the shot-receiver domain. 
 
 In the second approach, I convert Shot-Receiver data to Shot-Offset data, then I calculate 
@@ -183,7 +184,7 @@ shot-offset domain (c), and the same mask in the S-R domain (compare with Figure
     \includegraphics[width=0.5\textwidth]{hw03/Fig/grad-sm-masked2-data-diff-res.pdf} 
     \label{fig:gr-sm-m2ddiff}}
 \caption{ Original gradient (a), smoothed original gradient (b), proposed gradient with mask1 (c), smoothed proposed gradient with mask1 (d),
-        proposed gradient with mask2 (e), and smoothed proposed gradient with mask2 (f). All gradients should be compared with Figure~\ref{fig:vdiff}.}
+        proposed gradient with mask2 (e), and smoothed proposed gradient with mask2 (f). All gradients should be compared with Figure~\ref{fig:vdiff}. All gradient plots have been clipped together.}
 
 \end{figure}
 \end{landscape}

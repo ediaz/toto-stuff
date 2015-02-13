@@ -12,7 +12,7 @@ for slides in glob.glob('slides*.tex'):
     slidesname = os.path.splitext(slides)[0]
     Paper(slidesname,
           lclass='cwpslides',
-          use='geometry,mathtools,algorithm,algorithmic,multicol,color,overpic,listings,amsmath,amssymb,amsbsy,comment,xcolor')
+          use='multicol,color,overpic,listings,amsmath,amssymb,amsbsy,comment')
     
 for notes in glob.glob('notes*.tex'):
     notesname = os.path.splitext(notes)[0]
@@ -21,21 +21,6 @@ for notes in glob.glob('notes*.tex'):
           options='notesonly',
           use='multicol,color,overpic,listings,amsmath,amssymb,amsbsy')
     
-# ------------------------------------------------------------
-for slides in glob.glob('Slides*.tex'):
-    slidesname = os.path.splitext(slides)[0]
-    Paper(slidesname,
-          lclass='cwpslides',
-          options='aspectratio=169',
-          use='color,listings,textcomp,setspace,palatino,geometry,mathtools,algorithm,algorithmic,multicol,color,overpic,listings,amsmath,amssymb,amsbsy,comment,xcolor')
-    
-for notes in glob.glob('notes*.tex'):
-    notesname = os.path.splitext(notes)[0]
-    Paper(notesname,
-          lclass='cwpnotes',
-          options='notesonly',
-          use='multicol,color,overpic,listings,amsmath,amssymb,amsbsy')
-
 # ------------------------------------------------------------
 #for article in glob.glob('article*.tex'):
 #    name = os.path.splitext(article)[0]
@@ -64,19 +49,6 @@ for geo in glob.glob('geo*.tex'):
           options='twocolumn,twoside',
           use='times,natbib,amsmath,graphicx,color,amssymb,amsbsy,lineno,ulem,setspace')
 
-for report in glob.glob('lreport*.tex'):
-    name = os.path.splitext(report)[0]
-    Paper(name,lclass='article',options='11pt',
-          use='color,natbib,amsmath,amssymb,amsbsy,geometry,lineno,ulem,comment,subfig,graphicx,rotating,pdflscape',
-          include=r'''
-          \setlength{\paperwidth}{8.5in}
-          \setlength{\paperheight}{11.0in}
-          \setlength{\topmargin}{-0.25in}
-          \setlength{\textheight}{8.75in}
-          \setlength{\textwidth}{6.5in}
-          \setlength{\oddsidemargin}{+.015625in}
-          \setlength{\evensidemargin}{+.015625in}
-          ''')
 for report in glob.glob('report*.tex'):
     name = os.path.splitext(report)[0]
     Paper(name,lclass='cwpreport',

@@ -21,8 +21,7 @@ def main(args):
   #goSmooth2T()
   #goSmooth2S()
   #goDetrend()
-  #goBenchmark()
-  deriv()
+  goBenchmark()
 
 
 def deriv():
