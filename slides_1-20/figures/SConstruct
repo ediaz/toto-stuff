@@ -46,4 +46,28 @@ for rule in range(20,41,2):
   slide = slides_fig.slideFig(par,ratio='16:9',font=rule) #init object
   Result('mona40-16to9'+ken,'mona',slide.cgrey('',scalar=.40))  
   
+
+
+
+
+
+
+
+
+for scalar in [0.125,0.25,0.5,1.]:
+  rule = 30
+  ken = '-ken%02d'%rule
+  name = 'mona40-16to9-scale%03d'%(scalar*100)+ken
+  slide = slides_fig.slideFig(par,ratio='16:9',font=rule) #init object
+  Result(name,'mona',slide.cgrey('',scalar=scalar))  
+
+
+
+
+
+
+
+
+
+
 End()

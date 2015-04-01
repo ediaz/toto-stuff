@@ -14,7 +14,11 @@
 #	ediazpantin@gmail.com
 #
 # DATE
-#    2010.1
+#    2015.1
+#  
+# Version 1.2:
+# Esteban Diaz thanks Jorge Fernandez-Concheso for 
+# reporting bug regarding unsigned to signed int conversion
 #
 ###############################################################################
 

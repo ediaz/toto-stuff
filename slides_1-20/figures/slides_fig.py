@@ -108,6 +108,38 @@ class slideFig:
     return self.dgrey(custom,scalar,False)
 
 
+  ###################################################
+  #
+  #      Interface to fdmod.egrey()
+  #
+  ###################################################
+
+  def egrey(self,custom,scalar=None,horizontal=True):
+    '''
+    This is equivalent to fdmod.cgrey('',par) 
+    scalar:  horizontal scalar for the figure space
+    '''
+    self._scale(scalar,horizontal)
+    toplot = ' plotfat=1 screenratio=%(ratio)g screenht=%(height)g '%self.par +custom
+    return fdmod.egrey(toplot,self.par)
+
+  def hegrey(self,custom,scalar=None):
+    '''
+    read cgrey
+    h stands for horizontal scalar
+    '''
+    self._h_scale(scalar)
+    return self.egrey(custom,scalar,True)
+
+  def vegrey(self,custom,scalar=None):
+    '''
+    read cgrey
+    v stands for vertical scalar
+    '''
+    self._v_scale(scalar)
+    return self.egrey(custom,scalar,False)
+
+
 
   ###################################################
   #
@@ -174,6 +206,36 @@ class slideFig:
 
   ###################################################
   #
+  #      Interface to an arbitrarly fdmod style function 
+  #
+  ###################################################
+
+  def interface(self,custom,scalar=None,horizontal=True,func):
+    '''
+    Interface to a fdmod style plotting function func.
+    the func must take a custom variable and a par file
+    '''
+    self._scale(scalar,horizontal)
+    return func(custom,self.par)
+    
+  def hinterface(self,custom,scalar=None,horizontal=True,func):
+    '''
+    Interface to a fdmod style plotting function func.
+    the func must take a custom variable and a par file
+    '''
+    self._h_scale(scalar)
+    return func(custom,self.par)
+
+  def vinterface(self,custom,scalar=None,horizontal=True,func):
+    '''
+    Interface to a fdmod style plotting function func.
+    the func must take a custom variable and a par file
+    '''
+    self._v_scale(scalar)
+    return func(custom,self.par)
+
+  ###################################################
+  #
   #      Interface to fdmod.ssplot and fdmod.rrplot
   #
   ###################################################
@@ -205,7 +267,7 @@ class slideFig:
     '''
     returns the current state of par file
     '''
-    return self.par
+    return self.par.copy()
 
   ## Private functions user should not call these:
   def _scale(self,scalar,horizontal=True):

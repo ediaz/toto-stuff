@@ -3,7 +3,7 @@
 
 \title[]{How to get away from the font police}
 \subtitle{The pro tips}
-\author[]{Esteban  D\'{i}az}
+\author[]{ Esteban  D\'{i}az and Yuting Duan$^*$}
 \institute{Center for Wave Phenomena \\
 Colorado School of Mines }
 \date{}
@@ -54,9 +54,6 @@ Colorado School of Mines }
 \usebackgroundtemplate{}
 
 \inputdir{XFig}
-%\begin{frame}
-%\plot{ruler}{}{}
-%\end{frame}
 
 \begin{frame}\frametitle{Ken's rule}
 \[
@@ -155,25 +152,81 @@ font = height/20 \approx 12.6pt
 \end{frame}
 
 
-\begin{frame}\frametitle{1/40}
-\plot{mona40-16to9-ken40}{}{}
-\end{frame}
-\usebackgroundtemplate{}
 
+\begin{frame}\frametitle{scalar=1.0}
+  \plot{mona40-16to9-scale100-ken30}{}{}
+\end{frame}
+
+\begin{frame}\frametitle{scalar=0.5}
+  \begin{columns}
+    \column{0.5\textwidth}
+      \plot{mona40-16to9-scale050-ken30}{}{}
+    \column{0.5\textwidth}
+      \plot{mona40-16to9-scale050-ken30}{}{}
+  \end{columns}
+\end{frame}
+
+\begin{frame}\frametitle{scalar=0.25}
+  \begin{columns}
+    \column{0.5\textwidth}
+      \plot{mona40-16to9-scale025-ken30}{}{}
+      \vspace{-0.5in}
+      \plot{mona40-16to9-scale025-ken30}{}{}
+    \column{0.5\textwidth}
+      \plot{mona40-16to9-scale025-ken30}{}{}
+      \vspace{-0.5in}
+      \plot{mona40-16to9-scale025-ken30}{}{}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}\frametitle{scalar=0.125}
+  \begin{columns}
+    \column{0.25\textwidth}
+      \plot{mona40-16to9-scale012-ken30}{}{}
+      \vspace{-0.5in}
+      \plot{mona40-16to9-scale012-ken30}{}{}
+      \vspace{-0.5in}
+      \plot{mona40-16to9-scale012-ken30}{}{}
+    \column{0.25\textwidth}
+      \plot{mona40-16to9-scale012-ken30}{}{}
+      \vspace{-0.5in}
+      \plot{mona40-16to9-scale012-ken30}{}{}
+      \vspace{-0.5in}
+      \plot{mona40-16to9-scale012-ken30}{}{}
+    \column{0.25\textwidth}
+      \plot{mona40-16to9-scale012-ken30}{}{}
+      \vspace{-0.5in}
+      \plot{mona40-16to9-scale012-ken30}{}{}
+      \vspace{-0.5in}
+      \plot{mona40-16to9-scale012-ken30}{}{}
+    \column{0.25\textwidth}
+      \plot{mona40-16to9-scale012-ken30}{}{}
+      \vspace{-0.5in}
+      \plot{mona40-16to9-scale012-ken30}{}{}
+      \vspace{-0.5in}
+      \plot{mona40-16to9-scale012-ken30}{}{}
+  \end{columns}
+\end{frame}
+
+
+\usebackgroundtemplate{}
 \begin{frame}
   \big{the details}
 \end{frame}
-\begin{frame}[fragile]{the new way of plotting:}
+\begin{frame}[fragile]{how to do it}
+\begin{lstlisting}[language=python]
+par = {'ox':0,'dx':1,'nx':512,'labelx':'x',
+       'oz':0,'dz':1,'nz':512,'labelz':'z'}
+fdmod.param(par)
+
+slide=slideFig(par,ratio='16:9',font=20) #init
+Result('mona','mona',fdmod.cgrey('',par))
+Result('mona1-20','mona',slide.cgrey('',scalar=0.7))
+
+\end{lstlisting}
 \centering
 $\vdots$
-\begin{python}
-# Initialize slide plotting object:
-slide16to9 = slides_fig.slideFig(par,ratio='16:9',font=20) 
-# Use:
-Result('mona_16to9','mona',slide16to9.cgrey(custom='',scalar=0.6)) 
-# Instead of:
-Result('mona_fdmod','mona',fdmod.cgrey(custom='',par))
-\end{python}
 $\vdots$
 
 \end{frame}
