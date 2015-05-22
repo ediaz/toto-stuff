@@ -7,22 +7,6 @@ type sw_struct
   real    :: time_ , start_
 end type sw_struct
 
-
-
-
-
-
-
-
-   
-
-
-
-
-
-
-
-
 contains
 
 
