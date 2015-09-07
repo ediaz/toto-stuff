@@ -176,7 +176,7 @@ fx = np.array(fx0)
 fz = np.array(fz0)
 alpha=1e-9
 ofs = []
-for it in range(1001):
+for it in range(1):
   of = test.of(fx,fz)
   gx,gz = test.gradient(fx,fz)
   gx = np.array(gx)
