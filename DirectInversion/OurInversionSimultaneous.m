@@ -48,18 +48,15 @@ for f = [1:10]
 
     F = Ps'*Q;  % source functions
     U  = A\(F); % green functions for every source function
-    for is=[1:ns]
-        u = U(:,is); % load green's functions for source is
-        fs = F(:,is);% load source function for position is
-        num = num + reshape(conj(u).*(-L*u),n);
-        den = den + reshape(conj(u).*u.*(2*pi*f)^2,n);
-    end
+    u = sum(U,2); % create a normal incidence plane wave
+    num = num + reshape(conj(u).*(-L*u),n);
+    den = den + reshape(conj(u).*u.*(2*pi*f)^2,n);
+    
 end
 
 
 %
 % the inverted model is position independent, so actually we don't
-% need to know much about the source (given that is injected in one point).
 %
 
 
@@ -68,8 +65,8 @@ mest = real(num.*(1./den)) ;
 mest2 = mest;
 mest2(2,sloc) = 1/2000^2;
 
-vest = 1./sqrt(mest(2:50,2:100));
-vest2 = 1./sqrt(mest2(2:50,2:100));
+vest = real(1./sqrt(mest(2:50,2:100)));
+vest2 = real(1./sqrt(mest2(2:50,2:100)));
 
 figure
 imagesc(mest); colorbar();
