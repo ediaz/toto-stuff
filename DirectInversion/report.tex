@@ -1,0 +1,98 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, amsthm, amsbsy, rotating,float}
+\usepackage{graphicx,algorithm,algorithmic}
+\usepackage{amssymb}
+\usepackage{setspace,enumerate}
+
+\usepackage{graphicx,caption,subfig}
+
+\floatstyle{ruled}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert_p}
+\newcommand{\normi}[1]{\left\lVert#1\right\rVert_\infty}
+\newcommand{\normt}[1]{\left\lVert#1\right\rVert_2}
+
+\doublespacing
+
+\author{Esteban D\'{i}az}
+\title{Notes on direct inversion}{}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Constant density acoustics}
+
+Here we consider the following wave equation:
+
+\begin{equation}
+  \frac{\omega^2 }{v^2(x)} u(x,\omega) +\nabla^2 u(x,\omega) = f(x,\omega).
+  \label{eq:cden}
+\end{equation}
+ Now, let's imagine we want to solve for the model $m = 1/v^2$, given the wavefield $u$ produced
+by the source $f$. The solution for this problem takes the following form:
+
+\begin{equation}
+   m = \mathbb{R}\left\{ \frac {{f(x,\omega)} - \nabla^2{ u(x,\omega) }}{\omega^2 u(x,\omega)} \right\}
+\end{equation}
+
+In theory, we can obtain the model $m$ for one frequency since we have only one unknown free variable.
+In order to get redundancy, one can make use of several frequencies (if we consider the model
+to be frequency independent). Then we can do
+
+\begin{equation}
+   m =  \mathbb{R}\left\{\sum_\omega \frac {{f(x,\omega)} - \nabla^2{ u(x,\omega) }}{\omega^2 u(x,\omega)} \right\}.
+\end{equation}
+In general, the area of influece of the source function $f(x,\omega)$ is very small (i.e. is injected in a small area). 
+ This fact means that we don't need to know about the source function away from its area of influence. Furthermore,
+ most of the time the medium should be well known at the source position (water velocity for marine acquisition for instance). 
+
+
+\section{Variable density acoustics}
+
+We can further increase the complexity of the wave propagator by introducing variable density. 
+
+\begin{equation}
+  \frac{\omega^2 }{v^2(x) \rho(x)} u(x,\omega) +\nabla \cdot(\frac{1}{\rho} \nabla u(x,\omega)) = f(x,\omega).
+  \label{eq:vden}
+\end{equation}
+
+How could we decouple the effect of two model parameters $m_1 = \frac{1}{v^2\rho}$ and $m_2 = \frac{1}{\rho}$?
+
+
+\begin{equation}
+  \omega^2 m_1 u(x,\omega) +\partial_x(m_2 \partial_x u)+\partial_z(m_2 \partial_z u)  = f(x,\omega).
+  \label{eq:vden2}
+\end{equation}
+
+in matrix form can be written as:
+\begin{equation}
+  {\bf A} {\bf m_1} + {\bf B} {\bf m_2} = {\bf f}
+\end{equation}
+
+where ${\bf A} = diag\{\omega^2 u(x,\omega)\}$, and 
+
+\begin{equation}
+ {\bf B} = {\bf D_x^T}{ diag\{\bf D_x u\}} + {\bf D_z^T}{ diag\{\bf D_z u\}} 
+\end{equation}
+
+If we consider again, the model to be frequency independent; then, we can take advantage of the 
+redundancy in the frequency domain to solve for $m_1$ and $m_2$ by using 2 frequencies by forming the following
+system of equations:
+\begin{align}
+  {\bf A}_1 {\bf m_1} + {\bf B}_1 {\bf m_2} = {\bf f}_1 \\
+  {\bf A}_2 {\bf m_1} + {\bf B}_2 {\bf m_2} = {\bf f}_2
+\end{align}
+
+For which we can obtain:
+\begin{align}
+  \left( {\bf B_2}-{\bf A_2}{\bf A_1^{-1}} \right) {\bf m}_2 = {\bf f_2} -{\bf A_2}{\bf A_1^{-1} f_1} \\
+ {\bf A}_1 {\bf m}_1 = ({\bf f_1}-{\bf B_1 m_2}) 
+\end{align}
+
+
+
+
+
+
+\end{document}

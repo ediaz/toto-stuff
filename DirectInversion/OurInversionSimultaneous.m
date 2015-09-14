@@ -1,19 +1,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                         %
 % How can you invert for the model, given the Green's functions?          %
 %                                                                         %
 %  \omega^2 u m +Lu = f                                                   %
-%                                                                         %
 % => \omega^2 u  m = f - Lu                                               %
-%                                                                         %
 %   m  \sum_{sources} \sum_\omega  \omega^2 u =                           %
 %      \sum_{sources} \sum_\omega       f -Lu                             %
 %                                                                         %
-%                                                                         %
 %  m = { \sum_{sources} \sum_\omega f -Lu }  /                            %
 %      { \sum_{sources} \sum_\omega  \omega^2 u}                          %
-%                                                                         %
-%                                                                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -39,7 +33,7 @@ den = zeros(n);
 % loop over frequencies
 sloc = [1:5:101]; %source locations in x 
 ns = size(sloc,2);
-for f = [1:10]
+for f = [5:5]
     % define operators
     Ps = getP(n,2,sloc); % source coordinate injection operator
     [A,L]  = getA(f,1./(v0(:) + dv(:)).^2,h,n,0); % the getA optionally 
