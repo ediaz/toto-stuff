@@ -33,7 +33,7 @@ den = zeros(n);
 % loop over frequencies
 sloc = [1:5:101]; %source locations in x 
 ns = size(sloc,2);
-for f = [5:5]
+for f = [20:20] % one frequency!! WTF??
     % define operators
     Ps = getP(n,2,sloc); % source coordinate injection operator
     [A,L]  = getA(f,1./(v0(:) + dv(:)).^2,h,n,0); % the getA optionally 
@@ -42,7 +42,7 @@ for f = [5:5]
 
     F = Ps'*Q;  % source functions
     U  = A\(F); % green functions for every source function
-    u = sum(U,2); % create a normal incidence plane wave
+    u = awgn(sum(U,2),1000); % create a normal incidence plane wave
     num = num + reshape(conj(u).*(-L*u),n);
     den = den + reshape(conj(u).*u.*(2*pi*f)^2,n);
     

@@ -1,0 +1,45 @@
+from rsf.proj import *
+from rsf.recipes import fdmod,adcig
+
+par = {'ox':0,'dx':0.015,'nx':1001,
+       'oz':0,'dz':0.015,'nz':200,
+       'ot':0,'dt':0.002,'nt':2001}
+
+
+fdmod.param(par)
+
+wb = 'wbs.txt'
+Flow('wb',['image-init.H',wb], 'picks2rsf picks=${SOURCES[1]} extend=y|smooth rect1=30')
+
+gg1 = [626,947]
+gg2 = [677,357]
+
+points= {'image-init':gg1,'image-tomo':gg2}
+
+for img in ['image-init','image-tomo']:
+  Plot(img,[img+'.H','wb'],'add mode=p ${SOURCES[1]}|'+
+                           fdmod.cgrey('pclip=98',par))
+  n=0
+  pp =[]
+  for x in points[img]:
+    p= 'p%s-%02d'%(img.replace("image",""),n) 
+    Plot(p,img.replace('image','gg')+'.H','window n2=1 f2=%d|'%x+
+        fdmod.ssplot('',par))
+    pp.append(p)
+    
+    cip = 'cip%s-%02d'%(img.replace("image",""),n) 
+
+    Result(cip,'e'+img+'.H','window f3=%d n3=1|transp|'%x+
+      '''
+      grey labelsz=6 labelfat=3 titlesz=12 titlefat=3 
+      label2="\F10 l\F3 \_x\^" unit2=km
+      label1="\F10 t\F3      " unit1=s 
+      min1=-0.21 max1=0.21 
+      min2=-1.10 max2=1.1
+      title=""
+      screenht=4
+      ''')
+    n+=1
+  Result(img,[img]+pp,'Overlay')
+
+End()
