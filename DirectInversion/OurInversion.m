@@ -55,11 +55,11 @@ for f = [1:10]
         fs = F(:,is);% load source function for position is
         if(i==0)
             Lhs = spdiags(u.*(2*pi*f)^2,[0],N,N);
-            rhs = fs -L*u;
+            rhs =  -L*u;
             size(rhs)
         else
             Lhs = [Lhs;spdiags(u.*(2*pi*f)^2,[0],N,N)];
-            a =  fs -L*u;
+            a =   -L*u;
             rhs = [rhs;a];    
         end
         i=i+1;

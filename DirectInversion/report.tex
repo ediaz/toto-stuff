@@ -47,6 +47,35 @@ In general, the area of influece of the source function $f(x,\omega)$ is very sm
  This fact means that we don't need to know about the source function away from its area of influence. Furthermore,
  for most of the cases the model  should be well known at the source position (water velocity for marine acquisition for instance). 
 
+\subsection{least squares inversion}
+
+I think, perhaps, the right thing to do is to find the least squares 
+model estimate. We have great redundancy with the number of frequencies
+and surface source locations. That means that we need to solve an 
+\emph{over-determined}  problem.
+
+Let $A1(x_s,\omega)$ be the forward
+ modeling matrix for one source location and angular frequency $\omega$:
+\[
+  A1 = diag\{\omega^2 u(x_s,x\omega)\} \in R^{N,N} 
+\]
+where $N$ is the number of model parameters.
+
+This matrix is sparse (is only non-zero along the main diagonal).
+Then, the left hand side of the system is composed by many of this 
+matrices concatenated along the rows directions:
+
+\[
+ A = 
+ \begin{pmatrix}
+  A1     \\
+  \vdots  \\
+  A_i    
+ \end{pmatrix};
+\in R^{N\times ns \times n\omega,N},
+\]
+where $ns$ is the number of source locations and $n\omega$ is the number
+of frequencies used in the inversion.
 
 \section{Variable density acoustics}
 
