@@ -21,6 +21,7 @@
 
 % define model
 n  = [51 101];
+N = prod(n);
 h  = [20 20];
 z  = [0:n(1)-1]'*h(1);
 x  = [0:n(2)-1]*h(2);
@@ -39,6 +40,7 @@ den = zeros(n);
 % loop over frequencies
 sloc = [1:5:101]; %source locations in x 
 ns = size(sloc,2);
+i=0;
 for f = [1:10]
     % define operators
     Ps = getP(n,2,sloc); % source coordinate injection operator
@@ -51,11 +53,21 @@ for f = [1:10]
     for is=[1:ns]
         u = U(:,is); % load green's functions for source is
         fs = F(:,is);% load source function for position is
-        num = num + reshape(conj(u).*(-L*u),n);
-        den = den + reshape(conj(u).*u.*(2*pi*f)^2,n);
+        if(i==0)
+            Lhs = spdiags(u.*(2*pi*f)^2,[0],N,N);
+            rhs = fs -L*u;
+            size(rhs)
+        else
+            Lhs = [Lhs;spdiags(u.*(2*pi*f)^2,[0],N,N)];
+            a =  fs -L*u;
+            rhs = [rhs;a];    
+        end
+        i=i+1;
     end
 end
 
+%Invert by least squares:
+mest = reshape(real(Lhs\rhs),n); 
 
 %
 % the inverted model is position independent, so actually we don't
@@ -64,7 +76,6 @@ end
 
 
 
-mest = real(num.*(1./den)) ; 
 mest2 = mest;
 mest2(2,sloc) = 1/2000^2;
 
