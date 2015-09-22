@@ -105,13 +105,5 @@ title('R(u(101,x,f=10)');
 
 
 
-figure 
-subplot(2,1,1);
-imagesc(real(num(2:50,2:100)));
-title('Q \sum_\omega -\nabla^2 u');
-subplot(2,1,2);
-imagesc(den(2:50,2:100));
-title('Q \sum_\omega \omega^2 u');
-
 
 

@@ -31,7 +31,7 @@ omega = 2*pi*f;
 N     = prod(n);
 
 % Stiffness matrices
-B = spdiags(b,[0],N);
+B = spdiags(b,[0],N,N);
 [Dx,Dz] = DifferenceOperators(h,n);
 S =  -Dz'*B*Dz -Dx'*B*Dx;
 
@@ -52,7 +52,6 @@ end
 v = (1-w);
 v(:,[1 end]) = v(:,[1 end])/h(2);
 v([1 end],:) = v([1 end],:)/h(1);
-
 M = omega^2*spdiags(w(:).*m1,0,N,N) + ...
     1i*omega*spdiags(v(:).*sqrt(s2),0,N,N); % boundary condition
 

@@ -70,12 +70,38 @@ matrices concatenated along the rows directions:
  \begin{pmatrix}
   A1     \\
   \vdots  \\
-  A_i    
+  A_N    
  \end{pmatrix};
 \in R^{N\times ns \times n\omega,N},
 \]
 where $ns$ is the number of source locations and $n\omega$ is the number
 of frequencies used in the inversion.
+
+On the right hand side of the system we have 
+\[
+ r_i = f(x_s,\omega) -\nabla^2 u(x_s,\omega).
+\]
+
+The right hand side vector is composed by the combination of the individual
+right hand side vectors:
+\[
+ r = 
+ \begin{pmatrix}
+  f_1     \\
+  \vdots  \\
+  f_N    
+ \end{pmatrix};
+\in R^{N\times ns \times n\omega}
+\]
+
+Once we have the left hand side matrix $A$ and the right hand side vector $r$, 
+we can proceed to solve for the model:
+\[
+ {\bf A }{\bf m} = \bf r.
+\]
+The matrix $\bf A$ is very sparse (composed by a main diagonal  for each combination
+of angular frequency $\omega$ and source location $x_s$).
+
 
 \section{Variable density acoustics}
 
