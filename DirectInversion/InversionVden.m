@@ -32,13 +32,13 @@ dv = dv + 200*(abs(zz+.25*xx-1000)<=10);
 
 d0 = 1*ones(n);
 dd = zeros(n);
-dd = 200*((zz-400).^2+ (xx-1000).^2<=1000)+d0;
+dd = 2*((zz-400).^2+ (xx-1000).^2<=1000)+d0;
 
 s2 = 1./(v0(:)+dv(:)).^2;
 b = 1./(dd(:));
 
 % loop over frequencies
-sloc = [1:49:100]; %source locations in x 
+sloc = [1:2:100]; %source locations in x 
 ns = size(sloc,2);
 
 Ps = getP(n,2,sloc); % source coordinate injection operator
@@ -52,7 +52,7 @@ Ps = getP(n,2,sloc); % source coordinate injection operator
 Q  = speye(ns);
 
 
-freqs = [1:10:10];
+freqs = [10:10:10];
 nw = size(freqs,2);
 i=0;
 for f = freqs
@@ -78,20 +78,34 @@ for f = freqs
         end
         i=i+1;
         fprintf('set %d out of %d\n',i+1,nw*ns);
-    end
+    end n   nn n
 end
 
 mest    = real(Lhs\rhs);
 ests2b  = reshape(mest(1   :N ),n);
+ests2b = ests2b(2:n(1)-1,2:n(2)-1);
+
 estb    = reshape(mest(N+1:2*N),n);
+estb = estb(2:n(1)-1,2:n(2)-1);
 
 figure
-imagesc(ests2b(2:n(1)-1,2:n(2)-1));
+imagesc(ests2b);
 title('estimated s2b');
 
 figure
-imagesc(estb(2:n(1)-1,2:n(2)-1));
+imagesc(estb);
 title('estimated b');
+
+figure
+imagesc(1./sqrt(ests2b./estb));
+colorbar();
+title('estimated velocity');
+
+figure
+imagesc(1./estb);
+colorbar();
+title('estimated density');
+
 
 figure
 imagesc(reshape(s2.*b,n));
