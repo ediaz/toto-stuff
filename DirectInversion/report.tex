@@ -57,7 +57,7 @@ and surface source locations. That means that we need to solve an
 Let $A1(x_s,\omega)$ be the forward
  modeling matrix for one source location and angular frequency $\omega$:
 \[
-  A1 = diag\{\omega^2 u(x_s,x\omega)\} \in R^{N,N} 
+  A1 = diag\{\omega^2 u(x_s,x\omega)\} \in \mathcal{C}^{N,N} 
 \]
 where $N$ is the number of model parameters.
 
@@ -72,10 +72,10 @@ matrices concatenated along the rows directions:
   \vdots  \\
   A_N    
  \end{pmatrix};
-\in R^{N\times ns \times n\omega,N},
+\in \mathcal{C}^{N\times ns \times n\omega,N},
 \]
 where $ns$ is the number of source locations and $n\omega$ is the number
-of frequencies used in the inversion.
+of frequencies used in the inversion, and $\mathcal{C}$ is the space of complex numbers.
 
 On the right hand side of the system we have 
 \[
@@ -91,14 +91,17 @@ right hand side vectors:
   \vdots  \\
   f_N    
  \end{pmatrix};
-\in R^{N\times ns \times n\omega}
+\in \mathcal{C}^{N\times ns \times n\omega}
 \]
 
 Once we have the left hand side matrix $A$ and the right hand side vector $r$, 
 we can proceed to solve for the model:
-\[
+\begin{equation}
  {\bf A }{\bf m} = \bf r.
-\]
+\label{eq:linear1}
+\end{equation}
+
+
 The matrix $\bf A$ is very sparse (composed by a main diagonal  for each combination
 of angular frequency $\omega$ and source location $x_s$).
 
@@ -142,6 +145,54 @@ For which we can obtain:
 
 
 
+\subsection{least-squares inversion}
+  For this wave equation the inverting matrix is a little bit different from that in equation~\ref{eq:linear1}.
+In this case, the model paramater vector is twice as long as the one for constant density. Hence, we 
+need twice the number of equations to solve it. The model vector is composed by the buoyancy $1/\rho$ and 
+ $1/(v^2\rho)$ 
+\[
+  {\bf m} = 
+ \begin{pmatrix}
+  {\bf m_1}     \\
+  {\bf m_2}   
+ \end{pmatrix};
+\in R^{2M,1}
+\].
+
+
+For each combination of source position and angular frequency $\omega$, we can form a matrix $C_i$ of the 
+following form:
+\[
+ {\bf C_i } =  
+ \begin{pmatrix}
+ A_i & B_i 
+ \end{pmatrix}  \in \mathcal{C}^{M,2M} 
+\]
+on the right hand side of the system, we would only have the source term:
+
+\[
+ {\bf r_i} = {\bf f_i} \in \mathcal{C}^{M,1};
+\]and
+\[
+
+{\bf r} = 
+ \begin{pmatrix}
+  r_1     \\
+  \vdots  \\
+  r_N    
+ \end{pmatrix} \in \mathcal{C}^{M\times n\omega \times ns};
+
+\]
+The new system can be formed after concatenating several combinations of source and frequencies:
+
+\[
+{\bf C } = 
+ \begin{pmatrix}
+  C_1     \\
+  \vdots  \\
+  C_N    
+ \end{pmatrix} \in \mathcal{C}^{M\times n\omega \times ns, 2M};
+\]
 
 
 \end{document}

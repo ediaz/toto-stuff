@@ -40,8 +40,10 @@ den = zeros(n);
 % loop over frequencies
 sloc = [1:5:101]; %source locations in x 
 ns = size(sloc,2);
+fqs = [1:10];
+nw = size(fqs,2);
 i=0;
-for f = [1:10]
+for f = fqs
     % define operators
     Ps = getP(n,2,sloc); % source coordinate injection operator
     [A,L]  = getA(f,1./(v0(:) + dv(:)).^2,h,n,0); % the getA optionally 
@@ -63,6 +65,7 @@ for f = [1:10]
             rhs = [rhs;a];    
         end
         i=i+1;
+        fprintf('set %d out of %d\n',i+1,nw*ns);
     end
 end
 

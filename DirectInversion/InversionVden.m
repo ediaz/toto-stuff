@@ -78,7 +78,7 @@ for f = freqs
         end
         i=i+1;
         fprintf('set %d out of %d\n',i+1,nw*ns);
-    end n   nn n
+    end
 end
 
 mest    = real(Lhs\rhs);
