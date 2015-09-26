@@ -8,7 +8,7 @@ dims = [251,601,476];
 wave = reshape(wave,dims);
 
 
-f=10.0;
+f=21.0;
 
 
 gf = extractGreen(wave,f,0.004);
