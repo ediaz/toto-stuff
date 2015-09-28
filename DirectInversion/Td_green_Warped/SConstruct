@@ -1,0 +1,41 @@
+from rsf.proj import *
+from rsf.recipes import fdmod
+
+
+
+
+su = '/Users/ediaz/Dropbox/toto_y_yo/snap_sp.su'
+
+model = 'model'
+dmodel = 'model_distorted'
+
+Flow('TD_wavefield',su,
+  '''
+  sfsegyread tfile=xxx.rsf endian=0 su=y> $TARGET && \
+echo n1=251 d1=4 o1=0 n2=601 d2=4 o2=0 n3=476 d3=0.004 o3=0  >>$TARGET &&
+  rm xxx.rsf
+  ''',stdout=-1)
+
+snaps = range(476)
+
+Flow(dmodel,model,'math output="input+300*exp(-(x1-500)^2/(2*200^2) -(x2-1200)^2/(2*200^2))"')
+
+for it in snaps:
+  Flow('snap-%03d'%it,['TD_wavefield',model,dmodel],
+    'window f3=%d n3=1 '%it)   
+
+  Flow('snapd-%03d'%it,['snap-%03d'%it,model,dmodel],
+    '''
+    depth2time dt=0.004 nt=1000 velocity=${SOURCES[1]}|
+    time2depth dt=4 nz=251 velocity=${SOURCES[2]}
+    ''')
+
+Flow('DTD_wavefield',map(lambda x:'snapd-%03d'%x,snaps),
+  'cat ${SOURCES[1:%d]} axis=3|put d3=0.004 out=wave.dat'%len(snaps))
+
+
+
+
+
+
+End()

@@ -13,7 +13,7 @@
 
 \doublespacing
 
-\author{Esteban D\'{i}az}
+\author{cwp}
 \title{Notes on direct inversion}{}
 
 \begin{document}
@@ -149,7 +149,7 @@ For which we can obtain:
   For this wave equation the inverting matrix is a little bit different from that in equation~\ref{eq:linear1}.
 In this case, the model paramater vector is twice as long as the one for constant density. Hence, we 
 need twice the number of equations to solve it. The model vector is composed by the buoyancy $1/\rho$ and 
- $1/(v^2\rho)$ 
+the inverse of the bulk modulus $1/\kappa=1/(v^2\rho)$ 
 \[
   {\bf m} = 
  \begin{pmatrix}
@@ -174,14 +174,12 @@ on the right hand side of the system, we would only have the source term:
  {\bf r_i} = {\bf f_i} \in \mathcal{C}^{M,1};
 \]and
 \[
-
 {\bf r} = 
  \begin{pmatrix}
   r_1     \\
   \vdots  \\
   r_N    
  \end{pmatrix} \in \mathcal{C}^{M\times n\omega \times ns};
-
 \]
 The new system can be formed after concatenating several combinations of source and frequencies:
 
@@ -194,5 +192,9 @@ The new system can be formed after concatenating several combinations of source 
  \end{pmatrix} \in \mathcal{C}^{M\times n\omega \times ns, 2M};
 \]
 
+from where we can proceed to solve
+\begin{equation}
+{\bf C} {\bf m} = \bf r
+\end{equation}
 
 \end{document}

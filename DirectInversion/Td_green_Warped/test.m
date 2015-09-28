@@ -37,7 +37,18 @@ end
 mest = A\b;
 mest = reshape(abs((real(mest))),n);
 figure
-imagesc(1./sqrt(mest(2:end-1,2:end-1)));
+v = squeeze(1./sqrt(mest(2:end-1,2:end-1)));
+v = v(:);
+for i=1:size(v(:),1)
+    if (v(i)>3500)
+        v(i)=3500;
+    end
+end
+
+
+
+
+imagesc(reshape(v,[(n(1)-2) (n(2)-2)]));
 colorbar()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
