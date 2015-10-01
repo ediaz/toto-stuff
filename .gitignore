@@ -36,3 +36,4 @@ Geo-computing/test/cachedir/
 *.dat
 *.mat
 *.bin
+*~

@@ -7,7 +7,7 @@ dims = [251,601,476];
 
 wave = reshape(wave,dims);
 
-fqs = [5:4:30]; % number of frequencies to invert simultaneously
+fqs = [11:2:31]; % number of frequencies to invert simultaneously
 i=0;
 for f=fqs
     gf = extractGreen(wave,f,0.004);
@@ -36,8 +36,29 @@ end
 
 mest = A\b;
 mest = reshape(abs((real(mest))),n);
+
+vinv = 1./sqrt(mest);
+
+%%
+
+xrange = [3 (n(2)-3)]*h(2);
+zrange = [3 (n(1)-3)]*h(1);
+ 
 figure
-imagesc(1./sqrt(mest(2:end-1,2:end-1)));
+imagesc(xrange,zrange,vinv(4:n(1)-3,4:n(2)-3));
+title('inverted model');
+daspect([4 n(2)/n(1) 1]);
+caxis( [1900 2500] )
 colorbar()
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+print('Fig/minv_10f','-depsc');
+
+
+
+
+
+
+
+
+
+
 

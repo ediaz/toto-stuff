@@ -1,0 +1,45 @@
+from rsf.proj import *
+from rsf.recipes import fdmod
+
+
+par = {
+       'ox':0,'dx':0.004,'nx':601,
+       'oz':0,'dz':0.004,'nz':251,
+       'ot':0,'dt':0.004,'nt':476
+      }
+
+fdmod.param(par)
+
+
+su = '/Users/ediaz/Dropbox/toto_y_yo/snap_sp.su'
+
+model = 'model'
+dmodel = 'model_distorted'
+
+Flow('TD_wavefield',su,
+  '''
+  sfsegyread tfile=xxx.rsf endian=0 su=y> $TARGET && \
+echo n1=251 d1=0.004 o1=0 n2=601 d2=0.004 o2=0 n3=476 d3=0.004 o3=0  >>$TARGET &&
+  rm xxx.rsf
+  ''',stdout=-1)
+
+snaps = range(1,470,40)
+
+
+Flow('TD_wfl_byte','TD_wavefield','byte gainpanel=a pclip=99.')
+
+for sn in snaps:
+  snap = 'snap-%04d'%sn
+  Result(snap,'TD_wfl_byte',
+    'window n3=1 f3=%d|'%sn+
+    fdmod.cgrey('title="t=%5.3fs"'%(sn*par['dt']),par)) 
+
+
+
+
+
+
+
+
+
+End()

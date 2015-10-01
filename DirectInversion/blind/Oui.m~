@@ -1,5 +1,7 @@
 close all;
 
+load('gfull.mat');
+
 fqs = [21:4:61]; % number of frequencies to invert simultaneously
 i=0;
 for sou=1:6

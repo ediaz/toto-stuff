@@ -29,10 +29,6 @@ den = zeros(n);
 sloc = [300:300];%:n(2)]; %source locations in x 
 ns = size(sloc,2);
 
-figure 
-imagesc(v);
-
-colorbar();
 
 ns = prod(size(sloc));
  
@@ -41,9 +37,9 @@ ns = size(sloc,2);
 fqs = [10:10:10];
 nw = size(fqs,2);
 i=0;
-nbox = [41,161];
+nbox = n;
 NB = prod(nbox);
-Pbox = getP(n,[90:130],[180:340]);
+Pbox = getP(n,[1:n(1)],[1:n(2)]);
 
 for f = fqs
     % define operators
@@ -56,7 +52,7 @@ for f = fqs
     U  = A\(F); % green functions for every source function
     for is=[1:ns]
         u = U(:,is); % load green's functions for source is
-        ubox = Pbox*u;
+        ubox = u;
         Lbox = LaplacianOperator(h,nbox);
         
         fs = F(:,is);% load source function for position is
@@ -76,10 +72,39 @@ end
 
 %Invert by least squares:
 mest = reshape(real(Lhs\rhs),nbox);
+vinv = 1./sqrt(abs(mest));
+
+xrange = [2 (n(2)-1)]*h(2);
+zrange = [2 (n(1)-1)]*h(1);
+ 
 figure
-imagesc(1./sqrt(mest(2:nbox(1)-1,2:nbox(2)-1)));
+imagesc(xrange,zrange,vinv(3:n(1)-2,3:n(2)-2));
+title('inverted model');
+daspect([2 n(2)/n(1) 1]);
+caxis( [1900 2500] )
+
+colorbar()
+print('Fig/minv','-depsc');
+
+figure
+imagesc(xrange,zrange,v(3:n(1)-2,3:n(2)-2));
+title('true model');
+daspect([2 n(2)/n(1) 1]);
+caxis( [1900 2500] )
+
+colorbar()
+print('Fig/m','-depsc');
+
+
+u = real(reshape(u,n));
+
+figure
+imagesc(xrange,zrange,u(3:n(1)-2,3:n(2)-2)*1000);
+title('wavefield xs=300');
+daspect([2 n(2)/n(1) 1]);
 colorbar()
 
+print('-depsc','Fig/u');
 
 
 
@@ -92,35 +117,3 @@ colorbar()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-% 
-% 
-% figure
-% imagesc(reshape(real(Ucden(:,1)),n));
-% title('constant den eq');
-% 
-% 
-% figure
-% imagesc(reshape(real(Uvden(:,1)),n));
-% title('variable den eq');
-% 
-% figure
-% imagesc(Svden);
-% colorbar();
-% 
-% figure
-% imagesc(Scden);
-% colorbar();
