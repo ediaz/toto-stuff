@@ -50,7 +50,7 @@ den = zeros(n);
 % loop over frequencies
 sloc = [1:5:101]; %source locations in x 
 ns = size(sloc,2);
-fqs = [1:10];
+fqs = [10:10];
 nw = size(fqs,2);
 i=0;
 for f = fqs

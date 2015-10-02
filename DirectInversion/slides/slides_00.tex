@@ -169,7 +169,7 @@ we don't need to know much about the source $\bf f$.
    \[
         {\bf m} \leftarrow {\bf u} ? 
    \]
- For $\bf m$ we have 1 equation for every unknown. So, 
+ For $\bf m$ we have 1 equation and 1 unknown for each pixel. So, 
 in theory 1 frequency and 1 source should suffice
 \end{frame}
 
@@ -213,7 +213,7 @@ Using time-domain (high-order spatial stencil, 2 order in time).
 \end{frame}
 \begin{frame} \frametitle{inconsistencies}
   fd:
-  $\partial_t^2 u(x,t) \rightarrow -\omega^2 u(x,t) $
+  $\partial_t^2 u(x,t) \rightarrow -\omega^2 u(x,\omega) $
   
   \[
   \nabla^2 =1/dx^2* 
@@ -289,7 +289,7 @@ possible $\bf R$s:
    \[
     {\bf R} =
     \begin{pmatrix}
-        {\bf Dx} \\ 
+        {\bf Dx} \\
         {\bf Dz}  
     \end{pmatrix} 
    \]
@@ -298,11 +298,11 @@ possible $\bf R$s:
    \]
 \end{frame}
 
-\begin{frame} \frametitle{reg inverted model}
+\begin{frame} \frametitle{reg inverted model 1 source}
   \plot{minv_reg_1}{width=0.7\textwidth}{}
 \end{frame}
 
-\begin{frame} \frametitle{inverted model}
+\begin{frame} \frametitle{reg inverted model 6 sources}
   \plot{minv_reg_6}{width=0.7\textwidth}{}
 \end{frame}
 
@@ -312,6 +312,77 @@ possible $\bf R$s:
 \end{frame}
 
 \begin{frame}
-  \big{variable density?... board}
+  \big{variable density?}
 \end{frame}
+
+\begin{frame}
+  \[
+    {\kappa} \omega^2 {\bf u} + \nabla \cdot \lp \frac{1}{\rho} \nabla {\bf u} \rp = {\bf f}
+  \]
+\end{frame}
+
+\begin{frame}
+  \[
+    {\bf m}_1 \omega^2 {\bf u} +\nabla \cdot \lp {\bf m}_2 \nabla {\bf u} \rp = {\bf f}
+  \]
+\end{frame}
+
+\begin{frame}
+  \[
+    {\bf C}_{11} {\bf m}_1 + {\bf C}_{22} {\bf m}_2 = {\bf f}
+  \]
+  \[
+    {\bf C}_{11} = \omega^2 diag\{u\}
+  \]
+  \[
+    {\bf C}_{12} = -{\bf D}_x^\top diag\{{\bf D}_x u\} -{\bf D}_z^\top diag\{{\bf D}_z u\}
+  \]
+\end{frame}
+
+\begin{frame}
+  \[
+    \begin{pmatrix}
+      {\bf C}_{11}  & {\bf C}_{22} 
+    \end{pmatrix}
+    \begin{pmatrix}
+      {\bf m}_1 \\
+      {\bf m}_2
+    \end{pmatrix} =
+    {\bf f}
+  \]
+\end{frame}
+\begin{frame}
+  \[
+    \begin{pmatrix}
+      {\bf A}  
+    \end{pmatrix}
+    \begin{pmatrix}
+      {\bf m}_1 \\
+      {\bf m}_2
+    \end{pmatrix} =
+    {\bf f}
+  \]
+
+  \[  
+  {\bf A} \in \mathcal{R}^{Mx2M};
+  \]
+
+  \[
+  {\bf m} =      \begin{pmatrix}
+      {\bf m}_1 \\
+      {\bf m}_2
+    \end{pmatrix}  \in \mathcal{R}^{2Mx1};
+  \]
+
+  \[
+  {\bf f} \in  \mathcal{R}^{Mx1};
+  \]
+\end{frame}
+
+\begin{frame}
+  Maybe we should work with a impedance-density inversion pair
+  (as shown by Antoine in his CWP seminar).
+\end{frame}
+
+
 \end{document}
