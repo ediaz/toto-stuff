@@ -1,0 +1,83 @@
+\section{Application to a real 2D dataset}
+
+\inputdir{rtm}
+\multiplot{2}{shot,spectrum}{width=0.42\textwidth}{(a) Shot gather at $x=14$ km and 
+(b) its average amplitude spectrum.}
+\multiplot{3}{veldepth,RTM-veldepth,xang-veldepth,bar_veldepth4}{width=\textwidth}{%
+(a) Initial velocity model, (b) corresponding RTM image, (c) angle-gathers at sparse locations,
+and (d) the colorbar for velocity plots used in this report.}
+
+\multiplot{3}{vel_fwi_deldepth,RTM-vel_fwi_deldepth,xang-vel_fwi_deldepth}{width=\textwidth}{%
+(a) The data-domain wavefield tomography velocity model obtained from \rfg{veldepth}, (b) corresponding RTM image, and (c) angle-gathers at sparse locations.
+The velocity ranges from 1.5km for water velocity to 4km/s in the deepest part.}
+
+In this section we apply the cascaded workflow of image-domain wavefield tomography followed by 
+data-domain wavefield tomography.
+We use image-domain wavefield tomography to correct for most kinematics errors, and then 
+data-domain wavefield tomography to 
+refine the model and add details. We compare 4 models: (a) the initial model,
+ (b) the model obtained by image domain wavefield tomography, (c) the data-domain wavefield tomography obtained from (a), and 
+ (d) the data-domain wavefield tomography starting with the model obtained by image-domain wavefield tomography (b).
+
+The dataset is a marine 2D line acquired with a variable depth cable.
+The towed streamer contains increasing depths as a function of offset, which enhances the frequency
+content of the data by producing a mixed notch response. Hence,
+the increased cable depths improves the low frequency content at intermediate and far offsets which can be very helpful
+for data-domain wavefield tomography. The cable contains offsets ranging from $0.169\text{ to }8.256$ km. \rfg{shot} shows a shot
+gather from $x=14$ km and \rfg{spectrum} depicts the average amplitude spectrum for
+the same gather. 
+
+We build the initial model,~\rfg{veldepth}, by performing time-domain NMO analysis followed
+by smoothing, RMS (stacking) conversion to interval velocity \citep{dix}, and 
+time to depth conversion.~\rfg{RTM-veldepth} shows the RTM
+ image produced by the model in~\rfg{veldepth}, and one can observe that the image is over migrated
+ (high velocity) below 3km in depth.~\rfg{xang-veldepth} shows angle gathers extracted at
+sparse locations in the model. Note that we do not use the angle gathers for inversion; instead,
+we use the gathers as an independent quality control tool. The transformation from space-lag
+gathers $R(\xx,\hh)$ to angle domain $R(\xx,\theta)$ follows the method of \cite{sava:1065}.
+The angles vary from $0\text{ to }45^\circ$ for all
+the gathers shown in this report.
+ The moveout in the gathers confirms that the velocity is 
+too fast below $3$ km. Some of the events in the gathers, however, correspond to migrated surface related 
+multiples and their moveout is not indicative of velocity error.
+
+For data-domain wavefield tomography, we use 7 frequency blocks with 5 frequencies each. The center frequency
+for each block ranges from $f=2.6$ Hz to $f=8.9$ Hz. For the time damping constant, we use $\tau=1.6s$.
+ The first step in data domain wavefield tomography involves estimating the source function $f_s(\Omega)$; later 
+we compare the inverted source functions for each model.  
+ We use 365 shots for the inversion 
+with a shot interval $\Delta s=0.09375$ km. The data-domain wavefield tomography workflow is common for the two inversions.
+
+~\rfg{vel_fwi_deldepth} shows the data-domain wavefield tomography model built from \rfg{veldepth}. The data-domain wavefield tomography process slows 
+the velocity in the shallow part of the section,
+close to the water bottom, introducing a sharp discontinuity in the model. In general, 
+the velocity slows down in the right part of the model. One can see in the gathers, \rfg{xang-vel_fwi_deldepth},
+ that in the shallow part the events get flatter with the new velocity. However, deep in the section,
+ the model does not correct most kinematic problems exhibited in the gathers. This area of the model
+corresponds to longer travel-times in the data, and these late arrivals are prone to cycle-skipping problems. 
+
+We generate the model in \rfg{veldepth_iter06} using the image-domain wavefield tomography approach.
+The idea of this tomographic step is to correct for the bulk of the kinematic errors in the model. 
+\rfg{veldepth_iter06} shows that in the updated model, in general the model slows down, especially in the
+deep part of the section. \rfg{RTM-veldepth_iter06} shows the corresponding RTM image, 
+where the focusing of the image improves significantly around $z=3.5$ km.
+ This observation is confirmed in \rfg{xang-veldepth_iter06}, where now the gathers are flatter throughout the section.
+
+Finally, we update the image-domain wavefield tomography model with the data-domain wavefield tomography approach.~\rfg{vel_fwi_deldepth_iter06_2} depicts 
+the updated model (compare with~\rfg{vel_fwi_deldepth}), which
+changes considerably in the interval $z=4$ km to $z=6$ km. 
+\rfgs{RTM-vel_fwi_deldepth_iter06_2}-\ref{fig:xang-vel_fwi_deldepth_iter06_2}
+are the corresponding RTM image and angle gathers, respectively. 
+Note that even though the velocity does not significantly vary the kinematics of the experiment, 
+it introduces subtle structural features in the image. We can see that the structure of the line
+becomes flatter with the new model (see for instance the event at $z=4$ km and $x=18 \text{ to } 24$ km). 
+
+
+\multiplot{3}{veldepth_iter06,RTM-veldepth_iter06,xang-veldepth_iter06}{width=\textwidth}{%
+(a) The image-domain wavefield tomography velocity model built from \rfg{veldepth}, (b) corresponding RTM image, and (c) angle-gathers at sparse locations. 
+The velocity ranges from 1.5km for water velocity to 4km/s in the deepest part.}
+
+\multiplot{3}{vel_fwi_deldepth_iter06_2,RTM-vel_fwi_deldepth_iter06_2,xang-vel_fwi_deldepth_iter06_2}{width=\textwidth}{%
+(a) The data-domain wavefield tomography velocity model built from \rfg{veldepth_iter06}, (b) corresponding RTM image, and (c) angle-gathers at sparse locations. %
+The velocity ranges from 1.5km/s for water velocity to 4km/s in the deepest part.}
+

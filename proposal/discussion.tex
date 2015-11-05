@@ -1,0 +1,107 @@
+\section{Discussion}
+In the previous section we show the imaging results from different velocity models.
+ In this section we do a quantitative comparison between the inverted models. 
+ \rfgs{vel_fwi_deldepth}, \ref{fig:veldepth_iter06}, and \ref{fig:vel_fwi_deldepth_iter06_2}
+ show that the right part of the model, $x>14$ km, does not change significantly.
+ However, we can see in both data-domain wavefield tomography models that the shallow part of the right side of the model 
+improves the flatness of the gathers at shallow depths (compare \rfg{xang-veldepth} 
+with \rfg{xang-vel_fwi_deldepth}).
+
+ The image-domain wavefield tomography model (\rfg{veldepth_iter06})
+ does not significantly change the kinematics on the right side of the model.
+ We can think of two reasons for this observation: (i) the right side of 
+the model has poorer illumination, which can be confirmed by the limited
+angle range in the gathers, and (ii) given that the right side of the section has a shallower 
+water column, then we can expect several orders of surface related multiples. We can address (i)
+by relaxing the mute in the input shot gathers and thus improving the illumination.
+ Another option is to use a penalty operator $P(\hh)$ that 
+takes into account the spatially-variable illumination of the data, as suggested by \cite{tony_seg:cwp12}.
+  In relation to point (ii), the presence of multiples (surface-related or internal)
+ violates the implicit single scattering assumption of conventional and extended images.
+ \cite{Wiktor} suggest creating data that conform
+to single scattering by muting the multiples in the extended images and then
+demigrate the gathers. This new dataset should remove the bias of the surface
+related multiples in the inversion. Another option is to 
+demultiple the data prior to inversion (e.g. SRME \citep{SRME}). All these improvement ideas
+remain for ongoing and future tests.
+
+On the left side of the section we see significant changes. 
+\rfgs{veldepth-left} to \ref{fig:vel_fwi_deldepth_iter06_2-left} show a detailed view
+of the models for $x<14$ km. The data-domain wavefield tomography model in \rfg{vel_fwi_deldepth_iter06_2-left},
+ built from from the initial model, shows some layering below the water bottom, where we can 
+see a clear boundary in the model that is probably related to the events 
+ranging from $z=1.5$ km and $z=2.5$ km. Given that the velocity is too fast,
+ the data-domain wavefield tomography model is probably trapped in a local minimum. Hence, it cannot correct
+for the kinematic errors in the model. This is confirmed in the moveout of the 
+gathers, shown in \rfgs{xang-veldepth-left}-\ref{fig:xang-vel_fwi_deldepth-left}.
+ There are not many differences to recognize from \rfgs{RTM-veldepth-left}-\ref{fig:RTM-vel_fwi_deldepth-left}. This confirms
+ that the data-domain wavefield tomography model did not alter the kinematics. 
+
+In contrast, when we compare previous models with the image-domain wavefield 
+tomography model, \rfg{veldepth_iter06-left}, we can appreciate a considerable correction
+ to the velocity. Now, the slower velocity corrects for the bulk of the kinematic
+errors in the model. \rfg{xang-vel_fwi_deldepth-left} shows flat events up 
+to $z=4.5$ km through the detailed section. The new velocity highlights the 
+ unconformity depicted by the bright seismic event around $z=4$ km. Also, we can see
+how new events get imaged between $z=2.5$ km and $z=4$ km in \rfg{RTM-veldepth_iter06-left}. 
+ The updated model from data-domain wavefield tomography, depicted in \rfg{vel_fwi_deldepth_iter06_2-left}, 
+now shows a sharp discontinuity in the velocity at $z=3$ km. The corresponding
+ image, \rfg{RTM-vel_fwi_deldepth_iter06_2-left}, shows a flatter structure 
+after the data-domain wavefield tomography update. This is interesting because we can see how despite the 
+added complexity in the velocity, the structure in the image is simplified.
+
+\rfgs{source_veldepth}-\ref{fig:source_veltomo_fwi} show the inversion of
+source functions for the initial, the data-domain wavefield tomography from the initial model, the image-domain wavefield tomography model, and 
+the final data-domain wavefield tomography model, respectively. Note that the source functions inverted
+with the smooth model are laterally consistent. However, the consistency is improved
+ in \rfg{source_veltomo}. If we compare the source inversions from data-domain wavefield tomography models 
+(\rfgs{source_veldepth_fwi}-\ref{fig:source_veltomo_fwi}), we can see 
+a higher lateral correlation, which confirms that the final data-domain wavefield tomography models 
+better explain the kinematics of the data for direct and diving wave arrivals. 
+Even though we invert each source individually, we use the average over source positions for the inversion.
+ This is done because we know that in the field the air gun is shot with a constant pressure. Hence, 
+we assume that the inconsistencies
+ in the source functions come from the model itself. 
+
+Analyzing the focusing in space-lag gathers, or flatness of angle gathers, is the proper quality control tool for 
+image-domain methods. The equivalent tool for data-domain methods are the data residuals.
+ \rfgs{fdiff-veldepth}-\ref{fig:fdiff-veldepth_iwt_fwi} show the time-domain data residuals for the four models
+discussed in this report for a shot gather at $x=18.75$ km. \rfg{fdiff-veldepth} shows the data residual 
+corresponding to \rfg{veldepth}. One can observe large amplitude and phase residuals trough the diving-waves 
+components of the data. After updating the model the residual depicted in \rfg{fdiff-veldepth_fwi} shows
+that the diving waves arrivals are better fit, specially between offsets $2.5\text{ to }5$ km. 
+ \rfg{fdiff-veldepth_iwt} shows the residual corresponding to \rfg{veldepth_iter06}, we can see that 
+the these residuals better explain the data than those in \rfg{fdiff-veldepth}. After updating the model,
+ \rfg{fdiff-veldepth_iwt_fwi} we can see how the residuals from \rfg{vel_fwi_deldepth_iter06_2} better
+fit the data than any of the previous models. Now, the direct arrivals have a good match for near
+and intermediate offsets.
+
+
+\inputdir{rtm}
+\multiplot{4}{veldepth-left,vel_fwi_deldepth-left,veldepth_iter06-left,vel_fwi_deldepth_iter06_2-left}
+{width=0.65\textwidth}{%
+Detail from (a) initial velocity, (b) data-domain wavefield tomography built with initial velocity, %
+(c) image-domain wavefield tomography velocity model, and (d) data-domain wavefield tomography model built with image-domain wavefield tomography model.}
+
+\multiplot{4}
+{xang-veldepth-left,xang-vel_fwi_deldepth-left,xang-veldepth_iter06-left,xang-vel_fwi_deldepth_iter06_2-left}
+{width=0.65\textwidth}{%
+Detail from angle gathers from (a) initial velocity, (b) data-domain wavefield tomography built with initial velocity, %
+(c) image-domain wavefield tomography velocity model, and (d) data-domain wavefield tomography model built with image-domain wavefield tomography model.}
+
+\multiplot{4}{RTM-veldepth-left,RTM-vel_fwi_deldepth-left,RTM-veldepth_iter06-left,RTM-vel_fwi_deldepth_iter06_2-left}
+{width=0.65\textwidth}{%
+Detail from RTM images from (a) initial velocity, (b) data-domain wavefield tomography built with initial velocity, %
+(c) image-domain wavefield tomography velocity model, and (d) data-domain wavefield tomography model built with image-domain wavefield tomography model.}
+
+\inputdir{source_inv}
+\multiplot{2}{source_veldepth,source_veldepth_fwi,source_veltomo,source_veltomo_fwi}
+{width=0.72\textwidth}{ Source inversions as a function of source position: (a) from initial model, (b) from data-domain wavefield tomography using initial model,
+ (c) from image-domain wavefield tomography model, and (d) data-domain wavefield tomography from image-domain wavefield tomography model.}
+
+
+\inputdir{data_comp}
+\multiplot{4}{fdiff-veldepth,fdiff-veldepth_fwi,fdiff-veldepth_iwt,fdiff-veldepth_iwt_fwi}
+{height=0.45\textheight}{%
+Data domain residuals for shot position $x=18.75$ km using: (a) the inital velocity model, (b) the data-domain model built
+from the inital model, (c) the image-domain model, and (d) the data-domain model built from the image-domain model.}

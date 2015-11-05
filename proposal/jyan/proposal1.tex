@@ -1,0 +1,641 @@
+\title{\textbf{Thesis Proposal} \\ 
+\LARGE{Elastic reverse time migration\\ for anisotropic media}}
+\author{\large\textup{ Jia Yan}\\ Advisors: Paul Sava \& Ilya Tsvankin}
+
+%\subtitle{Elastic reverse time migration\\ for anisotropic media}
+%\author{Jia Yan}
+%\organization{CWP, Colorado School of Mines}
+
+
+
+
+% ------------------------------------------------------------
+%% 
+ % table of contents
+ %%
+
+
+
+
+\tableofcontents
+\newpage
+%\addcontentsline{toc}{section}{List of figures}
+%\listoffigures
+%\newpage
+
+%------------------------------------------------------------------
+\input{pcsmacros}
+
+\def\CURL#1{\nabla \times {#1}}
+\def\GRAD#1{\nabla {#1}}
+\def\DIV#1{\nabla \cdot {#1}}
+\def\LAPL#1{\nabla^2 {#1}}
+
+\def\uu{\mathbf u}
+
+\def\xx{ x,z}
+\def\ofx { \lp \xx   \rp}
+\def\ofxt{ \lp \xx,t \rp}
+
+\def\IM#1{  {I}_{#1} \ofx }
+\def\US#1{{u_s}_{#1} \ofxt}
+\def\UR#1{{u_r}_{#1} \ofxt}
+
+\def\P#1{ P_{#1} \ofxt }
+\def\S#1{ S_{#1} \ofxt }
+%
+%\maketitle
+
+
+\addcontentsline{toc}{section}{Abstract}
+
+\section{Abstract}
+Multicomponent data are not usually processed with specifically designed procedures, but are processed with procedures analogous to the ones used for single-component data. The common industry practice is to take vertical and horizontal components of the data as P and S wave modes, and use them to perform acoustic wave equation migration on each mode, respectively. This procedure works only if the vertical and horizontal component accurately represent P and S wave modes, which is not true in general. Therefore, images constructed with this procedure contain artifacts caused by the incorrect representation of wave separation on the surface.
+
+I propose to use an alternative procedure for imaging elastic wavefield data: instead of separating wavefields into scalar wave modes on the acquisition surface followed by scalar imaging, I prepare to use the entire vector fields for wavefield reconstructed and imaging. 
+The vector wavefields are reconstructed in reversed time using the multicomponent vector data as boundary conditions for a numerical solution to the elastic wave equation. 
+%The vector imaging condition for vector wavefields can take displacements or potentials. 
+One key component of any migration procedure is the imaging condition which evaluates the match between wavefields reconstructed from the source and receiver. For vector wavefields, a simple cross-correlation of component with component between the two wavefields leads to artifacts caused by cross-talk between the unseparated wave modes. The alternative I propose is to use separated elastic potentials, and implement the imaging condition as cross-correlation of potentials. This approach leads to images that are cleaner and easier to interpret.
+
+As imaging with acoustic wavefields, the elastic imaging condition can be formulated conventionally (cross-correlation with zero lag in space and time), as well as extended to non-zero space lags. The elastic images produced by imaging condition can be used for angle decomposition of reflectivity. Angle gathers have many applications, including migration velocity analysis (MVA) and amplitude versus angle (AVA) analysis.
+
+
+
+The ultimate objective of this project is to formulate elastic imaging for anisotropic media. The key elements for this type of imaging includes wave-mode separation for anisotropic media analogous to the potential decomposition for anisotropic elastic images available for isotropic elastic media and angle decomposition. Anisotropic angle gathers can be used for migration velocity analysis and anisotropy parameter estimations, etc. %EXPAND this
+
+
+
+\newpage
+\addcontentsline{toc}{section}{Summary of research  goals}
+\section{Summary of research  goals}
+%  - what is the problem?
+%  - why is it important?
+%  - what is known about the problem?
+%  - what did I do about this until now?
+%  - what will I do in the future?
+%  - what is the anticipated impact?
+
+% What is the problem
+% 1. earth works as solid, but in current insdustry common practice, treated as liquid, use acoustic wave equation to model.
+% 2. people realize 1, and want to ..., they record multicomponent data
+% 3. these multicomponent data are not used properly
+% 4. what was wrong? In many cases, even multicomponent data is acquired, it is not used. Or take vertical as P and horizontal as S. This waste useful information or introduce noise in the image.
+
+Seismic processing is mostly based on acoustic wave equation, which assumes that the Earth works as a liquid that propagates compressive waves only. Although useful in practice, this assumption is not theoretically valid.
+Earth materials allow for both primary and shear waves propagate in the subsurface. Shear waves, either generated at the source or converted from compressive waves, are recorded by multicomponent receivers.  Shear waves are usually stronger at large reflection angles, and for complex geological structures, can be quite significant even at small offsets.
+Conventional single-component imaging ignores shear wave modes, which often leads to incorrect characterization of wave-propagation, incomplete illuminations, and poor amplitude characterization, etc.
+
+%Recently, in order to image complex geology, to understand petrophysical properties, and to obtain true amplitude images, more and more multicomponent data (both ocean bottom and land) are acquired and used. 
+
+Even when multicomponent data are used for imaging, they are not usually processed with specifically designed procedures. Instead, those data are processed with ad-hoc procedures borrowed from acoustic wave equation algorithms, e.g. by assuming that the recorded vertical and horizontal components are considered good approximations for P and S wave modes, respectively. This assumption introduces errors and noise in the images, since P and S wave modes are normally mixed on all recorded components. Also, since P and S modes are mixed in all components, true-amplitude imaging is questionable no matter how accurate the wavefield reconstruction and imaging condition are.
+
+Anisotropy is also an important feature of the Earth that can not be ignored in many geologic areas, such as shale layers and fractured reservoirs. However, processing of elastic data, and even acoustic data, seldom takes anisotropy into consideration. Ignoring anisotropy causes mispositioning of the geologic structure and unfocused images. 
+
+          
+% Why do multicomponent imaging this important?
+% 
+The advantage of imaging with multicomponent seismic data are that the physics of wave propagation is better represented, and that the seismic images more accurately characterize the subsurface. Multicomponent images have many applications, for example they can be used to provide reflection images where the P-wave reflectivity is small, image through gas clouds where the P-wave signal is attenuated, detect fractures through shear-wave splitting, validate bright spot reflections and provide Poisson's ratio estimates~\cite[]{simmons:1227}. 
+Converted wave images also have higher resolution than pure mode images, because S waves have shorter wavelength than P waves. 
+Modeling and migrating multicomponent data with elastic migration algorithms, incorporating anisotropy when the model is anisotropic, enables us to make full use of information provided by elastic data, and focus and correctly position geologic structures.
+%For a single shot, converted wave images have better illumination than acoustic images. 
+
+
+% What is known about the problem?
+% People do multicomponent Kirchhoff migration, which still suffer from complex area where ray theory breaks down.
+% People did reverse time migration using multicomponent data, mostly using vertical as P and horizontal as S
+% Almost nothing was done on anisotropic reverse time migration
+
+Multicomponent imaging has long been an active research area for exploration geophysicists. Techniques proposed in the literature include Kirchhoff migration and reverse time migration adapted for multicomponent data from acoustic imaging. Proposed elastic Kirchhoff migration has to distinguish between PP reflection and PS reflections, and apply acoustic Kirchhoff migration for each mode separately. The elastic Kirchhoff migration technique itself suffers from some drawbacks as acoustic Kirchhoff migration in complex geology where ray theory breaks down. Conventional elastic reverse time migration techniques either consider vertical and horizontal components of recorded data as P and S modes, or separate these wave modes on the recording surface using some approximations, followed by acoustic wave equation migration of each mode independently. Other elastic reverse time migration techniques do not separate wave modes on the surface and reconstruct vector fields, but use some imaging conditions based on ray tracing that are not general enough for all complex geology. In addition, most multicomponent imaging algorithms are still designed for isotropic media only, and do not incorporate anisotropy in the extrapolation or imaging procedure.
+
+
+% What did I do about this until now?
+% Elastic isotropic reverse time migration
+% Imaging condition on displacement and potentials
+% Angle gathers on elastic reverse time migration
+
+My recent research concentrates on isotropic elastic reverse time migration. In my study, I reconstruct vector wavefields with elastic wave equation, and develop imaging conditions for vector displacement and elastic potentials characterizing P and S wave modes in the elastic wavefields. The potentials are separated in the subsurface from the reconstructed displacement field with Helmholtz decomposition. This is in contrast with the techniques that do separation on the recording surface before extrapolation. Images obtained with potential imaging condition have clearer physical meaning than those with the displacement imaging condition, and are easier to interpret, because they do not mix pure mode reflection and converted wave reflection. In addition, using extended imaging conditions with decomposed potentials, I was able to generate angle gathers characterizing reflectivity of both pure modes and converted waves. These angle gathers can potentially be used for amplitude versus angle (AVA) analysis and for migration velocity analysis (MVA).
+
+% what will I do in the future?
+Based on the completed research, I propose to work on anisotropic elastic reverse time migration, which includes anisotropic wavefield modeling, anisotropic vector imaging condition, anisotropic angle domain common image gathers. 
+Anisotropy elastic wavefield imaging for different types of anisotropy models extrapolates wavefield with different anisotropic elastic wave equations. After reconstructing anisotropic wavefields, we need to apply imaging condition to obtain anisotropic elastic images. The imaging condition in anisotropic elastic reverse time migration is important to obtain meaningful images. As in isotropic elastic reverse time migration, wave mode separation is necessary to obtain clean images. 
+However, separation of elastic wave modes in anisotropic media is not an trivial extension to isotropic wavefield separation, since the wave propagation in anisotropic media is much more complicated than that in isotropic media. In anisotropic media, ray direction, phase vector direction and polarization direction do not align, which makes separation of wave modes difficult and in some cases (3D) even not possible, e.g. at slowness singularities.
+Angle decomposition in anisotropy is also more complicated than angle decomposition in isotropic media. 
+In isotropic media, imaging and decomposition both use same vectors (group and phase are the same); while in anisotropic media, imaging uses group vectors (energy flow direction) and angle decomposition uses phase vectors.
+The angle decomposition in anisotropic media enables us to interpret reflectivity versus phase angles, and tell us whether the process of using slat stacks of lagged products of anisotropic wavefields is accurate enough to get reflectivity versus reflection angles.
+This study will not only allow us to obtain elastic images, but also can be used to do migration velocity analysis, anisotropy parameter estimations, etc. Ultimately, the elastic images and angle gathers can be used to study petrophysical properties and do AVA analysis.
+
+
+
+
+
+
+
+\addcontentsline{toc}{section}{Background and previous research}
+\section{Background and previous research}
+
+\addcontentsline{toc}{subsection}{Wavefield imaging}
+\subsection{Wavefield imaging}
+Seismic imaging is based on wave equations, and can be classified into ray-based imaging and wavefield-based imaging. 
+
+Kirchhoff migration is a typical ray-based imaging procedure that often fails in areas of complex geology, such as sub-salt, because the wavefield is severely distorted by lateral velocity variations leading to complex multipathing.
+
+Wavefield imaging works for complex geology, but is more expensive than Kirchhoff migration. Depending on computational time and resources available, different levels of approximation are applied, i.e., one way vs. two way, acoustic vs. elastic, isotropic vs. anisotropic, etc. Despite the complexity of various kinds of wavefield migration algorithms, any wavefield imaging includes two parts: wavefield reconstruction and application of an imaging condition. 
+
+For prestack depth migration, source and receiver wavefields have to be reconstructed first.
+The wavefield reconstruction can be done in both \emph{depth} and \emph{time} domain, and can be done with all modeling approaches, such as finite-difference~\cite[]{SWP00-00-03100318}, finite element~\cite[]{GEO41-01-01450151}, spectral method~\cite[]{SEG-1991-1561,SEG-1992-1285,SEG-1996-0427}, etc.
+
+After propagating the waves from the indicated initial conditions at $z=0$ into the subsurface, an imaging condition must be applied in order to obtain the final image. The simplest imaging condition is the cross correlation and deconvolution imaging condition proposed by \cite{GEO36-03-04670481}:
+\beq
+\label{eqn:CIC1}
+I\lp x,y,z \rp = \sum_\omega u_s\lp x,y,z,\omega \rp u_r\lp x,y,z,\omega \rp  \; ;
+\eeq
+and
+\beq
+\label{eqn:CIC2}        
+I\lp x,y,z \rp = \sum_\omega \frac{u_s\lp x,y,z,\omega \rp u_r\lp x,y,z,\omega \rp}{u_s\lp x,y,z,\omega \rp u_s\lp x,y,z,\omega \rp+\epsilon} \; .
+\eeq
+where $I\lp x,y,z \rp$ is image in 3D; $u_s\lp x,y,z,\omega \rp$ and $u_r\lp x,y,z,\omega \rp$ are Fourier domain source and receiver wavefield as function of spatial coordinates and frequency; and $\epsilon$ is a parameter to stabilize the division. These imaging conditions are simplest and most commonly used.
+
+%The application of an imaging condition in wave equation migration is important to provide illumination compensation and amplitude recovery~\cite[]{schleicher:2393}. 
+
+\addcontentsline{toc}{subsubsection}{Reverse time migration}
+\subsubsection{Reverse time migration}
+
+Reverse time migration reconstructs %source wavefield in forward time order, and 
+receiver wavefield in reversed time order, then applies an imaging condition to extract reflectivity information out of the reconstructed wavefields. 
+The advantages of reverse time migration over other depth migration techniques are that the extrapolation in \emph{time} avoids evanescent energy, and that there is no dip limitations of the structure. Reverse time migration is becoming more and more attractive to industry because of its robustness for all complex geology, such as sub-salt and salt-flank areas.
+
+
+
+\cite{SEG-1983-S10.1} and \cite{GEO48-11-15141524} first used reverse time migration to post-stack or zero-offset data. The procedure of post-stack reverse time migration is: first, reverse the recorded data in time; second, use this reversed data as multiple sources along the recording surface, and inject these sources and propagate the wavefields; finally, extract the image at time zero (imaging condition). The principle of post-stack reverse time migration is that the subsurface reflectors work as exploding reflectors and that the wave equation used to propagate data can be driven either forward or backward in time by simply reversing the time axis~\cite[]{levin:581}.
+
+
+Later on, \cite{chang:67} applied reverse time migration to pre-stack data. Pre-stack reverse time migration reconstructs both source wavefield and receiver wavefield. Source wavefield is reconstructed forward in time, and receiver wavefield is reconstructed backward in time. \cite{chang:67} applied the so called excitation-time imaging condition, where images is formed at the time that the source ray takes to travel to this image position. This imaging condition is a special case of cross-correlation imaging condition of \cite{Claerbout.iei}.
+ 
+\cite{chang:513} developed 3-D reverse time migration algorithm for pre-stack data, following the idea of \cite{chang:67}. This algorithm reconstructs source wavefield and receiver wavefield with 3-D acoustic wave equation, and applied the same excitation-time imaging condition.
+
+Reverse time migration has shown by many authors, such as \cite{jones:2140} and \cite{boechat:2427}, its advantages in complex geologic structures. Recently because of the availability of more computation resources, the reverse time migration algorithms, that are previously too expensive to implement, are now frequently used by industry to image areas that are difficult to image with other cheaper solutions.
+
+
+\addcontentsline{toc}{subsection}{Elastic imaging vs. acoustic imaging}
+\subsection{Elastic imaging vs. acoustic imaging }
+
+Multicomponent elastic data are commonly recorded in land or marine (ocean-bottom) seismic experiments. Vector elastic wavefields are not usually processed by specifically designed imaging procedures, but they are processed by extensions of techniques used for scalar wavefields. Thus, seismic data processing does not take full advantage of the information contained by elastic wavefields, e.g. for illumination of complex geology, amplitude preserving imaging, estimation of model parameters, etc.
+
+Elastic wave propagation in arbitrarily anisotropic medium follows this elastic wave equation:
+\def\u{u_x}
+\def\w{u_z}
+\def\dux{\frac{\partial \u}{\partial x } }
+\def\duz{\frac{\partial \u}{\partial z } }
+\def\dwx{\frac{\partial \w}{\partial x } }
+\def\dwz{\frac{\partial \w}{\partial z } }
+%\beqa 
+%\label{eqn:EWE}
+%\rho\dtwo{\w}{t} & = &\done{}{z} \lb \lambda\lp\dux+\dwz\rp +2\mu\dwz \rb + \done{}{x} \lb \mu\lp \dwx+\duz  \rp  \rb  \; ,\\
+%\rho\dtwo{\u}{t} & = &\done{}{x} \lb \lambda\lp\dux+\dwz\rp +2\mu\dux \rb + \done{}{z} \lb \mu\lp \dwx+\duz  \rp  \rb  \; .
+%\eeqa
+\beq
+\label{eqn:EWE}
+\rho\dtwo{u_i}{t} - c_{ijkl}\mtwo{u_k}{x_j}{x_l}=f_i
+\eeq
+where $u_i$ is the displacement in the $i$ direction; $\rho$ is the density; 
+%$\lambda$ and $\mu$ are Lam\'e constants. 
+$c_{ijkl}$ is the elastic tensor.
+This wave equation assumes spatially slowly varying density and elastic parameters.
+
+The coupling of displacements in different directions in elastic wave equation \ren{EWE} makes it difficult to derive a dispersion relation that can be used to extrapolate wavefields in \emph{depth}, which makes it natural to process elastic wavefields in \emph{time}. There are primarily two options to do elastic imaging in time domain: one is Kirchhoff migration, and the other one is reverse time migration. 
+
+
+\addcontentsline{toc}{subsubsection}{Elastic vs. acoustic Kirchhoff migration}
+\subsubsection{Elastic vs. acoustic Kirchhoff migration}
+Acoustic Kirchhoff migration is based on diffraction summation, which sums the amplitudes along the diffraction curves in $x-t$ plane and then maps onto $x-z$ plane. Proposed elastic Kirchhoff migration has to distinguish between PP reflection and PS reflections, and apply acoustic Kirchhoff migration for each mode separately.
+\cite{GEO49-08-12231238} discussed elastic Kirchhoff migration for shot-record multicomponent data, where identified PP and PS reflections can be migrated by downward continuate source traveltime and receiver traveltime using P wave velocity for source ray, and P and S wave velocities for receiver rays. 
+\cite{hokstad:861} performed multicomponent anisotropic Kirchhoff migration for multi-shot, multi-receiver experiments, where pure mode and converted mode images are obtained by downward continuing visco-elastic vector wavefields and apply survey-sinking imaging condition. 
+However, Kirchhoff migration, no matter what imaging condition is applied, fails in complex geology where ray theory breaks down.
+
+\addcontentsline{toc}{subsubsection}{Elastic vs. acoustic reverse time migration}
+\subsubsection{Elastic vs. acoustic reverse time migration}
+Elastic reverse time migration have the same two components as acoustic reverse time migration. One is the reconstruction of source and receiver wavefield, and the other one is the application of an imaging condition. 
+The source and receiver wavefield is reconstructed by modeling forward and backward in time with various modeling approaches. The difference in acoustic and elastic wavefield construction is that: for acoustic receiver wavefield reconstruction, we use recorded scalar data as boundary conditions to numerically solve for acoustic wave equation, and reconstruct scalar wavefield; while for elastic receiver wavefield reconstruction, we use recorded vector data as boundary conditions to numerically solve for elastic wave equation, and reconstruct vector wavefield.
+These procedures are equivalent to using pressure sources in acoustic case, and displacement sources in elastic case.
+
+
+Because pure mode and converted mode reflections are mixed on all components of recorded data, images produced with reconstructed elastic wavefields using these components have lots of crosstalk. In order to obtain images with less crosstalk and clearer physical meanings, separation of wavefields is necessary.
+
+%In order to obtain images with clear physical meanings, most imaging conditions separate P and S waves, because PP and PS reflections are mixed in all components of the data. 
+There are two potential approaches to separate wavefields and image elastic seismic wavefields.
+\begin{itemize}
+\item
+The first option is to separate P and S modes on the acquisition
+surface from the recorded elastic wavefields. This procedure involves
+either approximations about the propagation path and direction of
+polarization of the recorded data, or it involves reconstruction of
+the seismic wavefields in the vicinity of the acquisition surface by a
+numerical solution of the elastic wave-equation, followed by wavefield
+decomposition in P and S potentials using Helmholtz decomposition \cite[]{SEG-1988-S12.4,GEO62-02-05980613}.
+
+An alternative data decomposition in P and S potentials is to
+reconstructed wavefields in the subsurface using the elastic
+wave-equation, then decompose the wavefields in P and S potential and
+finally forward extrapolate the separated wavefields back to the
+surface using the acoustic wave-equation with the appropriate
+propagation velocity for the P or S wave modes
+\cite[]{sun.elastic.rtm}. Once data are decomposed in P and S
+potentials, imaging can be done using conventional procedures employed
+for scalar wavefields for the separated P and S modes.
+
+\item
+The second option is to extrapolate wavefields in the subsurface using
+a numeric solution to the elastic wave-equation and then apply an
+imaging condition that extracts reflectivity information from the
+source and receiver wavefields. In case extrapolation is implemented
+by finite-difference methods
+\cite[]{chang:67,chang:597}, this procedure is known
+as elastic reverse time migration, and is conceptually similar to
+acoustic reverse-time migration \cite[]{GEO48-11-15141524}, which is
+more frequently used in seismic imaging.
+\end{itemize}
+
+
+Many imaging condition can be used for reverse time migration. 
+Elastic imaging condition is more complex than acoustic imaging condition, because in acoustic imaging, both source and receiver wavefields are scalars, but in elastic imaging, both source and receiver wavefields are vectors.
+Different elastic imaging conditions have been proposed for extracting reflectivity information from reconstructed elastic wavefields. 
+\cite{GEO63-05-16851695} did elastic reverse time with Lam\'e potential methods, where Lam\'e parameters are inverted and the pre-conditioned gradients of $\lambda$ and $\rho$ (density) are shown as elastic P- and P\&S-images. This imaging procedure is equivalent to Claerbout's U/D principle \cite[]{GEO36-03-04670481}.
+One possible imaging condition is the excitation-time imaging condition proposed by \cite{chang:67}.  This imaging condition extracts reflectivity information from extrapolated wavefields at traveltimes from the source to that particular spatial position computed by ray tracing.
+\cite{SEG-1991-1009} applied a different imaging condition, where imaging time is computed by forward propagating wavefields using P-SV elastodynamic wave equation. 
+These imaging conditions represent special cases of a more general type of imaging condition involving time cross-correlations of source and receiver wavefields at every location in the subsurface.
+
+
+
+
+
+
+
+\addcontentsline{toc}{subsection}{Anisotropy vs. isotropic elastic reverse time migration}
+\subsection{Anisotropy vs. isotropic elastic reverse time migration}
+%\cite{hokstad:2044}
+
+Ignoring anisotropy in imaging may cause an inaccurate depth scale of the image, mispositioning of dipping features, and (in prestack migration) poor focusing of dipping and sometimes, even horizontal reflectors \cite[]{tsvankin.2001}. These migration errors have been studied by \cite{larner:1454}, \cite{alkhalifah:1405} and many others. 
+%\rFg{AniImg} shows the migration errors caused by an isotropic migration algorithm to an isotropic model. Migration algorithms can be generalized to anisotropic media using either the appropriate phase-velocity equations or an anisotropic ray tracer in the migration operator \cite[]{tsvankin.2001}.
+
+
+%\inputdir{XFig}
+%\plot{AniImg}{width=\textwidth}{{\cite{alkhalifah:1405}} showed (a) Model consisting of horizontal reflectors with segments having dips ranging from 30 to 90 degrees on both sides.
+%(b) Depth migration of the reflector model in (a). The medium is Taylor sandstone, with $\delta = -0.035$ and $\epsilon = 0.11$, where the axis of symmetry is vertical. The vertical velocity is $v(z)= 2000 + 0.6z$ m/s.}
+ 
+The extension of migration algorithms to anisotropy was limited to P wave, assuming that S wave velocity in the symmetry axis direction is zero. This was done to eliminate shear waves, and model P waves that are not interfered by S waves in anisotropic media. However this assumption introduces errors as identical polarization of P- and S-waves propagating along certain rays, and in some degenerate cases, P-wave singularities~\cite[]{alkhalifah:623,grechka:576}. Therefore, in anisotropic media, it is more important to do modeling and migration with elastic wave equation.
+%For example, \cite{alkhalifah:623} and \cite{alkhalifah:1239} exploited acoustic wave equations by setting S velocity at symmetry axis to zero. However, this leads to artifacts such as creating extreme anisotropy that makes possible orthogonality of ray and wavefront normal directions, identical polarization of P- and S-waves propagating along certain rays, and in some degenerate cases, P-wave singularities~\cite[]{grechka:576}. \cite{grechka:576} also suggested: from the point of view of arrival identification and separation, it may be better to use elastic VTI media because shear-waves propagating there have distinctly different polarizations and moveouts from those of P-waves. Therefore, in anisotropic media, it is more important to do modeling and migration with elastic wave equation.
+
+%\addcontentsline{toc}{subsection}{Anisotropic wavefield separation}
+%\subsection{Anisotropic wavefield separation}
+
+Anisotropic elastic wavefield imaging also consists of two components: anisotropic elastic wavefield reconstruction and the application of an imaging condition. As the reconstruction of elastic isotropic wavefields, the reconstruction of elastic anisotropic wavefield can be done with more complex form of wave equations. The imaging condition for anisotropic elastic wavefield can be extended from isotropic elastic imaging condition. As in isotropic elastic imaging, wave mode separation is necessary to obtain clean and easily interpretable images.
+
+In anisotropic media, because polarization direction is different from ray direction and phase vector orientation, the scalar and vector potentials $\phi$ and $\psi$ in Helmholtz decomposition 
+\beq \label{eqn:helmholtz}
+\uu = \GRAD{\phi} + \CURL{\psi} \;.
+\eeq
+are not P and S mode, which makes separation of wave modes in isotropic and anisotropic media different. \cite{GEO55-07-09140919} showed that polarization vectors may be used to separate \textit q-P and \textit q-S wavefields. \rFg{qP} showed Fourier domain P mode passers for homogeneous isotropic and anisotropic medium. P wave separators are the inverse Fourier transform of the wavefield passers in \rfg{qP} for isotropic and anisotropic media, respectively. Applying P wave separator transformed from the passer in \rfg{qP}(a) for isotropic media is equivalent to taking the divergence of the wavefield. Theoretically, these wavefield passers only works for far field homogeneous media, and create tiny conversion artifacts at places with abrupt velocity and anisotropy parameter jumps, which may be ignored in practice. 
+
+
+
+\inputdir{XFig}
+\plot{qP}{width=\textwidth}{Left: Fourier-domain plot of the operator for passing only P-waves in isotropic media. Right: Fourier domain plot of the operator for passing only P-waves in the anisotropic medium {\cite[]{GEO55-07-09140919}}.}
+
+
+%\cite[]{SEG-1990-0124}
+%\cite[]{SEG-1989-1308}
+%\cite[]{SEG-1989-1316}
+%\cite[]{SEG-1988-S1.3}
+%\cite[]{SEG-1988-S14.7}
+%\cite[]{SEG-1985-BHG3.1}
+%\cite[]{SEG-1985-BHG3.4}
+%\cite[]{SEG-1984-BHG2.8}
+%\cite[]{EAE-1999-P061}
+%\cite[]{SEG-2000-21112114}
+%\cite[]{SEG-2000-00250028}
+%\cite[]{SEG-2000-12251228}
+%\cite[]{GPR48-04-06970722}
+%\cite[]{AE-2000-L0003}
+%\cite[]{EAE-2000-P0133}
+%\cite[]{EAE-2002-P002}
+%\cite[]{GPR51-03-02330245}
+%\cite[]{EAE-1991-0516}
+%\cite[]{GPR35-07-08030814}
+%\cite[]{EAE-1992-0576}
+%\cite[]{GEO55-07-09140919}
+%\cite[]{SEG-1989-0977}
+%
+\addcontentsline{toc}{section}{Accomplished research and preliminary results}
+\section{Accomplished research and preliminary results}
+
+\addcontentsline{toc}{subsection}{Imaging condition}
+\subsection{Imaging condition}
+
+
+% -------------------------------------------------------------------------------------------------------------------------------
+
+For vector elastic wavefields, the cross-correlation imaging condition has to be implemented on combinations of components separated from the displacement field. The problem with this type of imaging condition is that the source and receiver wavefields contain a mix of P and S wave modes which hampers interpretation of migrated images. An alternative to this type of imaging is to perform wavefield separation in P and S potentials \emph{after} wavefield reconstruction in the imaging volume, but prior to the imaging condition and then cross-correlate pure P and S modes from the source and receiver wavefields, as suggested by \cite{GEO55-07-09140919}.
+
+I investigate this form of imaging using potentials decomposition after extrapolation and demonstrate that it can, indeed, be used to construct images corresponding to combinations of pure P and S modes. The images obtained by this procedure suffer from less  cross-talk between wave modes that are not separated on vertical and horizontal components of the reconstructed wavefields.
+% -------------------------------------------------------------------------------------------------------------------------------
+\addcontentsline{toc}{subsubsection}{Scalar imaging condition}
+\subsubsection{Scalar imaging condition}
+Assuming single scattering in the Earth (Born approximation), a conventional imaging procedure consists of two components: wavefield extrapolation and imaging. Wavefield extrapolation is used to reconstruct in the imaging volume the seismic wavefield using the recorded data on the acquisition surface as boundary condition, and imaging is used to extract reflectivity information from the extrapolated source and receiver wavefields.
+
+Assuming scalar recorded data, wavefield extrapolation using a scalar wave-equation reconstructs scalar source and receiver wavefields at every location in the subsurface, $\US{}$ and $\UR{}$. One-way or two-way wavefield extrapolation by differential or integral methods can be used. Using the scalar extrapolated wavefields $u_s$ and $u_r$, a conventional imaging condition \cite[]{Claerbout.iei} can be implemented as cross-correlation at zero-lag time: 
+\beq \label{eqn:CIC}
+\IM{} = \int \US{} \UR{} dt \;.
+\eeq
+$\IM{}$ denotes a scalar image obtained from scalar wavefields $\US{}$ and $\UR{}$. \rEq{CIC} generalizes trivially to 3D.
+% -------------------------------------------------------------------------------------------------------------------------------
+\addcontentsline{toc}{subsubsection}{Displacement imaging condition}
+\subsubsection{Displacement imaging condition}
+
+Assuming vector data, wavefield extrapolation using a vector wave-equation reconstructs source and receiver wavefields at every location in the subsurface, $\uu_s\ofx$ and $\uu_r\ofx$. Here, $\uu_s$ and $\uu_r$ represent the source and receiver displacement fields recorded by multicomponent geophones. Using the vector extrapolated wavefields ${\uu}_s=\{{u_s}_x,{u_s}_z\}$ and ${\uu}_r=\{{u_r}_x,{u_r}_z\}$, an imaging condition can be formulated as a straightforward extension of \ren{CIC}. In this case, I can cross-correlate all combinations of components of the source and receiver wavefields. Such an imaging condition can be formulated mathematically as:
+\beqa
+\label{eqn:EICzz} \IM{zz} &=& \int \US{z} \UR{z} dt \;, \\
+\label{eqn:EICxz} \IM{zx} &=& \int \US{z} \UR{x} dt \;, \\
+\label{eqn:EICzx} \IM{xz} &=& \int \US{x} \UR{z} dt \;, \\
+\label{eqn:EICxx} \IM{xx} &=& \int \US{x} \UR{x} dt \;.
+\eeqa
+$\IM{zz}$ represents the image component produced by cross-correlation of the $z$ components of the source and receiver wavefields, $\IM{zx}$ represents the image component produced by cross-correlation of the $z$ component of the source wavefield with the $x$ component of the receiver wavefield, etc. \rEqs{EICzz}-\ren{EICxx} generalize trivially to 3D.
+The main drawback of applying this type of imaging condition is that the wavefield used for imaging contain a combination of P and S wave modes. Those wavefield interfere with one-another in the imaging condition, since the P and S components are not separated in the  extrapolated wavefield. The cross-talk between various components of  the wavefield creates artifacts and makes it difficult to interpret  the images in terms of pure modes, e.g. PP or PS reflections. This  situation is similar to the case of imaging with acoustic data  contaminated by multiples or other types of coherent noise.   
+
+%\inputdir{/work/cwp/jyan/rtmig/marm2one}
+\inputdir{marm2oneA}
+% ------------------------------------------------------------
+\multiplot{2}{vp,rx}{width=0.45\textwidth}
+{P- and S-wave velocity models (a) and density model (b) used for  isotropic elastic wavefield modeling.}
+% ------------------------------------------------------------
+% ------------------------------------------------------------
+\multiplot*{4}{de1,de2,df1,df2}{width=0.2\textwidth}
+{Elastic data simulated in model \rfn{vp}-\rfn{rx}: vertical component (a), horizontal component (b), scalar potential (c) and vector potential (d) of the elastic wavefield. Both vertical and horizontal components, panels (a) and (b), contain a mix of P and S modes, as seen by comparison with panels (c) and (d).}
+% ------------------------------------------------------------
+
+For illustration, consider the images obtained for the model depicted  in \rFgs{vp}-\rfn{rx}. \rFg{vp} depicts the P-wave velocity (smooth function between $1.6-3.2$~km/s), and \rfg{rx} shows the density  (variable between $1-2$~g/cm$^3$). The S-wave velocity is a scaled  version of the P-wave velocity with $v_p/v_s=2$. Data are modeled and  migrated in the smooth velocity background to avoid back-scattering;  the modeling density is shown in \rfg{rx}, and the migration density  is a smooth version of it.    Elastic data, \rfgs{de1}-\rfn{de2}, are simulated using a space-time staggered-grid finite-difference solution to the isotropic elastic
+wave-equation \cite[]{GEO49-11-19331942,GEO51-04-08890901,GEO52-09-12111228,GEO53-06-07500759}.
+I model data by simulating a source located at position $x=6.75$~km and  $z=0.5$~km. Since I am using an explosive source, the simulated  wavefield is represented by P-wave incident energy and the receiver  wavefield is represented by a combination of P- and S-wave reflected  energy. The data contain a mixture of P and S modes, as can be seen by  comparing the displacement field components in \rfgs{de1}-\rfn{de2} with the separated P and S components in \rfgs{df1}-\rfn{df2}.
+
+If imaging data shown in \rfgs{de1}-\rfn{de2} using the imaging  condition \ren{EICzz}-\ren{EICxx}, I obtain the images depicted in  \rfgs{ieall0}-\rfn{ieall3}. The imaging condition does not separate P  and S waves reflectivity, therefore the various panels contain energy from both wave modes.
+
+% --------------------------------------------------------------------------------------------------------------------------------------
+\addcontentsline{toc}{subsubsection}{Potential imaging condition}
+\subsubsection{Potential imaging condition}
+An alternative to the elastic imaging condition  \ren{EICzz}-\ren{EICxx} is to separate the extrapolated wavefield in P and S potentials \emph{after} extrapolation and image using cross-correlations of vector and scalar potentials \cite[]{GEO55-07-09140919}.
+
+Separation of scalar and vector potentials can be achieved by Helmholtz decomposition, which is applicable to any vector field $\uu$:
+\beq \label{eqn:helmholtz}
+\uu = \GRAD{\phi} + \CURL{\psi} \;.
+\eeq
+For isotropic elastic wavefield, \req{helmholtz} is not used directly in practice, but the scalar and vector components are obtained indirectly by the application of the $\DIV{}$ and $\CURL{}$ operators to the extrapolated elastic wavefield $\uu$: 
+\beqa \label{eqn:PS}
+P        &=& \DIV {\uu} = \LAPL{\phi} \;, \\
+S	 &=& \CURL{\uu} = -\LAPL{\psi} \;.
+\eeqa
+For isotropic elastic fields far from the source, quantities $\textbf P$ and $\textbf S$ describe P and S components, respectively \cite[]{akirichards.2002}. 
+
+Using the separated scalar and vector components, I can formulate an imaging condition that combines various incident and reflected wavefield components. In 2D, the vector potential $\S{}$ has only one component. The imaging condition for potentials can be formulated mathematically as:
+\beqa 
+\label{eqn:EICpp} \IM{PP} &=& \int \P{s} \P{r} dt \;, \\ 
+\label{eqn:EICps} \IM{PS} &=& \int \P{s} \S{r} dt \;, \\ 
+\label{eqn:EICsp} \IM{SP} &=& \int \S{s} \P{r} dt \;, \\
+\label{eqn:EICss} \IM{SS} &=& \int \S{s} \S{r} dt \;,
+\eeqa
+where $\P{s}$ and $\P{r}$ represent source and receiver P-wave components, and $\S{s}$ and $\S{r}$ represent source and receiver S-wave components. The formed images correspond to various combinations of incident P or S and reflected P or S waves.
+
+
+
+For illustration, consider the images obtained for imaging condition \reqs{EICpp}-\ren{EICss} applied to the data used for the preceding  example. Given the explosive source used in our simulation, the source  wavefield contains mostly P-wave energy, while the receiver wavefield contains P- and S-wave energy. Helmholtz decomposition after extrapolation but prior to imaging isolates P and S wavefield components. Therefore, migration produces images of reflectivity corresponding to PP and PS reflections, \rfgs{jeall0}-\rfn{jeall1}, but not reflectivity corresponding to SP or SS reflections, \rfgs{jeall2}-\rfn{jeall3}. As expected, the illumination regions are different between PP and PS images, due to different illumination angles of the two propagation modes for the given acquisition geometry. The PS image, \rfg{jeall1}, also shows the usual polarity reversal for positive and negative angles of incidence measured relative to the reflector normal.
+
+
+
+% ------------------------------------------------------------
+\multiplot{4}{ieall0,ieall1,ieall2,ieall3}{width=0.45\textwidth}
+{Images produced by the application of the displacement imaging
+condition \ren{EICzz}-\ren{EICxx}. The image corresponds to one shot
+at position $x=6.75$~km. Receivers are located at all locations at
+$z=0.55$~km.}
+% ------------------------------------------------------------
+
+% ------------------------------------------------------------
+\multiplot{4}{jeall0,jeall1,jeall2,jeall3}{width=0.45\textwidth}
+{Images produced by the application of the potentials imaging
+condition \ren{EICpp}-\ren{EICss}. The image corresponds to one shot
+at position $x=7$~km.  Receivers are located at all locations at
+$z=0.55$~km.}
+
+
+% ------------------------------------------------------------------------------------------------------------------------
+
+
+\addcontentsline{toc}{subsubsection}{Artifacts}
+\subsubsection{Artifacts}
+Images obtained by potential imaging condition are not free from artifacts, since back-propagation of vector fields from the receivers triggers sources of artificial wave modes that are not part of the recorded wavefield that do not exist in the original  wavefield. 
+For example, data corresponding to P-wave or S-wave reflections injected in the model as boundary displacement sources generate both P and S propagating modes. Those artificial events in the receiver wavefield interfere with events in the source wavefield  to generate artifacts in the images. This phenomenon is independent of the complexity of the model or of the proximity of free surface. \rFg{artifact1}-\rfn{artifact3} show the schematic how both reversed P and S data generate both P and S wave modes when injected. Even after wavefield separation, we see that P waves are generated by both P and S recordings, and S waves are generated by both P and S recordings as well, shown in \rfg{artifact4}-\rfn{artifact5}.
+
+An example corresponding to artifacts caused by artificial P waves generated by back-propagating S waves in the receiver wavefield are visible in \rfg{jeall0} around coordinates $x=7.25$~km and $z=0.6$~km. Although not widely reported in the literature, this phenomenon characterizes all elastic reverse-time migration methods, no matter of imaging condition. For example, the same artifacts seen in \rfgs{jeall0}-\rfn{jeall1} are also seen in  \rfgs{ieall0}-\rfn{ieall3}, although in this case the artifacts are more confusing, since their origin is harder to discern among the imaged reflections of different wave modes.
+
+One of the few articles that mentioned this type of artifacts is \cite{sun:286}, who referred to this artifacts as the grid-edge effects that P-S conversion occurs at the edges when inserting the seismogram during downward extrapolation. And they suggested reducing these artifacts by tapering the edges of the data and recording wider area than required and then abandon the near-edge data after P-S wave separation. However such artifacts may occur at small offsets if reflection moveout is large. If we look closely at \rfg{artifact1}-\rfn{artifact3}, we see that at larger offsets the reconstructed P and S modes have larger separation in space, and smaller separation at smaller offsets, which explains why the artifacts are more obvious at larger offsets. This also means tapering large offset data would not eliminate these artifacts. When moveout in data is large, even at small offsets, the reconstructed wavefield will have both P and S modes no matter PP or PS reflection was used to trigger the wavefield.
+
+\inputdir{XFig}
+\multiplot{3}{artifact1,artifact2,artifact3}{width=0.5\textwidth}{Huygens' principle can be used to explain how elastic displacement data used as displacement sources can trigger both P and S wave modes.}
+\multiplot{3}{artifact4,artifact5,artifact6}{width=0.45\textwidth}{Even after separation of wave modes, (a) both PP and PS reflection will generate P mode in reconstructed receiver P potential wavefield, (b) both PP and PS reflection will generate S mode in reconstructed receiver S potential  wavefield, and (c) only true wave mode has consistent polarity as the recorded elastic data, and the fake mode does not have consistent polarity as the recorded elastic data.}
+
+% -------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+\addcontentsline{toc}{subsection}{Angle domain common image gathers}
+\subsection{Angle domain common image gathers}
+
+
+%From geometry, we have:
+\def\p{{\mathbf p}}
+\def\k{{\mathbf k}}
+\def\r{{\mathbf r}}
+\def\s{{\mathbf s}}
+\def\h{{\mathbf h}}
+\def\m{{\mathbf m}}
+%\beqa \label{eqn:PmPh}
+%\p_\m &=& \p_\r+\p_\s \;,\\
+%\p_\h &=& \p_\r-\p_\s \;.
+%\eeqa
+%where $\p$ is the ray parameter, and the subscripts $m$,$h$,$s$,$r$ are midpoint, offset, source and receiver, respectively.
+%
+%The angles have relationship:
+%\beqa \label{eqn:theta}
+%2\theta &=& \theta_s+\theta_r \;,\\
+%2\delta &=& \theta_s-\theta_r \;.
+%\eeqa
+%where $2\theta$ is the sum of incidence and reflection rays, and $2\delta$ is the difference of incidence and reflection rays.
+%
+%From trigonometry, we have:
+%\beqa 
+%\label{eqn:PmPh-a}
+%4 |\p_\h|^2 &=& |\p_\s|^2 + |\p_\r|^2 - 2 |\p_\s| |\p_\r| \cos(2 \theta) \;,
+%\\
+%\label{eqn:PmPh-b}
+%4 |\p_\m|^2 &=& |\p_\s|^2 + |\p_\r|^2 + 2 |\p_\s| |\p_\r| \cos(2 \theta) \;.
+%\eeqa 
+%
+Angle domain common image gathers allow people to do migration velocity analysis (MVA) and amplitude versus angle analysis (AVA). ~\cite{GEO55-09-12231234} and \cite{SEG-2003-21042107} are of the many who studied angle decomposition methods for PP reflections.
+\cite{sava:2460} proposed the following formulas to compute converted wave angle gathers. Their approach can utilize space shifts or time shifts. I use space shifts in order to obtain better resolution of decomposed angles. The angle $\theta$ that characterize the average angle between incidence and reflected rays can be solved for:
+\beq
+\tan^2\theta = \frac
+{ \lp 1+\gamma \rp |\k_\h|^2 - \lp 1-\gamma \rp |\k_\m|^2 }
+{ \lp 1+\gamma \rp |\k_\m|^2 - \lp 1-\gamma \rp |\k_\h|^2 }
+\eeq
+where $\k=\p/\omega$ is the wave vector; $\k_\m = \k_\r+\k_\s $ and $\k_\h = \p_\r-\k_\s$ are defined as midpoint and offset wave vectors to be sum and difference between source and receiver wave vectors. $\gamma$ is the velocity ratio of the incidence and reflection ray. 
+\rFg{cwang} shows the schematic and the notations used in the above formula.
+For PP reflections ($\gamma=1$), this expression reduces to
+\beq
+\tan^2\theta = \frac
+{|\k_\h|^2  }
+{|\k_\m|^2  }
+\eeq
+
+
+To avoid computing vertical offset $h_z$, the above expression transforms to:
+\def\ahx{a_{hx}}
+\def\bmx{b_{mx}}
+\def\amx{a_{mx}}
+\def\bhx{b_{hx}}
+\def\kmx{k_{mx}}
+\def\khx{k_{hx}}
+\def\kmz{k_{mz}}
+\def\khz{k_{hz}}
+\beq
+\tan\theta = \frac
+{ \lp 1+\gamma\rp \lp\ahx+\bmx\rp }
+{ 2\gamma\kmz+\sqrt{4\gamma^2\kmz^2+\lp\gamma^2-1\rp \lp\ahx+\bmx\rp \lp\amx+\bhx\rp} }
+\eeq
+where 
+$\ahx=\lp 1+\gamma\rp \khx$,
+$\amx=\lp 1+\gamma\rp \kmx$,
+$\bhx=\lp 1-\gamma\rp \khx$, and 
+$\bmx=\lp 1-\gamma\rp \kmx$.
+\plot{cwang}{width=\textwidth}{Wave vectors for converted wave at a common image point location. {\bf $P_s$}, {\bf $P_r$}, {\bf $P_m$} and {\bf $P_h$} are the ray parameters for the source vector, receiver vector, midpoint vector and offset vector. The length of the incidence and reflection wave vectors are inversely proportional to the wave velocity. Vector ${\bf n}$ is the normal of the reflector. {\bf $P_m$} is the summation of {\bf $P_s$} and {\bf $P_r$}, and {\bf $P_s$} is the difference of {\bf $P_s$} and {\bf $P_r$}.}
+
+
+%\multiplot{2}{experimentC,psang-h}{height=0.2\textheight}{converted wave angle gathers (Sava and Fomel, 2006).}
+\plot{cwgat}{width=\textwidth}{(a) A common source over reflectors dipping at 0$^\circ$, 15$^\circ$, 30$^\circ$, 45$^\circ$ and 60$^\circ$. The vertical dashed line shows a CIG location. Lines with arrows away from the reflectors shows the reflected P to S conversion. (b) Converted wave angle gather obtained from algorithm described by {\cite{sava:2460}}, notice that converted wave angles are always smaller than incidence angle (in this case, the dip of the reflector) except for normal incidence. }
+
+
+%\inputdir{/work/cwp/jyan/rtmig/marm2one}
+%\plot{rx}{width=\textwidth}{rx}
+
+%\inputdir{/work/cwp/jyan/rtmig/marm2all}
+\inputdir{marm2all}
+\multiplot{2}{je-0700-PPcig,je-0700-PScig}{height=.5\textheight}{Horizontal lags for PP and PS reflections. The source is at $x=6.75$ km, and CIG is at $x=6.5$ km.}
+\multiplot{2}{je-0700-PPang,je-0700-PSang}{height=.5\textheight}{PP and PS angle gather decomposed from the horizontal lag gathers in \rfg{je-0700-PPcig} and \rfn{je-0700-PScig}.}
+\multiplot{2}{PPcig,PScig}{height=.5\textheight}{Horizontal lags for PP and PS reflections. 81 sources are from $x=5.5$ to $7.5$  km, and CIG is at $x=6.5$ km.}
+\multiplot{2}{PPcig-ang,PScig-ang}{height=.5\textheight}{PP and PS angle gather decomposed from the horizontal lag gathers in \rfg{PPcig} and \rfn{PScig}.}
+
+\cite{sava:2460} in \rfg{cwgat} show a model of five reflectors and extracted angle gathers these reflectors. The reasonably decomposed angle gathers qualify this approach for making angle gathers for more complex models.
+
+I use the above algorithm, and compute angle gathers for the Marmousi II example. \rFg{je-0700-PPcig}--\rfn{je-0700-PScig} and \rfg{je-0700-PPang}--\rfn{je-0700-PSang} show the PP and PS horizontal lags and angle gathers for the common image gather (CIG) location in the middle of the reflectivity model, for a single source at $x=6.75$ km. PP and PS horizontal lags are lines dipping at angles related to the incidence angle at the CIG location. PP angles are larger than PS angles at all reflectors, as was shown on the simple synthetic example \rfg{cwgat}. We observe some artifacts, such as at depth $z=0.6$ to $1.2$ km, on the angle gathers especially obvious in PS gathers, which are the conversion artifacts mapped to the angle gathers. These artifacts show angles that are smaller than real angles and appear at shallower depth than real reflectors.
+
+\rFg{PPcig}--\rfn{PScig} and \rfg{PPcig-ang} and \rfn{PScig-ang} are the PP and PS horizontal lags and angle gathers for the same CIG location, for sources from $x=5.5$ to $7.5$ km. 
+The horizontal lags are focused points at zero lag, showing the conventional imaging condition, which takes cross-correlation of source and receiver wavefield at zero lag in space. The lags at zero lag is just the image at the particular CIG location. The PP and PS gathers for many sources are flat gathers, showing the migration were done with correct migration velocity. We do not see much artifacts in these angle gathers, because with many sources, the artifacts do not stack horizontally, and are weaker than the real flat angle gathers. These angle gathers could potentially be used to do MVA and AVA studies.
+
+
+\addcontentsline{toc}{section}{Proposed work}
+\section{Proposed work}
+
+\addcontentsline{toc}{subsection}{Conversion artifacts removal on the surface}
+\subsection{Conversion artifacts removal on the surface}
+The vector displacement data used as sources to propagate elastic wavefield backward in time generate mode conversion artifacts on the surface, which can be best understood with a flat layer model. 
+\rFg{flatlayer-jeall0} and \rfg{flatlayer-jeall1} show the PP and PS images obtained using the potential imaging condition for a flat layer model. PS image has stronger artifact than PP image. This is because in receiver wavefield, the P component generated by PS reflection is deeper in depth than that generated by PP reflection, and therefore is weaker in amplitude.
+This conversion artifacts make part of PP and PS images look like over-migrated and under-migrated. 
+
+As we have seen from the elastic images \rFg{flatlayer-jeall0} and \rfg{flatlayer-jeall1}, especially in PS image, artifact can be very strong, and sometimes can even obscure the real images, so it is of primary importance to remove these artifacts.
+
+Several solutions are possible to this problem:
+\begin{itemize}
+\item Use angle gathers to remove artifacts. \rFg{jePPangALL} and \rfg{jePSangALL} show the angle gathers for images \rFg{flatlayer-jeall0} and \rfg{flatlayer-jeall1}. The angle image show that angle gathers are flat for real reflections, but are not for artifacts. The angle gathers are flat not because the reflector is flat, but should be flat for all correctly migrated images. A flat model was used here to save computation cost. This property of angle gathers can be used to remove the artifact by dip filtering out the non-flat noise in angle gathers and stack over angles to obtain the image for the particular CIG location.
+This solution, however, is very expensive, and is the post-migration cosmetic solution to the elastic potential imaging procedure.
+
+
+\inputdir{flatlayer}
+\plot{rxraw}{width=.45\textwidth}{Density model for a flat layer example. The velocity of this model is constant.}
+\multiplot{2}{de1,de2}{width=.45\textwidth}{The modeled vertical (a) and horizontal (b) data.}
+\multiplot{2}{jeall0,jeall1}{width=.45\textwidth}
+{PP and PS images for model shown in \rfg{rxraw} obtained from potential imaging condition. Both PP and PS images show reflectors at the correct depth, but
+both have conversion artifacts at different depths.}
+\multiplot{2}{jePPangALL,jePSangALL}{width=.45\textwidth}
+{PP and PS angle gathers for images \rfg{flatlayer-jeall0}
+and \rfn{flatlayer-jeall1}. Multiple sources are from $x=0.5$ to $1.5$ km and
+$z=0$, CIG location is at $x=1$ km.}
+
+\item Separate wave modes on the surface and use identified P and S modes to image PP and PS reflections. There are many ways to do this, basically, deterministic and stochastic approaches. The deterministic approach need extrapolation of wavefield to some depth and use Helmholtz decomposition to separate P and S, while stochastic approach rotate recorded vertical and horizontal displacement by the polarization angle~\cite[]{SEG-1989-1308}.
+This way is not preferred because separating wave modes on the surface
+is always followed by scalar imaging, and elastic data are supposed to
+be done by vector imaging.
+
+
+\item Eliminate fake converted modes at the conversion surface. \rFg{artifact1}-\rfn{artifact3} showed how two modes of reconstructed wavefield are formed. \rFg{artifact4} and \rfn{artifact5} show that after separation of wave modes with Helmholtz decomposition, both PP reflection and PS reflection will create unwanted wave modes. \rFg{artifact6} shows that the unwanted mode has inconsistent polarity with the recorded reflection. This observation can be used to remove the fake mode during modeling. Notice that the fake mode is only initiated at injection surface, therefore, the polarity only has to be analyzed and taken care of at the surface but not at the whole $\{x,z\}$ space, which means the additional polarity handling would not taken too much extra computational time.
+
+
+\end{itemize}
+
+
+
+
+\addcontentsline{toc}{subsection}{Anisotropic wavefield reconstruction}
+\subsection{Anisotropic wavefield reconstruction}
+Modeling with full elastic wave equation for anisotropic media is more complex than that for isotropic media, because more stiffness elements are required. For example, for isotropic media, only two elastic parameters are required; for VTI media, five are required for 3D and four are required for 2D; for TTI media, five are required for 2D. However, since the elastic wave equation for all 2D media with different types of anisotropy holds the same, the implementation of anisotropic wavefield modeling is conceptually easy. I will carry out numerical modeling of anisotropic wave equation. We will do modeling on both simple synthetic layered media and complex media such as Marmousi II model and sigsbee model.
+
+\addcontentsline{toc}{subsection}{Anisotropic wavefield separation}
+\subsection{Anisotropic wavefield separation}
+As I have described in the literature review section, Helmholtz decomposition does not separate anisotropic wavefield into qP and qS modes, because in elastic wave equation P and S mode are coupled. One has to use wave polarization information to do separation. For example, \cite[]{GEO55-07-09140919} did separation of qP and qS for homogeneous VTI media (\rfg{qP}). The separation operator works well in homogeneous 2D medium. So, is there a better way to do anisotropic wavefield separation for heterogeneous medium and 3D medium? 
+I will investigate with simple analytical models, such as homogeneous TI models and orthorhombic models, and other numerical experiments.
+
+%This is a open research topic.
+
+\addcontentsline{toc}{subsection}{Imaging condition for anisotropic wavefield}
+\subsection{Imaging condition for anisotropic wavefield}
+What imaging condition should be applied to elastic anisotropic wavefield imaging? This question directly leads to the interpretation of the anisotropic images. 
+Anisotropic images can be obtained by cross-correlating source and receiver wavefield potentials. However, because of group vector, phase vector and polarization vector in anisotropic media do not coincide with each other, opposed to the isotropic case where all three coincide, the physical meaning of elastic anisotropic images are not clear. Understating the physical meanings of the images would help further interpreting them. I will investigate theoretically and numerically what imaging condition works best for anisotropic model and produce easiest interpretable images.
+
+\addcontentsline{toc}{subsection}{Anisotropic ADCIG}
+\subsection{Anisotropic ADCIG}
+Angle gathers of anisotropic images have obscure meanings, because the incidence angle and reflection angles are phase vector angles or group vector angles are not clear. \cite{biondi:S81} obtained angle-domain common-image gathers for acoustic images from anisotropic migration. His method can be used to study the angle gather of the PP reflection in the elastic images. Since previously, no research has been done on anisotropic converted wave imaging, no anisotropic converted wave angle gather decomposition methods were proposed. The anisotropic converted wave angle gather decomposition would add an interesting complement to the acoustic anisotropic ADCIG study. This problem can be investigated with simple analytical models and numerical simulation.
+
+
+\addcontentsline{toc}{subsection}{Imaging errors with wrong models}
+\subsection{Imaging errors with wrong models}
+With anisotropic elastic migration tools, one would be interested to study the imaging errors with wrong models and wrong migration algorithm, i.e., what errors would we get if we use isotropic elastic migration algorithm to models that are really anisotropic. This study is essential for the validation of new migration algorithm. I will carry out the comparison with simple analytical models and numerical experiments.
+
+\addcontentsline{toc}{subsection}{Field data application}
+\subsection{Field data application}
+If all the theoretical work proposed above is finished in time, appropriate data will be used to test the algorithms. The feasibility of the theoretical work can be strongly supported by field data application. 
+Preferably one or two clean and good quality ocean bottom multi-component data sets will be used to test the theoretical work described in the previous proposed research topics.
+
+
+
+\addcontentsline{toc}{section}{Time line}
+\section{Time line}
+Here, I propose the following approximate research time line:
+\begin{itemize}
+\item Artifacts and anisotropic finite difference: Oct. 2007--Dec. 2007
+\item Anisotropic wavefield separation: Jan. 2008--June 2008
+\item Imaging condition and imaging errors: July 2008--Sept. 2008
+\item Anisotropic ADCIG: Oct. 2008--Jan. 2009
+\item Field data: Feb. 2009-June. 2009
+\item Thesis writing and wrap up: July 2009-Aug. 2009
+\item Thesis defense: Aug. 2009
+\end{itemize}
+
+
+
+\newpage
+\addcontentsline{toc}{section}{References}
+% ------------------------------------------------------------
+\bibliographystyle{seg}
+%\bibliography{MISC}
+
+\bibliography{Jia,SEG2005,MISC}

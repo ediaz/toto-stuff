@@ -1,0 +1,31 @@
+\contentsline {figure}{\numberline {1}{\ignorespaces Depiction of Born and multiple scattering imaging and tomography: (a) shows the path used during Born imaging to construct the seismic image at point ${\bf x}$, (b) the sensitivity kernel (path) updated by Born-based tomographic updates, (c) the possible information that can be used in addition to the Born path during multiple scattered imaging, and (d) the sensitivity kernel from the multiple scattered waves.}}{32}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{32}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{32}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{32}
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {}}}{32}
+\contentsline {figure}{\numberline {2}{\ignorespaces Depiction (figure 1.13 from \cite {Claerbout:1985:IEI:3887}) of the sensitivity of seismic data to the velocity model (0-2Hz) and to the reflectivity ( $> 5$Hz). It highlights the gap existing between tomography and imaging. Nowadays, due to advances in tomography and acquisition technologies the gap is closing. However, there is still much to do to seamless move from tomography to imaging.}}{33}
+\contentsline {figure}{\numberline {3}{\ignorespaces Preliminary results showing the sensitivity of the imaging process using the Marchenko modeling framework to errors in the background model: (a) a -20\% velocity error, (b) the correct background velocity, and (c) a +20\% velocity error. Note how the multiples below the deepest reflector are very weak with respect to the amplitude of the imaged interfaces. }}{34}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{34}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{34}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{34}
+\contentsline {figure}{\numberline {4}{\ignorespaces Band limited sensitivity kernels: (a) shows the background velocity model, (b) is the density model, (c) is an image kernel under the single scattering assumption connecting source ${\bf x}_s =(1.0,0)$km and image point ${\bf x}=(4.0,1.0)$km with receiver point at ${\bf x}_r=(7.0,0.0)$km, and (d) the sensitivity kernel connecting ${\bf x}_s-{\bf x}-{\bf x}_r$ with every possible path given by the multiples and primaries. }}{35}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{35}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{35}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{35}
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {}}}{35}
+\contentsline {figure}{\numberline {5}{\ignorespaces Sigsbee 2a analysis: time-shift gather (a), space-lag gather (b), common image point (c) and RTM image (d). The vertical line and thick point shown in the RTM image shows the CIG and CIP locations respectively.}}{36}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{36}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{36}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{36}
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {}}}{36}
+\contentsline {figure}{\numberline {6}{\ignorespaces RTM backscattering optimization: (a) is the initial model, (b) RTM image obtained with the initial model, (c) extended image gathers from the initial model (observe the energy spread away zero offset). The bottom row shows the updated (d) velocity model, (e) seismic image, and (f) extended image gathers which show better focusing around $\lambda _x=0$.}}{37}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{37}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{37}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{37}
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {}}}{37}
+\contentsline {subfigure}{\numberline {(e)}{\ignorespaces {}}}{37}
+\contentsline {subfigure}{\numberline {(f)}{\ignorespaces {}}}{37}
+\contentsline {figure}{\numberline {7}{\ignorespaces RTM images from (a) the initial model, (b) illumination-based tomographic model, and (c) data-domain inversion model.}}{38}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{38}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{38}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{38}

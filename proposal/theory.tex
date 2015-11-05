@@ -1,0 +1,396 @@
+%\section{Theory review}
+\section{Image domain tomography}
+
+In this section, we review the image-domain wavefield tomography 
+ using extended-image gathers~\citep{rickett:883,SavaVasconselos}. These kind of gathers
+highlight the spatial and temporal consistency between wavefields by exploring
+ the focusing information in the image domain. 
+ The moveout in the gather is sensitive to
+velocity perturbations, and hence can be optimized. The most
+general extended gather can be defined as follows:
+\beq
+R(\xx,\hh,\tau)= \sum_{{e}} \sum_{t} \US({e},\xx - \hh,t-\tau) \UR({e},\xx+\hh,t+\tau),
+\label{eq:eic}
+\eeq
+ where $\hh$ is the space-lag vector, $\tau$ is the time-lag, $\xx$ the image location, $e$ the
+experiment index, $\US$ the 
+ source wavefield, and $\UR$ the receiver wavefield. Given the increase of dimensions 
+for extensions in all directions and time, one can take advantage of a sparse sampling 
+of the extended images in a subset $\xx_c$ instead of the full image space $\xx$. One smart
+way to  decide the locations $\xx_c$ is by placing the observation points at the reflector
+locations \citep{cullison}.  
+The source wavefield $\US$
+is produced by forward extrapolation of the source function, whereas
+the receiver wavefield $\UR$ is produced by backward propagation of the data
+at the receiver location. Note that the process for computing the extended
+image is linear with respect to one of the wavefields. Hence, we can 
+define the extended image in a matrix vector form as: 
+\beq
+  {\bf r} = {\bf I}_{s} {\bf u}_r = {\bf I}_{r} {\bf u}_s,
+\label{eq:eicops}
+\eeq
+where ${\bf I}_s$ and ${\bf I}_r$ are the imaging operators for the source and receiver wavefield,
+respectively. 
+
+Eventhough the commutation of the forward mappings (Equation~\ref{eq:eicops})
+ produces the same result ($\bf r$), the adjoint 
+mapping satisfies different equations. ${\bf I}_s^\top$ implements:
+\beq
+  \tilde{\UR}(e,\xx,t) = \sum_{\tau,\hh}R(\xx-\hh,\hh,\tau) \US(e,\xx - 2\hh,t-2\tau),
+\eeq
+whereas ${\bf I}_r^\top$ satisfies:
+\beq
+  \tilde{\US}(e,\xx,t) = \sum_{\tau,\hh}R(\xx+\hh,\hh,\tau) \UR(e,\xx + 2\hh,t+2\tau).
+\eeq
+
+The source and receiver wavefields follow the wave equation, which in our case
+is 
+\beq
+  \swe{u(\xx,t)} = f(\xx,t),
+\eeq
+where $\m=s^2(\xx)$ is the squared slowness. The source wavefield $\US$ is computed by forward
+progration problem, whereas the receiver wavefield $\UR$ is created by backward (adjoint)
+modeling. This can be summarized by the following system of equations
+\beq \label{eqn:FSV}
+\MAT{ \L(m,t) & 0 \\ 0  & \L^\top(m,t)}
+\MAT{ \us \\ \ur} =
+\MAT{ \fs \\ \fr} ,
+\eeq
+with $\fs$ being the source function and $\fr$ the recorded seismic data, and $\L$ and $\L^\top$ 
+the forward and adjoint (reverse) propagators, respectively. 
+
+The focusing  information in extended images can 
+tell a great deal about the velocity model. In a kinematically-consistent 
+model, the correlation between source and receiver wavefields is 
+maximum around $(\hh,\tau)=(\vec{0},0)$. Under velocity innacuracies, the
+extended gathers exhibit a moveout that is indicative of 
+ errors in the model~\citep{YangSava:moveout}. Hence,
+ the energy on the gathers can be brought around zero lag through an
+inversion process in which the velocity model can be updated. A typical 
+objective function \citep{ShenSymes.geo.2008,Wiktor,tony:gp15} based on 
+extended images resembles 
+\beq
+ J_1(\m) = \norm{P(\hh,\tau) R(\xx,\hh,\tau)}^2,
+\eeq
+where $P$ is a penalty operator whose purpose is to 
+highlight the events in the image that show velocity innacuracies. 
+ The penalty operator is usually defined proportional 
+to the lag:
+\beq
+  P(\hh,\tau) = \sqrt{ \hh^2 +(v\tau)^2},
+\eeq
+where $v$ is the local velocity. This penalty function is 
+highly idealized since produces a zero residual if the 
+extended image is a perfect spike (i.e. $R(\xx,\hh,\tau)=\delta(\xx,\hh,\tau)$).
+ In order to relax such requirements, \cite{tony_seg:cwp12} propose
+a penalty function based on illumination, which depends on the 
+acquisition setup, data bandwidth, and on the velocity model itself. 
+ To compute the action of the illumination (bluring  
+operator) one can cascade a demigration/migration process 
+applied to spikes placed at the extended image locations $\xx_c$:
+\beq
+  \tilde{R}(\xx_c,\hh,\tau) = {\bf M} {\bf M}^\top \sum_{i} \delta(\xx-\xx_c^i,\hh,\tau)
+\eeq
+with $\bf M^T$ being a demigration operator and $\bf M$ the extended imaging process. 
+ The synthetic image $\tilde{R}$ contains the action of the source function, the acquisition, 
+and the model at the image locations $\xx_c$. Once $\tilde{R}$ is obtained, one can 
+proceed and compute the penalty by 
+\beq
+  \tilde{P}(\xx_c,\hh,\tau) = \frac{1}{Env(\tilde{R}(\xx_c,\hh,\tau))},
+\eeq
+where $Env$ is an envelope function that captures the energy of the synthetic  
+image $\tilde{R}$.
+Effectively, $\tilde{R}$ contains the extended point spread functions (PSF) of the model, 
+and is computed similarly to \cite{valenciano:2009} and \cite{FletcherLSM}.
+
+\rfgs{gceimg-v100},\ref{fig:gceimg-v090} show a CIP gather extracted in the 
+correct model and in a slow model, respectively. One can observe the moveout in the gather for the
+incorrect model, and also the best posible focusing one can achieve in this model from the \rfg{gceimg-v100}. 
+Finally, \rfgs{pDSO-cip},\ref{fig:pILL-cip} show the penalty functions using the conventional
+method and the illumination-based one, respectively.
+
+In order to include the zero-lag information one can add and extra term in the objective 
+function, similarly to \citep{ShenSymes.geo.2008,Wiktor}. Alternatively, one can 
+include the zero-lag term directly into the inversion by changing the goal 
+of the objective function to a maximation problem~\citep{Zhang}:
+\beq
+ J_2(\m) = -\norm{H(\hh,\tau) R(\xx,\hh,\tau)}^2.
+\label{eq:j2}
+\eeq
+By adding the negative in front of the norm, we turn the problem back to minimization. The
+operator $H$ has an opposite purpose than operator $P$, i.e. $H = 1-P$ , 
+now its main task is to ``highlight'' the energy around zero lag. By using $J_2$ instead of 
+$J_1$ we include all the lags in a seamless manner into the inversion. 
+%%
+\inputdir{ximages}
+\multiplot{4}{gceimg-v100,gceimg-v090,pDSO-cip,pILL-cip}{height=0.2\textheight}%
+{(a) is an example of a CIP gather from the correct model, (b)
+ a CIP gather with 10\% velocity error,  (c) conventional penalty
+function, and (d) illumination-based penalty. Note the consistency between the penalty functions
+and the correct gather. }
+
+\subsection{tomography setup}
+We are interested in the gradient of Equation \ref{eq:j2}. In order to compute the gradient 
+we follow the recipe from \cite{Plessix.gji2006.asm} for PDE constrained 
+objective functions. First, we define the augmented functional
+\beq
+  A(\m,\us,\ur,a_s,a_r) = -J_2(\m) + < a^e_s,\L\us^e-\fs> +<a_r,\L^\top\ur^e-\fr>,
+\label{eq:aug1}
+\eeq
+where $<.,.>$ defines a dot product between vectors in  the $(\xx,t)$ space, $a_s$ is the 
+adjoint source wavefield, and $a_r$ is the adjoint receiver wavefield. The 
+augmented functional depends on the model $\m$, the forward state variables
+$\us$ and $\ur$, and the adjoint state variables $a_s$ and $a_r$.
+ The first optimality condition, $\frac{\partial A }{\partial a_s}=0$, 
+ produces the first equation to solve: $\L\us = \fs$. Similarly, 
+by setting $\frac{\partial A }{\partial a_r}=0$ we obtain $\L\ur = \fr$. 
+
+In order to find the adjoint source wavefield $a_s$, we can rewrite Equation \ref{eq:aug1} as:
+\beq
+    A(\m,\us,\ur,a_s,a_r) = - < H I_r \us, H I_r \us> +< a_s,\L\us-\fs> +<a_r,\L^\top\ur-\fr>.
+\eeq
+By setting $\frac{\partial A }{\partial \us}=0$ we obtain:
+\beq
+   \L^\top a_s = I_r^\top H^\top H I_r \us =  I_r^\top H^\top H R. 
+\eeq
+ The operator $H$ is diagonal and real, which means $H^\top=H$. This equation tell us to 
+use the receiver wavefield $\ur$ as imaging operator together with the image residual $H^\top H R$.
+ The wavefield $a_s(e,\xx,t)$ travels from the image towards the source $\fs$. 
+
+To find the adjoint the adjoint receiver wavefield $a_r$ we redefine  Equation \ref{eq:aug1}  to 
+the equivalent form
+\beq
+    A(\m,\us,\ur,a_s,a_r) = - < H I_s \ur, H I_s \ur> +< a_s,\L\us-\fs> +<a_r,\L^\top\ur-\fr>.
+\eeq
+Now, we set $\frac{\partial A }{\partial \ur}=0$ to obtain the last adjoint variable $a_r$:
+\beq
+   \L a_r = I_s^\top H^\top H R.
+\eeq
+
+From the last optimality condition we obtain the actual gradient:
+\beq
+  \frac{\partial J_2 }{\partial \m}=  -\sum_{t,e}  \frac{\partial^2 \us}{\partial t^2}a_s + \frac{\partial^2 \ur}{\partial t^2}a_r
+\eeq
+
+\inputdir{gauss_images}
+\multiplot{4}{model-gauss_cip_illu-iter-010,image-gauss_cip_illu-iter-010,model-gauss_cip-iter-018,image-gauss_cip-iter-018}{width=0.45\textwidth}%
+{(a) recovered model using illumination-based penalty and (b) its corresponding image, (c) inverted model using conventional DSO penalty and (d) its corresponding image}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%                            Data domain block                              %%%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Data domain Wavefield tomography}
+The construction of the tomography problem in the data domain amounts to measuring the error
+(or residual) at the receiver locations. For data domain wavefield tomography, we normally
+ use the data difference for the residual:
+\beq
+J = \frac{1}{2} \norm{\US(\xx_r,\Omega)-\fr(\xx_r,\Omega)}^2=\frac{1}{2} \norm{\Delta d}^2,
+\label{eq:offwi}
+\eeq
+where $\xx_r$ are the receiver locations and $\Omega$ is the complex valued frequency whose
+purpose we will explain later. Note that $\fr(\xx_r,\Omega) = \UR(\xx_r,\Omega)$.
+Since for building the residual we only need to forward propagate the source function 
+\beq
+\L({m},\Omega)\US = \fs(\xx_s,\Omega),
+\eeq
+ we have to compute one adjoint wavefield $\as(\xx,\Omega)$.
+For data-domain wavefield tomography, computing $\as$ involves backpropagating the data residual:
+\beq
+  \L^\top({m},\Omega) \as = (\Delta d)^{*}.
+\eeq
+Here $(\Delta d)^{*}$ is the complex conjugate residual and $\L({m},\Omega)$ is the acoustic wave 
+equation in the frequency domain, defined as follows:
+\beq
+  \L(m) = -\DIV{\frac{1}{\rho(\xx)}\GRAD{}} -\frac{m(\xx)}{\rho(\xx)}\Omega^2.
+\label{eq:time_we}
+\eeq
+Here $\rho(\xx)$ is the density of the medium. In this report, we do not invert for $\rho(\xx)$, instead
+we parametrize it as a function of the velocity following \cite{Gardner}.
+
+Once we obtain $\US(\xx,\Omega)$ and $a_s(\xx,\Omega)$, we can proceed to compute the gradient:
+\beq
+\nabla J(\xx) = \mathbb{R}\left\{\sum_{e} \sum_t \Omega^2{u}_s({e},\xx,\Omega)a_s^*({e},\xx,\Omega)\right\},
+\label{eq:graddwt}
+\eeq
+here $^*$ denotes complex conjugate and $\mathbb{R}\left\{\right\}$ denotes the real part.
+
+The data domain wavefield tomography objective function, equation \ref{eq:offwi}, is highly non-linear if
+we operate with signals in the normal frequency band. Hence, 
+in order to increase the chances of convergence to the global minimum,
+ it is customary to implement the data-domain wavefield tomography in a multi-scale fashion. \cite{Bunks95} propose to 
+first invert lower frequencies and then 
+move gradually to higher frequencies. The idea is that within each scale the problem looks more linear than
+when inverts all the bandwidth at once. 
+
+An additional outer loop in the inversion is the time damping, which leads to the
+so-called Laplace-Fourier domain FWI~\citep{Sirgue,shin_cha}. The purpose of this outer loop is to first 
+fit earlier arrivals, and then fit later arrivals. By fitting first early arrivals (shorter travel-time)
+ we reduce the risk of large phase differences between observed and modeled data which 
+can cause cycle-skipping. Once the travel-time differences are solved for early arrivals, we can progressively increase $\tau$.
+Introducing the time damping requires the following transformation: $\Omega = \omega +i/\tau$, with $\tau$ being the 
+time damping \citep{Kamei2013}. Thus, this transformation turns the real-valued 
+angular frequency $\omega$ into a complex-valued angular frequency $\Omega$. In order to get consistent observed data
+with the damped modeled data, one must also scale the observed data as $\fr(\xx_r,t)=d_{obs}(\xx_r,t)e^{-t/\tau}$ before
+the transformation to frequency domain. 
+
+The low frequencies of the data are sensitive to the long wavelength (smooth) components of the 
+earth model. However, if the data do not have such frequencies, data-domain wavefield tomography is unable to update such components. 
+ In contrast, focusing in extended images is mostly sensitive to the 
+smooth components of the model. By implementing 
+a joint workflow using image-domain wavefield tomography for updating the smooth components of the model and later using data-domain wavefield tomography for 
+the high resolution features of the model, we can obtain a more complete spectrum in the model. The 
+first pass using image-domain wavefield tomography has the ability to stabilize the cycle-skipping problems in data-domain wavefield tomography.
+
+
+
+
+
+
+
+
+% In matrix notation, the process is described by
+%%
+%\beq \label{eqn:FSV}
+%\MAT{ \L(m,t) & 0 \\ 0  & \L^\top(m,t)}
+%\MAT{ \us \\ \ur} =
+%\MAT{ \fs \\ \fr} ,
+%\eeq
+%where $m=1/v^2(\xx)$ is the medium slowness squared, $\fs$ is the source function, 
+%$\fr$ is the data at the receiver locations,
+%$\L(m)$, and $\L^\top(m)$ are forward and backward wave propagators, respectively. In this
+%report we use the scalar wave equation as wave operator: 
+%\beq
+%  \L(m) =\swe{}.
+%\label{eq:time_we}
+%\eeq
+%
+%A well-focused gather concentrates most of its energy around $\hh=0$. This 
+%can be used as an optimization criterion by minimizing the energy outside $\hh=0$.
+% We can accomplish this by defining an objective function
+%\beq
+%J = \frac{1}{2} \norm{P(\hh)R(\xx,\hh)}^2,
+%\label{eq:sof}
+%\eeq
+%where $P(\hh)$ is the penalty function, which plays a vital role in the inversion. 
+%\cite{ShenSymes.geo.2008} propose a mix between $P(\hh)=|\hh|$ and 
+%$P(\hh)=\delta(\hh)$. The first penalty function corrects for most kinematic errors,
+%whereas the second one improves the focusing of the image $R(\xx,\hh={\bf 0})$.
+% \cite{tony_seg:cwp12} propose a penalty operator $P(\hh)$ that accounts for
+%illumination, which seeks to bring the defocused data, not to $\hh=0$, but to 
+%a region of acceptable focusing within the limits of illumination.
+%Depending on the choice of the the penalty operator $P(\hh)$, equation \ref{eq:sof} can be either minimized
+%or maximized. In this report, we use $P(\hh)=|\hh|$ as penalty operator primarly for
+%computational cost reasons. This penalty
+% operator defines a smooth objective function and corrects for most kinematic errors in the
+%model. 
+%
+%Once we have the penalized gathers (image residuals), we 
+%compute the adjoint sources \citep{ShenSymes.geo.2008,Wiktor}, 
+%\beq
+%  g_s(\xx,t) = \sum_\hh P(\hh)^2 R(\xx+\hh,\hh)\UR(\xx+2\hh,t)
+%\eeq
+%for the source adjoint source, and 
+%\beq
+%  g_r(\xx,t) = \sum_\hh P(\hh)^2 R(\xx-\hh,\hh)\US(\xx-2\hh,t)
+%\eeq
+%for the receiver adjoint source. 
+%
+%\cite{yangwave} and \cite{Shan:chevron} use an alternative formulation for the source side:
+%\beq
+%  \mbox{ for all $\hh$, do: }   g_s(\xx-\hh,t) += P(\hh)^2 R(\xx,\hh)\UR(\xx+\hh,t),
+%  \label{eq:adj_src_src}
+%\eeq
+%and for the receiver side:
+%\beq
+%  \mbox{ for all $\hh$, do: }  g_r(\xx+\hh,t) += P(\hh)^2 R(\xx,\hh)\US(\xx-\hh,t).
+%  \label{eq:adj_src_rvr}
+%\eeq
+%
+%It turns out that both formulations are equivalent. In the first formulation, we gather information from the 
+%vicinity of position $\xx$, whereas in the second one we scatter the residual in the vicinity of 
+%$\xx$. In order to get the equivalence between equations 5 and 7 we 
+%can simply do a change of variables $\xx' = \xx-\hh$ in 
+%equation \ref{eq:adj_src_src}. Similarly, we can do the change
+%of variables $\xx' = \xx +\hh$ in equation \ref{eq:adj_src_rvr} to obtain the equivalence between equations
+%6 and 8.
+%
+%Once we have the adjoint sources, we solve
+%\beq \label{eqn:FSV}
+%\MAT{ \L^\top(m,t) & 0 \\ 0  & \L( m,t)}
+%\MAT{ \as \\ \ar} =
+%\MAT{ g_s \\ g_r} .
+%\eeq
+%
+%The gradient of equation \ref{eq:sof} with respect to our model parameters
+%is defined as follows:
+%\begin{align}
+%\nonumber \nabla J(\xx) = \sum_{e} \sum_t &\ddot{u}_s({e},\xx,t)a_s({e},\xx,t)+\\
+%                          &\ddot{u}_r({e},\xx,t)a_r({e},\xx,t).
+%\label{eq:gradiwt}
+%\end{align}  
+%
+%\section{Data domain Wavefield tomography}
+%The construction of the tomography problem in the data domain amounts to measuring the error
+%(or residual) at the receiver locations. For data domain wavefield tomography, we normally
+% use the data difference for the residual:
+%\beq
+%J = \frac{1}{2} \norm{\US(\xx_r,\Omega)-\fr(\xx_r,\Omega)}^2=\frac{1}{2} \norm{\Delta d}^2,
+%\label{eq:offwi}
+%\eeq
+%where $\xx_r$ are the receiver locations and $\Omega$ is the complex valued frequency whose
+%purpose we will explain later. Note that $\fr(\xx_r,\Omega) = \UR(\xx_r,\Omega)$.
+%Since for building the residual we only need to forward propagate the source function 
+%\beq
+%\L({m},\Omega)\US = \fs(\xx_s,\Omega),
+%\eeq
+% we have to compute one adjoint wavefield $\as(\xx,\Omega)$.
+%For data-domain wavefield tomography, computing $\as$ involves backpropagating the data residual:
+%\beq
+%  \L^\top({m},\Omega) \as = (\Delta d)^{*}.
+%\eeq
+%Here $(\Delta d)^{*}$ is the complex conjugate residual and $\L({m},\Omega)$ is the acoustic wave 
+%equation in the frequency domain, defined as follows:
+%\beq
+%  \L(m) = -\DIV{\frac{1}{\rho(\xx)}\GRAD{}} -\frac{m(\xx)}{\rho(\xx)}\Omega^2.
+%\label{eq:time_we}
+%\eeq
+%Here $\rho(\xx)$ is the density of the medium. In this report, we do not invert for $\rho(\xx)$, instead
+%we parametrize it as a function of the velocity following \cite{Gardner}.
+%
+%Once we obtain $\US(\xx,\Omega)$ and $a_s(\xx,\Omega)$, we can proceed to compute the gradient:
+%\beq
+%\nabla J(\xx) = \mathbb{R}\left\{\sum_{e} \sum_t \Omega^2{u}_s({e},\xx,\Omega)a_s^*({e},\xx,\Omega)\right\},
+%\label{eq:graddwt}
+%\eeq
+%here $^*$ denotes complex conjugate and $\mathbb{R}\left\{\right\}$ denotes the real part.
+%
+%The data domain wavefield tomography objective function, equation \ref{eq:offwi}, is highly non-linear if
+%we operate with signals in the normal frequency band. Hence, 
+%in order to increase the chances of convergence to the global minimum,
+% it is customary to implement the data-domain wavefield tomography in a multi-scale fashion. \cite{Bunks95} propose to 
+%first invert lower frequencies and then 
+%move gradually to higher frequencies. The idea is that within each scale the problem looks more linear than
+%when inverts all the bandwidth at once. 
+%
+%An additional outer loop in the inversion is the time damping, which leads to the
+%so-called Laplace-Fourier domain FWI~\citep{Sirgue,shin_cha}. The purpose of this outer loop is to first 
+%fit earlier arrivals, and then fit later arrivals. By fitting first early arrivals (shorter travel-time)
+% we reduce the risk of large phase differences between observed and modeled data which 
+%can cause cycle-skipping. Once the travel-time differences are solved for early arrivals, we can progressively increase $\tau$.
+%Introducing the time damping requires the following transformation: $\Omega = \omega +i/\tau$, with $\tau$ being the 
+%time damping \citep{Kamei2013}. Thus, this transformation turns the real-valued 
+%angular frequency $\omega$ into a complex-valued angular frequency $\Omega$. In order to get consistent observed data
+%with the damped modeled data, one must also scale the observed data as $\fr(\xx_r,t)=d_{obs}(\xx_r,t)e^{-t/\tau}$ before
+%the transformation to frequency domain. 
+%
+%The low frequencies of the data are sensitive to the long wavelength (smooth) components of the 
+%earth model. However, if the data do not have such frequencies, data-domain wavefield tomography is unable to update such components. 
+% In contrast, focusing in extended images is mostly sensitive to the 
+%smooth components of the model. By implementing 
+%a joint workflow using image-domain wavefield tomography for updating the smooth components of the model and later using data-domain wavefield tomography for 
+%the high resolution features of the model, we can obtain a more complete spectrum in the model. The 
+%first pass using image-domain wavefield tomography has the ability to stabilize the cycle-skipping problems in data-domain wavefield tomography.

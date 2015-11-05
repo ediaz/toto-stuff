@@ -1,0 +1,110 @@
+
+% model
+\def\m{m}
+
+% cross-correlation
+\def\c{c}
+
+% deconvolution
+\def\d{d}
+
+% image
+\def\r{r}
+
+% adjoint state variable
+\def\a{a}
+\def\as{{\a_s}}
+\def\ar{{\a_r}}
+
+% wavefield
+\def\u{u}
+\def\us{{\u_s}}
+\def\ur{{\u_r}}
+\def\uo{{\u_o}}
+
+\def\UU{u}
+\def\US{\UU_s}
+\def\UR{\UU_r}
+
+% source
+\def\fs{{f_s}}
+\def\fr{{f_r}}
+
+% adjoint source
+\def\g {{g}}
+\def\gs{{g_s}}
+\def\gr{{g_r}}
+
+\def\xw{\xx,\ww}
+
+\def\ofd{\lp \d \rp}
+\def\ofm{\lp \m \rp}
+\def\ofdm{\lp \d,\m \rp}
+\def\ofum{\lp \u,\m \rp}
+\def\ofxw{\lp \xx,\ww \rp}
+\def\ofxwm{\lp \xx,\ww,\m \rp}
+\def\ofxtt{\lp \xx,\tt \rp}
+\def\ofxlt{\lp \xx,\hh,\tt \rp}
+\def\oftt{\lp \tt \rp}
+\def\oflt{\lp \hh,\tt \rp}
+\def\ofl{\lp \hh \rp}
+\def\ofml{\lp -\hh \rp}
+
+\def\ofxwtt{\lp \xx,\ww,\tt \rp}
+
+%\def\ee{\textbf{e}}
+\def\ee{e}
+\def\ofext  {\lp \ee,\xx,t   \rp}
+\def\ofexw  {\lp \ee,\xx,\ww \rp}
+\def\ofex   {\lp \ee,\xx     \rp}
+\def\ofextt {\lp \ee,\xx,\tt \rp}
+\def\ofexlt {\lp \ee,\xx,\hh,\tt \rp}
+\def\ofexwtt{\lp \ee,\xx,\ww,\tt \rp}
+
+\def\dspace{\mathbb{D}}
+\def\uspace{\mathbb{U}}
+\def\mspace{\mathbb{M}}
+\def\rspace{\mathbb{R}}
+\def\wspace{\mathbb{X},\mathbb{\Omega}}
+
+\def\deld{\delta \d}
+\def\delu{\delta \u}
+\def\delm{\delta \m}
+
+\def\nd{N_d}
+\def\nm{N_m}
+
+\def\A{\mathcal{A}}
+\def\F{\mathcal{F}}
+\def\L{\mathcal{L}}
+\def\J{\mathcal{J}}
+\def\H{\mathcal{H}}
+\def\I{\mathcal{I}}
+
+\def\delJ{\delta \J}
+
+% weight
+\def\W{W}
+\def\Wd{\W_\d}
+\def\Wm{\W_\m}
+\def\K{K}
+
+% penalty
+\def\P{P}
+\def\oftt{\lp \tt \rp}
+
+% shift
+\def\T{T}
+
+\def\DOT#1#2{\left< #2 \right>_{#1}}
+
+\def\MAT#1{
+\lb \begin{matrix}
+#1
+\end{matrix} \rb
+}
+
+\def\clab{\kanno{12}{-3}{$R\ofx$}}
+\def\cor {\kanno{75}{-3}{correct}}
+\def\low {\kanno{75}{-3}{low}}
+\def\hig {\kanno{75}{-3}{high}}

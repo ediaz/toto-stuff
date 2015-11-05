@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+
+from rsf.proj import *
+#import pcsutil,encode
+from rsf.recipes import fdmod
+from math import *
+#-------------------------
+par ={
+        'dx':4,
+        'nshots':500,
+        'niter':8,
+        'ompnth':7,
+        
+        }
+#-------------------------
+#Flow('wav1fft_con','pricker',' fft1')
+#Flow('wavfs1fft_con','pwave',' fft1')
+#Flow('convwaves1',['wav1fft_con','wavfs1fft_con'],
+#	'''
+#	math y=${SOURCES[1]} type=complex output="input*y" | fft1 inv=y
+#	''')
+#Result('convwaves1','window n1=3500 f1=100 | graph')
+#Plot('convwaves1','window n1=3500 f1=100 |  scale axis=1|graph')
+#Plot('pricker','window n1=3500 f1=100|scale axis=1 | graph plotcol=2')
+#Result('wavelets',['convwaves1','pricker'],'Overlay')
+par['scale']=(1*par['dx']/(1*997.813))
+#
+#
+#Plot('wave','window n1=3500 f1=100 |  scale axis=1|graph')
+#Plot('ricker','window n1=3500 f1=100|scale axis=1 | graph plotcol=2')
+#Result('wavel',['wave','ricker','convwaves1'],'Overlay')
+
+#----------------------------------------
+Flow('Ru1',['avelu1.rsf','adiru1.rsf'],
+    '''
+    math d=${SOURCES[1]} output="input-d"
+    ''')
+for i in range(500):
+    ishot=i
+    j=(i)*501
+    tag = "_%03d" % ishot
+    Flow('shots/REFL'+tag,'Ru1',
+            '''
+            window n2=501 f2=%d o2=0 | math output="%g*input" |
+            pad beg1=1800 |put o1=-1.800| fft1
+            '''%(j,par['scale']))
+
+Result('shots/REFL_250','fft1 inv=y |grey')
+
+
+Flow('tf','fa','pad beg1=1800|put o1=-1.8')
+Flow('tf1','farrival',
+	'''
+	pad beg1=1800|put o1=-1.800 |
+        fft1 |math output="conj(input)" | fft1 inv=y
+	'''%par)
+Result('tf','grey')
+Result('tf1','grey')
+Flow(['Gp3','Gm3','G3','f1_0','f1p','wind'],['tf','shots/REFL_000'],
+        '''
+        ../../CODE/test_f1/sfG_autofocus_SS refl=${SOURCES[1]}
+        conj=y twin=y Pf1=y PG=y ompnth=%d niter=%d nshots=%d 
+        scale=%g eps=%g shift=%d verb=y r=%d tap=%d
+        Gm=${TARGETS[1]} G=${TARGETS[2]}  
+        f1m=${TARGETS[3]} f1p=${TARGETS[4]} window=${TARGETS[5]}
+        ''' % (par['ompnth'],par['niter'],par['nshots'],1.0,1e-4,-21,-1,151))
+Result('G3','scale axis=1 |put o1=0.0 d2=0.004 o2=-1.0|grey wherexlabel=top wanttitle=y wheretitle=bottom titlesz=12.6 labelsz=13 screenratio=0.71 xll=2.8 yll=0.9 parallel2=n pclip=98 title="Retrieved"  labelfat=3 label1="time" label2="x (km)"')
+Result('reference','scale axis=1 |window n1=1800|put o1=0.0 d2=0.004 o2=-1.0|grey wherexlabel=top wanttitle=y wheretitle=bottom titlesz=12.6 labelsz=13 screenratio=0.71 xll=2.8 yll=0.9 parallel2=n pclip=98 title="Modeled"  labelfat=3 label1="time" label2="x (km)"')
+Result('wind','grey')
+Flow('tr_G3','G3','window f2=250 n2=1 o1=0.0 d1=0.001|put o1=0.0')
+Plot('tr_G3','graph wanttitle=n labelsz=13 wantaxis2=n wantaxis1=n plotfat=6 screenratio=0.71 xll=2.8 yll=1.9 label1="t" plotcol=2')
+Flow('tr_ref','reference','window f2=250 n2=1 ')
+Result('tr_ref','graph wanttitle=y labelsz=13 wantaxis2=n plotfat=6  screenratio=0.71 xll=2.8 yll=1.9 title="Overlay"')
+#Plot('tr_ref','window f1=470 |graph wanttitle=n labelsz=13 wantaxis2=n plotfat=6  screenratio=0.71 xll=2.8 yll=1.9 ')
+Plot('tr_ref','graph wanttitle=y labelsz=13 wantaxis2=n plotfat=6  screenratio=0.71 xll=2.8 yll=1.9 title="Overlay"')
+Result('tr_Gr',['tr_ref','tr_G3'],'Overlay')
+
+Flow('tr_fa','farrival','window f2=250 n2=1 ')
+Plot('tr_fa','graph wanttitle=n labelsz=13 wantaxis2=n plotcol=2 plotfat=6  screenratio=0.71 xll=2.8 yll=1.9 ')
+
+Result('tr_C',['tr_ref','tr_fa'],'Overlay')
+Result('f1_0','grey')
+Result('f1p','grey')
+
+Result('display','scale axis=1 |put o1=0.0 |grey wherexlabel=top wanttitle=n wheretitle=bottom titlesz=12.6 labelsz=13 screenratio=0.71 xll=2.8 yll=0.9 parallel2=n pclip=98 title="Reflection response"  labelfat=3 label1="time" label2="x (recievers)"')
+
+
+Plot('tf','grey')
+Plot('tf1','grey')
+Plot('wind','grey color=j')
+Result('windowing',['wind','tf'],'Overlay')
+End()
+

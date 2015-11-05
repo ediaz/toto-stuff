@@ -1,0 +1,114 @@
+#!/bin/bash
+#PBS -N fdelmod
+#PBS -q verylong
+#PBS -l nodes=7
+#PBS -k eo
+#PBS -j eo
+
+which makewave
+which makemod
+
+export OMP_NUM_THREADS=7
+
+
+cp=2000
+rho=2000
+dx=4
+dt=0.001
+
+makemod sizex=2400 sizez=1000 dx=$dx dz=$dx cp0=$cp ro0=$rho cs0=0 \
+	orig=-1200,0 file_base=pasurf.su \
+	intt=def x=-1200,1200 z=200,200 poly=0 cp=2000 ro=2000 cs=0 \
+	intt=def x=-1200,1200 z=400,400 poly=0 cp=2400 ro=3000 cs=0 \
+	intt=def x=-1200,1200 z=500,500 poly=0 cp=2100 ro=1900 cs=0
+    verbose=1 
+
+makewave dt=$dt file_out=pwave.su nt=5301 t0=0.3 w=fw fmin=0 flef=5 frig=80 fmax=100 scale=0 scfft=1
+
+fdelmodc \
+    file_cp=pasurf_cp.su ischeme=1 \
+    file_den=pasurf_ro.su \
+    file_src=pwave.su \
+    file_rcv=vel_x0.su \
+    src_type=7 \
+    verbose=1 \
+	  src_orient=2 \
+	  src_injectionrate=1 \
+    nshot=500 \
+    dxshot=$dx \
+    rec_type_vz=1 \
+    rec_type_p=1 \
+    rec_type_ud=1 \
+    rec_int_vz=2 \
+    kangle=65 \
+    verbose=2 \
+    dtrcv=0.0010 \
+	rec_delay=0.3 \
+    tmod=2.10 \
+    dxrcv=4.0 \
+    xrcv1=-1000 xrcv2=1000 \
+    zrcv1=0 zrcv2=0 \
+    xsrc=-1000 zsrc=0 \
+    ntaper=400 \
+    left=4 right=4 top=1 bottom=4
+#sfsuread <1vel_x0_ru.su tfile=tfile.rsf endian=0>1velu.rsf
+
+makemod sizex=2400 sizez=1000 dx=$dx dz=$dx cp0=$cp ro0=$rho cs0=0 \
+	orig=-1200,0 file_base=padir.su \
+	intt=def x=-1200,1200 z=200,200 poly=0 cp=2000 ro=2000 cs=0 \
+	intt=def x=-1200,1200 z=500,500 poly=0 cp=2000 ro=2000 cs=0
+    verbose=1
+
+
+fdelmodc \
+    file_cp=padir_cp.su ischeme=1 \
+    file_cs=padir_cs.su \
+    file_den=padir_ro.su \
+    file_src=pwave.su \
+    file_rcv=udir_x0.su \
+    src_type=7 \
+    verbose=1 \
+	src_orient=2 \
+	src_injectionrate=1 \
+    nshot=500 \
+    dxshot=$dx \
+    rec_type_vz=1 \
+    rec_type_p=1 \
+    rec_type_ud=1 \
+    rec_int_vz=2 \
+    kangle=65 \
+    verbose=2 \
+    dtrcv=0.0010 \
+	  rec_delay=0.3 \
+    tmod=2.10 \
+    dxrcv=4.0 \
+    xrcv1=-1000 xrcv2=1000 \
+    zrcv1=0 zrcv2=0 \
+    xsrc=-1000 zsrc=0 \
+    ntaper=400 \
+    left=4 right=4 top=1 bottom=4
+
+
+
+#suoldtonew<freesurf_ro.su >model3.su
+#suoldtonew<vel_x0_rvz.su >Ve.su
+#sfsuread <freesurf_ro.su tfile=tfile.rsf endian=0>model1.rsf
+#sfsuread <wave.su tfile=tfile.rsf endian=0>wave.rsf
+#sfsuread <vel_x0_ru.su tfile=tfile.rsf endian=0>velu.rsf
+#sfsuread <vel_x0_rp.su tfile=tfile.rsf endian=0>velp.rsf
+#sfsuread <vel_x0_rd.su tfile=tfile.rsf endian=0>veld.rsf
+#sfsuread <vel_x0_rvz.su tfile=tfile.rsf endian=0>velv.rsf
+#sfsuread <model3.su tfile=tfile.rsf endian=0>model.rsf
+##
+#sfsuread <dir_x0_rvz.su tfile=tfile.rsf endian=0>dirv.rsf
+#sfsuread <dir_x0_ru.su tfile=tfile.rsf endian=0>diru.rsf
+#sfgrey<velu.rsf title="data">vels.vpl
+#sfgrey<velp.rsf title="data">velp.vpl
+#sfgrey<velv.rsf title="data">velv.vpl
+##
+#xtpen vels.vpl
+#xtpen velp.vpl
+#xtpen velv.vpl
+
+
+
