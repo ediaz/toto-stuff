@@ -38,6 +38,7 @@ fdelmodc \
     rec_int_vz=2 \
     rec_type_p=1 \
     rec_type_ud=1 \
+    rec_type_vz=1 \
     verbose=2 \
     kangle=65 \
     dtrcv=0.0010 \

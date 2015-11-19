@@ -6,7 +6,7 @@ from aweOP import aweop2d
 par = {'nx':401,'dx':0.02,'ox':0,
        'nz':101,'dz':0.02,'oz':0,
        'nt':3001,'dt':0.002,'ot':0,
-       'kt':110,'frq':14}
+       'kt':110,'frq':14,'kdepth':81}
 
 fdmod.param(par)
 
@@ -23,7 +23,7 @@ Result('vel',fdmod.cgrey('color=j mean=y',par))
 
 Flow('den','vel',
   '''
-  spike nsp=2 mag=1000,2000 k1=0,51 l1=50,101 
+  spike nsp=2 mag=1000,2000 k1=0,%(kdepth)d l1=50,101 
   '''%par)
 
 Result('den',fdmod.cgrey('color=j mean=y',par))
@@ -39,7 +39,7 @@ Flow(wav,None,
 
 fdmod.point('ss',1.0,0.0,par)
 fdmod.point('rr',7.0,0.0,par)
-fdmod.point('xx',4.0,1.0,par)
+fdmod.point('xx',4.0,(par['kdepth']-1)*par['dz']+par['oz'],par)
 
 
 
@@ -87,7 +87,17 @@ Flow('ss-xx-kernel-f',['ssp_s','ssp_x','ssn_x','ssn_x'],
   math sp=$SOURCE rp=${SOURCES[1]} sn=${SOURCES[2]} rn=${SOURCES[3]} 
        output="conj(sp)*rp+conj(sn)*rn"|
   imag |
-  stack axis=3   
+  stack axis=3  > tmp.rsf &&
+  reverse which=2 opt=i <tmp.rsf |add tmp.rsf  
+  ''',stdin=0)
+
+Flow('ss-xx-kernel-fR',['ssp_s','ssp_x','ssn_x','ssn_x'],
+  '''
+  math sp=$SOURCE rp=${SOURCES[1]} sn=${SOURCES[2]} rn=${SOURCES[3]} 
+       output="conj(sp)*rn+conj(sn)*rp"|
+  imag |
+  stack axis=3  > tmp.rsf &&
+  reverse which=2 opt=i <tmp.rsf |add tmp.rsf  
   ''',stdin=0)
 
 
@@ -122,15 +132,18 @@ Flow('ss-xx-kernel-fsm',['ssp_ssm','ssp_xsm','ssn_xsm','ssn_xsm'],
   math sp=$SOURCE rp=${SOURCES[1]} sn=${SOURCES[2]} rn=${SOURCES[3]} 
        output="conj(sp)*rp+conj(sn)*rn"|
   imag |
-  stack axis=3   
+  stack axis=3  > tmp.rsf &&
+  reverse which=2 opt=i <tmp.rsf |add tmp.rsf 
   ''',stdin=0)
 
 
+Flow('kernel-full',['ss-x_wfl','ss-x_Twfl'],'add mode=p ${SOURCES[1]} |stack axis=3 > tmp.rsf && reverse which=2 opt=i <tmp.rsf |add tmp.rsf |scale rscale=-1 ')
 
 
+Flow('kernel-fullsm',['ss-x_wflsm','ss-x_Twflsm'],'add mode=p ${SOURCES[1]} |stack axis=3 > tmp.rsf && reverse which=2 opt=i <tmp.rsf |add tmp.rsf |scale rscale=-1 ')
 
-Result('ss-xx-kernel-fsm','reverse which=2 opt=i |add $SOURCE|'+fdmod.cgrey('color=E pclip=99',par))
-Result('ss-xx-kernel-f','reverse which=2 opt=i |add $SOURCE|'+fdmod.cgrey('color=E pclip=99',par))
+for kernel in ['kernel-full','kernel-fullsm','ss-xx-kernel-fsm','ss-xx-kernel-f','ss-xx-kernel-fR']:
+  Result(kernel,fdmod.cgrey('color=E pclip=99',par))
 
 
 

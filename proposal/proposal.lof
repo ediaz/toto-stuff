@@ -1,0 +1,53 @@
+\contentsline {figure}{\numberline {1}{\ignorespaces Depiction of Born and multiple scattering imaging and tomography: (a) shows the path used during Born imaging to construct the seismic image at point ${\bf x}$, (b) the sensitivity kernel (path) updated by Born-based tomographic updates, (c) the possible information that can be used in addition to the Born path during multiple scattered imaging, and (d) the sensitivity kernel from the multiple scattered waves.}}{57}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{57}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{57}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{57}
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {}}}{57}
+\contentsline {figure}{\numberline {2}{\ignorespaces Depiction (figure 1.13 from \cite {Claerbout:1985:IEI:3887}) of the sensitivity of seismic data to the velocity model (0-2Hz) and to the reflectivity ( $> 5$Hz). It highlights the gap existing between tomography and imaging. Nowadays, due to advances in tomography and acquisition technologies the gap is closing. However, there is still much to do to seamless move from tomography to imaging.}}{58}
+\contentsline {figure}{\numberline {3}{\ignorespaces Thesis summary: the two rows correspond to the modeling methods used in this thesis, whereas the two columns correspond to the applications where the modeling is used. Within each box one can see the specific application pointing to the corresponding chapter. }}{59}
+\contentsline {figure}{\numberline {4}{\ignorespaces Synthetic model example: (a) time-lag gather at x=5km, (b) space-lag gather at x=5km, (c) common image point at x=5km, z=1.5km and (d) migrated image of one shot (in x=5km, z=0km) with receivers in the surface}}{60}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{60}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{60}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{60}
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {}}}{60}
+\contentsline {figure}{\numberline {5}{\ignorespaces RTM backscattering optimization: (a) is the initial model, (b) RTM image obtained with the initial model, (c) extended image gathers from the initial model (observe the energy spread away zero offset). The bottom row shows the updated (d) velocity model, (e) seismic image, and (f) extended image gathers which show better focusing around $\lambda _x=0$. The vertical lines indicate the position of the extracted space-lag gathers.}}{61}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{61}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{61}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{61}
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {}}}{61}
+\contentsline {subfigure}{\numberline {(e)}{\ignorespaces {}}}{61}
+\contentsline {subfigure}{\numberline {(f)}{\ignorespaces {}}}{61}
+\contentsline {figure}{\numberline {6}{\ignorespaces RTM images from (a) the initial model, (b) illumination-based tomographic model, and (c) data-domain inversion model.}}{62}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{62}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{62}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{62}
+\contentsline {figure}{\numberline {7}{\ignorespaces Angle gathers retrieved at sparse surface locations from (a) the initial model, (b) illumination-based tomographic model, and (c) data-domain inversion model}}{63}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{63}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{63}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{63}
+\contentsline {figure}{\numberline {8}{\ignorespaces Velocity profiles from (a) the initial model, (b) illumination-based tomographic model, and (c) data-domain inversion model}}{64}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{64}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{64}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{64}
+\contentsline {figure}{\numberline {9}{\ignorespaces Signals (a) $f(t)$ and (b) $g(t)$ to exemplify the correlation functions, (c) is the global correlation $f\star g$ (invariant with time), and (d) $f\star _l g$ is the local correlation with a Gaussian window with $\sigma =0.3s$.}}{65}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{65}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{65}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{65}
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {}}}{65}
+\contentsline {figure}{\numberline {10}{\ignorespaces Sensitivity kernels for an experiment with free surface boundary condition and a Gaussian anomaly placed in between the source and the receiver (for which the surface reflection event is not sensitive). The left and right columns show gradients for global and local correlations, respectively. From top to bottom, the gradients correspond to low, correct, and high velocity.}}{66}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{66}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{66}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{66}
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {}}}{66}
+\contentsline {subfigure}{\numberline {(e)}{\ignorespaces {}}}{66}
+\contentsline {subfigure}{\numberline {(f)}{\ignorespaces {}}}{66}
+\contentsline {figure}{\numberline {11}{\ignorespaces Preliminary results showing the sensitivity of the imaging process using the Marchenko modeling framework to errors in the background model: (a) a -20\% velocity error, (b) the correct background velocity, and (c) a +20\% velocity error. Note how the multiples below the deepest reflector are very weak with respect to the amplitude of the imaged interfaces. }}{67}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{67}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{67}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{67}
+\contentsline {figure}{\numberline {12}{\ignorespaces Band limited sensitivity kernels: (a) shows the background velocity model, (b) is the density model, (c) is an image kernel under the single scattering assumption connecting source ${\bf x}_s =(1.0,0)$km and image point ${\bf x}=(4.0,1.0)$km with receiver point at ${\bf x}_r=(7.0,0.0)$km, and (d) the sensitivity kernel connecting ${\bf x}_s-{\bf x}-{\bf x}_r$ with every possible path given by the multiples and primaries. }}{68}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {}}}{68}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {}}}{68}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {}}}{68}
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {}}}{68}
+\contentsline {figure}{\numberline {13}{\ignorespaces Gantt chart showing the progress of the projects discussed in this thesis. The black line within each progress box shows the completed percentage of the project.}}{69}

@@ -1,0 +1,190 @@
+#!/usr/bin/env python
+
+from rsf.proj import *
+#import pcsutil,encode
+from rsf.recipes import fdmod
+from math import *
+#-------------------------
+par ={
+        'nx':601,'dx':4,'ox':-1200,'sizex':600*4,
+        'nz':251,'dz':4,'oz':0,'sizez':1000,
+        'nt':5301,'dt':0.001,'ot':0.0,'sdelay':0.3,
+        'nshots':500,
+        'niter':10,
+        'ompnth':7,
+        'ntm1':1800
+        }
+#-------------------------
+par['scale']=(1*par['dx']/(1*997.813))
+OpenSeis = '/WORK/SU/OpenSource/bin/'
+fdmod.param(par)
+
+
+
+########## Create the data: #####################
+
+# Create model:
+Flow(['pasurf_cp.su','pasurf_ro.su','pasurf_cs.su'],None,
+  OpenSeis+'makemod '+
+  '''
+  sizex=%(sizex)g sizez=%(sizez)g 
+  dx=%(dx)g dz=%(dx)g cp0=2400 ro0=2000 cs0=0 \
+	orig=%(ox)g,%(oz)g    file_base=pasurf.su \
+	intt=def x=-1200,1200 z=200,200 poly=0 cp=2400 ro=2000 cs=0 \
+	intt=def x=-1200,1200 z=400,400 poly=0 cp=2400 ro=3000 cs=0 \
+	intt=def x=-1200,1200 z=500,500 poly=0 cp=2400 ro=1900 cs=0 \
+    verbose=0 
+  '''%par)
+models = ['pasurf_cp.su','pasurf_ro.su','pasurf_cs.su']
+
+for model in models:
+  Flow(model.replace(".su",".rsf"),model,
+    'segyread su=y endian=0 |'+
+    '''
+    put n1=%(nz)d d1=%(dz)g o1=%(oz)g n2=%(nx)d d2=%(dx)g o2=%(ox)g
+    '''%par)
+  Plot(model.replace(".su",""),fdmod.cgrey('color=j mean=y ',par))
+
+
+
+Flow('pwave.su',None,
+  OpenSeis+
+ '''makewave dt=%(dt)g nt=%(nt)g t0=%(sdelay)g w=fw 
+  fmin=0 flef=5 frig=80 fmax=100 scale=0 scfft=1
+  '''%par)
+
+
+
+
+Flow(['model.log','vel_x0_ru.su','vel_x0_rvz.su','vel_x0_rp.su','vel_x0_rd.su'],
+     ['pasurf_cp.su','pasurf_ro.su','pwave.su'],
+ OpenSeis+'''fdelmodc \
+    file_cp=${SOURCES[0]} ischeme=1 
+    file_den=${SOURCES[1]}  
+    file_src=${SOURCES[2]} 
+    file_rcv=vel_x0.su 
+    src_type=7 
+    verbose=1 
+	  src_orient=2 
+	  src_injectionrate=1 
+    xsrc=%(ox)g 
+    nshot=500
+    dxshot=%(dx)g
+    rec_type_vz=1 
+    rec_type_p=1 
+    rec_type_ud=1 
+    rec_int_vz=2 
+    kangle=65 
+    verbose=2 
+    dtrcv=%(dt)g
+	rec_delay=%(sdelay)g 
+    tmod=2.10 
+    dxrcv=4.0 
+    xrcv1=-1000 xrcv2=1000 
+    zrcv1=0 zrcv2=0 
+    xsrc=-1000 zsrc=0 
+    ntaper=400 
+    left=4 right=4 top=1 bottom=4 2>$TARGET
+ '''%par,stdin=0,stdout=0)
+
+
+
+Flow(['modeldir.log','udir_ru.su','udir_rvz.su','udir_rp.su','udir_rd.su'],
+     ['pasurf_cp.su','pwave.su'],
+ OpenSeis+'''fdelmodc \
+    file_cp=${SOURCES[0]} ischeme=1 
+    file_den=${SOURCES[0]}  
+    file_src=${SOURCES[1]} 
+    file_rcv=udir.su 
+    src_type=7 
+    verbose=1 
+	  src_orient=2 
+	  src_injectionrate=1 
+    xsrc=%(ox)g 
+    nshot=500 
+    dxshot=%(dx)g
+    rec_type_vz=1 
+    rec_type_p=1 
+    rec_type_ud=1 
+    rec_int_vz=2 
+    kangle=65 
+    verbose=2 
+    dtrcv=%(dt)g
+	rec_delay=%(sdelay)g 
+    tmod=2.10 
+    dxrcv=4.0 
+    xrcv1=-1000 xrcv2=1000 
+    zrcv1=0 zrcv2=0 
+    xsrc=-1000 zsrc=0 
+    ntaper=400 
+    left=4 right=4 top=1 bottom=4 2>$TARGET
+ '''%par,stdin=0,stdout=0)
+
+
+
+Flow('avelu1',['vel_x0_ru.su'],'suread endian=0')
+Flow('adiru1',['udir_ru.su'],'suread endian=0')
+
+
+## First arrival:
+
+Flow('pfarsrc.su',None,
+  OpenSeis+
+ '''makewave dt=%(dt)g nt=%(nt)g t0=%(sdelay)g fp=20 scale=1
+  '''%par)
+
+
+
+
+
+for model in [0.8,1.0,1.2]:
+  perc = 'perc_%03d'%(model*100)
+  par['vel'] = 2400.0*model
+  Flow([perc+'_cp.su'],None,
+  OpenSeis+'makemod '+
+  '''
+  sizex=%(sizex)g sizez=%(sizez)g 
+  dx=%(dx)g dz=%(dx)g cp0=%(vel)g ro0=2000 cs0=0 \
+	orig=%(ox)g,%(oz)g'''%par+'''    file_base=%s.su 
+    verbose=0 
+  '''%perc)
+
+  
+  for z in range(0,1000,20):
+    Flow(['farrival_z%03d'%z+'_'+perc],
+         [perc+'_cp.su','pfarsrc.su'],
+     OpenSeis+'''fdelmodc 
+        file_cp=${SOURCES[0]} ischeme=1 
+        file_den=${SOURCES[0]} 
+        file_src=${SOURCES[1]} 
+        file_rcv=pfar.su 
+        src_type=1 
+        verbose=1 
+    	src_orient=1 
+    	src_injectionrate=1 
+        nshot=1 
+        dxshot=%(dx)g
+        rec_type_vz=0 
+        rec_int_vz=2 
+        rec_type_p=1 
+        rec_type_ud=1 
+        rec_type_vz=1 
+        verbose=2 
+        kangle=65 
+        dtrcv=0.0010 
+    	rec_delay=0.3 
+        tmod=2.10 
+        dxrcv=4.0 
+        xrcv1=-1000 xrcv2=1000 
+        zrcv1=0 zrcv2=0 '''%par+'''
+        xsrc=0 zsrc=%d 
+        ntaper=400 
+        left=4 right=4 top=1 bottom=4 2>/dev/null &&
+      suread endian=0 < pfar_rvz.su >$TARGET
+     '''%z,stdin=0,stdout=-1)
+
+
+
+
+
+End()

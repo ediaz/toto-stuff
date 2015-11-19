@@ -19,6 +19,8 @@ targets = bldutil.UserSconsTargets()
 # C mains
 targets.c = '''
 G_autofocus_SS
+G_autofocus_toto
+G_autofocus_toto2
 '''
 
 # paradd

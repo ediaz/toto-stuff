@@ -47,7 +47,6 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 	#endif
 	#include "fft1.h"
 
-	void fft1 (float *, float *, sf_file, bool, bool, bool);
 
 	int main(int argc, char* argv[])
 	{
@@ -65,6 +64,7 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
     float *gp1, *gm1;
 		float	*window, *taper, pi;
 		int		*tw;
+    float *convergence;
 
 	    /* I/O files */
 	    sf_file FF_arrival;
@@ -75,6 +75,7 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 	    sf_file Ff1m;
 	    sf_file Ff1p;
 	    sf_file Ftwin;
+      sf_file Fconvergence;
 
 		char *filename1, filename2[256], filename3[256];
 		
@@ -113,23 +114,23 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 	    if(! sf_getfloat("r",&r)) r=-1; /* reflection coefficient if flux 
 						normalised r=-1 */
 	    if(! sf_getfloat("scale",&scale)) scale=1.0; /* scale factor */
-		if(! sf_getfloat("eps",&eps)) eps=1e-4; /* threshold for the timewindow */
-		if(! sf_getint("shift",&shift)) shift=5; /* shift in samples for the timewindow */
-		if(! sf_getint("tap",&tap)) tap=20; /* taper of R */
+  		if(! sf_getfloat("eps",&eps)) eps=1e-4; /* threshold for the timewindow */
+	  	if(! sf_getint("shift",&shift)) shift=5; /* shift in samples for the timewindow */
+	  	if(! sf_getint("tap",&tap)) tap=20; /* taper of R */
 	    
-		if (verb) {
-			fprintf(stderr,"This program was called with \"%s\".\n",argv[0]);
-			/*fprintf(stderr,"Nr: %d Nx: %d Nt:%d\n",nr,nx,nt);*/
-			
-			if (argc > 1) {
-				for (i = 1; i<argc; i++) {
-					fprintf(stderr,"argv[%d] = %s\n", i, argv[i]);
-				}
-			}
-			else {
-				fprintf(stderr,"The command had no other arguments.\n");
-		}	
-		}
+	  	if (verb) {
+		  	fprintf(stderr,"This program was called with \"%s\".\n",argv[0]);
+			  /*fprintf(stderr,"Nr: %d Nx: %d Nt:%d\n",nr,nx,nt);*/
+		  }	
+		
+
+      Fconvergence = sf_output("conv");
+      convergence = sf_floatalloc(niter);
+      sf_putint (Fconvergence, "n1", niter);
+      sf_putint (Fconvergence, "n2", 1);
+      sf_putfloat (Fconvergence, "d1", 1.0f);
+      sf_putfloat (Fconvergence, "o1", 0.0f);
+
 
 	    /*------------------------------------------------------------*/
 	    /* I/O files 												  */
@@ -159,7 +160,16 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 		if (twin) {
 			Ftwin = sf_output("window"); /* time window */
 		}
+
+   
 		
+
+
+
+
+
+
+
 		/*------------------------------------------------------------*/
 		/* Axes */
 		/*------------------------------------------------------------*/    
@@ -229,7 +239,11 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 		F1pS = (float *)calloc(2*nf*ntr,sizeof(float));
 		F1p  = (float *)calloc(2*nf*ntr,sizeof(float));
 		/* The three flags of fft1 are: inv, sym, and opt */
-		fft1(F_arrival,MS,FF_arrival,0,0,1);
+
+    fft1_init (nt, dt, ot, true, false);
+    fft1_2D_fwd(F_arrival,MS,ntr);
+
+
 	/*	memcpy(FA,2*nf*ntr*sizeof(float));*/
 
       fprintf(stderr,"nt2 is %d\n",nt2);
@@ -255,31 +269,11 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 		/* Load the reflection response into the memory */
 		if (verb) fprintf(stderr,"Before loading R %d\n",2*nf*ntr);
 		Refl = (float *)calloc(2*nf*ntr*nshots,sizeof(float));
-		
 		/* Read REFL_000.rsf */
-		filename1 = sf_getstring("refl");
-		/* 000.rsf are 7 characters */
-		len = strlen(filename1)-7;
-		/* copy the filename without 000.rsf */
-		strncpy(filename2,filename1,len);
-		filename2[len] = '\0';
-		if (verb) fprintf(stderr,"filename2 is: %s and len is: %d\n",filename2,len);
-		/*if (NULL == filename1) {
-			fprintf(stderr,"Cannot read header file %s",filename1);
-		}*/
-	  
-		for (ishot=0; ishot<nshots; ishot++) {
-      /* write xxx.rsf in the string filename3 */
-      sprintf(filename3,"%03d.rsf\0",ishot);
-      for (i=0; i<7; i++)
-      	filename2[len+i] = filename3[i];
-      	filename2[len+7] = '\0';
-      if (verb && (ishot % 100 ==0)) fprintf(stderr,"Loaded up to %s in memory\n",filename2);
-      FRefl = sf_input(filename2);
-      sf_floatread(&Refl[ishot*2*nf*ntr],2*nf*ntr,FRefl);
-      sf_fileclose(FRefl);
-      /*if (verb) fprintf(stderr,"Iteration %d\n",ishot);*/
-		}
+    FRefl = sf_input("refl");
+    sf_warning("reading refl");
+    sf_floatread(Refl,2*nf*nshots*ntr,FRefl); 
+    sf_warning("read refl");
 
 		/* Build time-window */
 		tw = (int *)calloc(ntr,sizeof(int));
@@ -389,8 +383,9 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 				} /* End of loop over receivers (traces) */
 			}
       // Inverse fft
-			fft1(F1m_0,f1m_0,FRefl,1,0,1);
-			fft1(MS2,ms_2,FRefl,1,0,1);
+      fft1_2D_inv (F1m_0, f1m_0,ntr);
+      fft1_2D_inv (MS2, ms_2,ntr);
+
 
 			#ifdef _OPENMP
 			#pragma omp parallel for private(ix,it) \
@@ -407,7 +402,7 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 				}	
 			}
 			
-			fft1(f1m,F1m,FF_arrival,0,0,1);
+      fft1_2D_fwd (f1m, F1m,ntr);
 
 
 	/* initialise MS the coda for f1+ */
@@ -438,7 +433,8 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 					} /* End of loop over frequencies */
 				} /* End of loop over receivers (traces) */
 			}
-			fft1(MS_0,ms_0,FRefl,1,0,1);
+      fft1_2D_inv (MS_0,ms_0,ntr);
+
 
 			#ifdef _OPENMP
 			#pragma omp parallel for private(ix,it) \
@@ -453,8 +449,7 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 				  //ms[it+ix*nt] = ms_0[it+ix*nt];
 				}	
 			}
-			
-			fft1(ms,MS,FF_arrival,0,0,1);
+      fft1_2D_fwd (ms,MS,ntr);
 
 
 	if (verb) fprintf(stderr,"---> Beginning Iteration\n");
@@ -497,7 +492,7 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 			} /* End of loop over shot positions */
 
 			/* Get time domain output of f1m and ms */
-			fft1(F1m1,f1m,FRefl,1,0,1);
+      fft1_2D_inv (F1m1,f1m,ntr);
 			
 			#ifdef _OPENMP
 			#pragma omp parallel for private(ix,it) \
@@ -510,7 +505,8 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 				}	
 			}
 			
-			fft1(f1m,F1m,FF_arrival,0,0,1);
+      fft1_2D_fwd (f1m,F1m,ntr);
+
 
 			for (ishot=0; ishot<nshots; ishot++) {
 		
@@ -542,7 +538,7 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 			} /* End of loop over shot positions */
 
 			/* Get time domain output of f1m and ms */
-			fft1(MS1,ms,FRefl,1,0,1);
+      fft1_2D_inv (MS1,ms,ntr);
 			
 			#ifdef _OPENMP
 			#pragma omp parallel for private(ix,it) \
@@ -554,13 +550,19 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 					ms[it+ix*nt] =-ms_2[it+ix*nt]+ scale*window[it+ix*nt]*(ms[it+ix*nt]);  
 				}	
 			}
-			
-			fft1(ms ,MS ,FF_arrival,0,0,1);
+      fft1_2D_fwd (ms,MS,ntr);
 
 			if(iter%4==0) fprintf(stderr,"Iteration %d\n",iter);
+      convergence[iter] = 0.0f;
+			for (ix=0; ix<ntr; ix++) {
+				for (it=0; it<nt; it++) {
+					convergence[iter] += ms[it+ix*nt]*ms[it+ix*nt];
+				}	
+			}      
+
 
 		} /* End of loop over iterations */ 
-
+    
 
 		/* Build f1p* by adding Tinv to coda M */
 		#ifdef _OPENMP
@@ -574,7 +576,7 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 				/* note  this is the time reverse version of f1p */
 			}	
 		}
-		fft1(f1pS,F1pS,FF_arrival,0,0,1);
+    fft1_2D_fwd (f1pS,F1pS,ntr);
 
 	/* to get G by looping over shots */
 		memset(Gp,0,2*nf*ntr*sizeof(float));
@@ -609,8 +611,8 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 					} /* End of loop over frequencies */
 				} /* End of loop over receivers (traces) */
 			}
-			fft1(Gp,gp1,FRefl,1,0,1);
-			fft1(Gm,gm1,FRefl,1,0,1);
+      fft1_2D_inv (Gp,gp1,ntr);
+      fft1_2D_inv (Gm,gm1,ntr);
 
 		if (Pf1) { 
 			if (verb) fprintf(stderr,"---> Build f1p\n");
@@ -635,7 +637,8 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 					} /* End of loop over frequencies */
 			}
 		}
-			fft1(F1p,f1p,FRefl,1,0,1);
+      fft1_2D_inv (F1p,f1p,ntr);
+
 	 
 
 
@@ -662,7 +665,9 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 	    /*FRefl = sf_input(argv[1]);*/
 		/*fft1(Gp,,FRefl,1,0,0);
 		fft1(Gm,,FRefl,1,0,0);*/
-		
+		sf_floatwrite(convergence,niter,Fconvergence);
+    free(convergence);
+
 		sf_floatwrite(gp,nt2*ntr,FGp);
 		sf_fileclose(FGp);
 		sf_floatwrite(gm,nt2*ntr,FGm);

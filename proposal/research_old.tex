@@ -1,0 +1,301 @@
+
+
+\section{1-Understanding reverse time migration backscattering: noise or signal?}
+
+The conventional imaging condition ~\citep{Claerbout:1985:IEI:3887}
+is a zero time lag cross-correlation between the source wavefield and the 
+receiver wavefields:
+%
+\beq
+\R=\sum_{shots} \sum_{t} \US(\xx,t)\UR(\xx,t),
+\label{eq:cic2}
+\eeq
+%
+which honors the single scattering or Born assumption. Under this assumption the forwardscattered 
+source wavefield generates secondary waves as it interacts with the medium discontinuities. These secondary waves propagate in 
+space and are recorded at the surface. This assumption means that both the source and receiver
+wavefields carry only transmitted energy through interfaces between layers with different elastic properties.
+
+A wavefield extrapolated with RTM could show, depending on the complexity of the geology, waves traveling in both
+upward and downward directions, such as diving waves, head waves and backscattered waves. The interaction between
+ these waves contained in the source and receiver wavefields generates new events in the image which are 
+commonly referred to as artifacts because they do not follow the geology (i.e., earth reflectivity), which is the objective 
+of the imaging process. The correlation between forward and backscattered waves is particularly strong when
+sharp boundaries are present in the velocity model (e.g., salt bodies).
+
+If a sharp boundary is present in the model, we can decompose the source wavefield into forward scattered 
+ and backscattered energy that originates at the sharp boundary:
+
+\beq
+\US(\xx,t)= \USr(\xx,t) +\USt(\xx,t),
+\label{eq:ssplit}
+\eeq
+%
+where the superscripts $^b$ and $^f$ stand for backscattered and forwardscattered wavefields, respectively. 
+
+The same idea can be applied to the receiver wavefield:
+
+\beq
+\UR(\xx,t)= \URr(\xx,t) +\URt(\xx,t).
+\label{eq:rsplit}
+\eeq
+%
+By taking advantage of the linearity of equation~\ref{eq:cic2},  we
+can split the conventional imaging condition as follows:
+
+\begin{align}
+\nonumber \R &= \Rc{ff} +\Rc{bb}\\
+             &+ \Rc{bf}+ \Rc{fb}.
+\label{eq:cicsplit}
+\end{align}
+%
+Here, the first superscript is associated with the source wavefield and the second with the
+receiver wavefield. For example, $\Rc{fb}$ is an image constructed with the forward scattered source wavefield
+and the backscattered receiver wavefield.
+
+By analyzing the individual contributions to the image, we can better understand how the backscattered events
+are constructed in the image. This analysis is similar to the one of~\cite{fei:3130} and~\cite{liu:S29}
+whose objective is to filter out the non-geological portions of the image. Here, we approach the problem 
+in a broader sense by attempting to understand the physical meaning of the backscattered energy and its
+uses for velocity model building.
+
+
+
+\subsection{Extended imaging condition}
+
+The extended imaging condition~\citep{rickett:883,sava:S209,GPR:GPR888} is similar to the conventional imaging condition
+ except the cross-correlation lags between source and receiver wavefield are preserved in the output:
+\beq
+\Re= \sum_{shots} \sum_{t} \US(\xx - \hh,t-\tau) \UR(\xx+\hh,t+\tau).
+\label{eq:eic}
+\eeq
+Here $\hh$ and $\tau$ represent the space-lags and time-lags, respectively, of the cross-correlation.
+%
+The conventional image is a special case of the extended image $\R=R(\xx,{\bf 0},0)$.
+
+Using extended images allows one to measure the accuracy of the velocity model by analyzing the moveout of the events
+ \citep{yang:S151}, and then to perform transformations from the extended to the angle domain 
+\citep{sava:1065,sava:S209,sava:S131}. The extended images provide a measurement of the similarity between the source
+ and receiver wavefields along space and time, so one can exploit these images to analyze and better understand the RTM backscattered events.
+
+In equation~\ref{eq:eic} one can note an increase in the dimensionality of the image, from 3 to 7 dimensions,
+if we decide to extend the image in all directions. It is common to perform the analysis 
+of extended images at limited locations in order to make this methodology feasible for large datasets. 
+For cost considerations, often one extension is used for common image gathers (CIG), for instance
+ the time-lag axis ($\tau$) or the space-lag axis ($\lambda_x$). One can also consider 
+ common image point gathers (CIP), where we 
+fix an observation point ${\bf c}=(x,y,z)$ and analyze the image as a function of extensions $\hh,\tau$. If the dip is known,
+not all the space extensions $\hh$ are needed.  
+
+In the presence of sharp velocity interfaces we can use the concept of equation~\ref{eq:cicsplit}, and construct four partial 
+extended images:
+
+\beq
+\Re = \Rce{ff}+\Rce{bb} +\Rce{fb}+\Rce{bf}.
+\label{eq:eicsplit}
+\eeq
+
+
+\inputdir{paperI}
+
+\subsection{Main results}
+
+\multiplot{3}{cit05_ref1,citx05_ref1,cip05_ref1,img05_ref1}{height=0.24\textheight}{%
+Synthetic model example: (a) time-lag gather at x=5km, (b) space-lag %
+ gather at x=5km, (c) common image point at x=5km, z=1.5km and (d) %
+ migrated image of one shot (in x=5km, z=0km) with receivers %
+ in the surface} 
+
+~\rfgs{cit05_ref1} to~\ref{fig:cip05_ref1} show a time-lag gather, a space-lag gather,
+ and a common image point, respectively, which represent subsets at fixed surface positions (for CIGs) or fixed space positions 
+(for CIPs). Despite the fact that the model has only one reflector, one can identify several events in the conventional and extended images. 
+Letter ``a" indicates backscattered events, letter ``b" indicates the events produced by the cross-correlation of 
+reflected wavefields, and letter ``c" indicates the cross-correlation between forward scattered wavefields.
+
+In the paper by  \cite{DiazRTM} (corresponding to this chapter) we show the sensitivity
+of the backscattered energy to errors in the background model by constructing different
+objective functions which measure the backscattered energy as a function of the velocity 
+error. Based on the developed analysis, we were able to describe all the events present
+in the extended image arising from the salt boundary. 
+
+
+\newpage
+\section{2-Wavefield tomography using RTM backscattering}
+
+In order to analyze the velocity model error, one can make use of the semblance
+ principle which seeks image consistency as a function of extended image 
+parameters.~\cite{stork} implements the idea using the consistency between common 
+offset images.~\cite{symes.carazzone} exploit this concept using the differential
+ semblance optimization (DSO) method. DSO can also be used to increase the 
+flatness of angle gathers.~\cite{rickett:883} and \cite{sava:1065} show that
+ common angle gathers and extended images are related by a slant stacking
+ operation. Therefore, these two type of common image gathers are equivalent for
+ velocity analysis.~\cite{shen:VE49} and~\cite{Yang2011} use the consistency 
+criterion in extended images to formulate a tomographic problem based on 
+space-lag gathers or joint space and time-lag gathers, respectively.
+
+\subsection{Inversion with time-lag gathers}
+If the velocity is correct, the time-lag gathers~\citep{sava:S209} show maximum
+ focusing at zero lag. This observation derives from the fact that the source and
+ receiver wavefields are synchronized at the reflector position. 
+The velocity model can be improved by increasing the wavefield synchronization, 
+which is equivalent to locating the events in the extended images as close as
+ possible to $\tau=0$. This can be done by minimizing the following objective 
+function (OF):
+\beq
+J = \frac{1}{2} \norm{P(\tau)R(\xx,\tau)}^2,
+\label{eq:tof}
+\eeq
+where $P(\tau)=|\tau|$ is an operator that penalizes the energy outside $\tau=0$.
+Following the notation in~\cite{Yang2011}, one can express $R(\xx,\tau)$ as
+\beq
+R(\xx,\tau) = \sum_{e}\sum_t T(-\tau)\US({e},\xx,t)T(+\tau)\UR({e},\xx,t),
+\eeq 
+where $T(\pm\tau)$ is a time-shift operator applied to the source or receiver 
+wavefields. Note that this OF cannot drop to zero completely because 
+in the  time-lag gathers, the wavefields correlate  
+for all values of $\tau$. Here I am interested in bringing the maximum of the
+correlation towards $\tau=0$. However, this OF is minimum when the velocity model is correct
+ and most of the  energy in the extended image locates at $\tau=0$.
+
+We compute the gradient of equation~\ref{eq:tof} using the Adjoint 
+State Method
+ (ASM)~\citep{tarantola,plessix}. The adjoint source with respect to the source 
+wavefield for an experiment $e$ is
+\beq
+g_s(\xx,{e}) = \sum_\tau  T(-\tau) P^2(\tau) R(\xx,\tau) T(-\tau) \UR({e},\xx,t),
+\label{eq:gst}
+\eeq
+ and the adjoint source with respect to the receiver wavefield is
+\beq
+g_r(\xx,{e}) = \sum_\tau T(\tau) P^2(\tau) R(\xx,\tau) T(\tau) \US({e},\xx,t).
+\label{eq:grt}
+\eeq
+We construct the adjoint state variables by injecting the adjoint sources at the
+ gather positions and by extrapolating the wavefields using the adjoint modeling
+ operators. The adjoint source wavefield $a_s({e},\xx,t)$ is reconstructed
+backward in time, whereas the adjoint receiver wavefield $a_r({e},\xx,t)$ is
+ reconstructed forward in time. Using the state and adjoint state variables, the 
+gradient with respect to the velocity model is
+\begin{align}
+\nonumber \nabla J(\xx) = \frac{-2}{v^3(\xx)} \sum_{e} \sum_t &\frac{\partial^2u_s}{\partial t^2}({e},\xx,t)a_s({e},\xx,t)+\\
+                          &\frac{\partial^2u_r}{\partial t^2}({e},\xx,t)a_r({e},\xx,t),
+\label{eq:gradt}
+\end{align}
+where $\frac{-2}{v^3(\xx)}\frac{\partial^2}{\partial t^2}$ corresponds to the 
+derivative of the modeling operator with respect to the
+ velocity model.
+
+In the gradient expression (equation~\ref{eq:gradt}) one expects to correlate state
+ and adjoint state wavefields traveling in the same direction which implies that
+ the gradient is smooth. However, if backscattering is present in the wavefield,
+ we obtain crosstalk producing reflectors in the gradients. The crosstalk in this 
+case is generated by the correlation of wavefields traveling in the opposite 
+direction. In order to attenuate the crosstalk, we can use a filter that 
+preserves the components of wavefields traveling in the same direction and 
+eliminates the wavefields traveling in opposite directions. We can find the 
+direction of propagation using the approach of~\cite{yoon}, which constructs the 
+Poynting vectors ${\bf P}(e,\xx,t)$ using the equation
+\beq
+{\bf P}({e},\xx,t) \propto \frac{\partial u({e},\xx,t)}{\partial t} \nabla u({e},\xx,t),
+\eeq
+where $u$ can be either the source or the receiver wavefield. In practice, I use 
+the time-averaged Poynting vectors using a Gaussian smoothing over a small 
+time window determined by the dominant period of the data
+\beq
+<{\bf P}({e},\xx,t)>_t = {\bf P}({e},\xx,t) *G(t).
+\eeq
+ Here, the symbol $*$ denotes convolution, and $G(t)$ is the Gaussian smoothing
+ filter. The smoothed Poyting vector contains the propagation information of the most
+energetic arrival in the wavefields, which mishandle cases like multipathing.
+
+To keep just the wavefield components traveling in the same direction, I  
+ compute a weighting function $W(\theta)$ with 
+\beq
+\theta(\xx,t) = \cos^{-1}\left(\frac{{\bf P}_s(\xx,t)\cdot {\bf P}_r(\xx,t)}{|{\bf P}_s(\xx,t)||{\bf P}_r(\xx,t)|}\right)
+\eeq
+such that we preserve the wavefield cross-correlation for which 
+${\bf P}_s(\xx,t)\cdot {\bf P}_r(\xx,t)\approx 1$, i.e. when 
+the direction of propagation is similar within a given tolerance. 
+The weighting function can be designed using a cutoff angle, from which the 
+function tapers off smoothly using a Gaussian function with standard deviation
+ $\sigma$ this defines the range from which the angles are accepted.
+\beq
+W(\theta,a,\sigma) = \begin{cases}
+       1   &\text{if $0^\circ \leq \theta < a $};  \\
+       e^{-(\theta-a)^2/(2\sigma^2)} &\text{if $ a \leq \theta \leq180^\circ$}.
+   \end{cases}
+\eeq
+
+Based on this filter, I change equation~\ref{eq:gradt} to
+\begin{align}
+\nonumber \nabla J(\xx) = \frac{-2}{v^3(\xx)} \sum_{e} \sum_t &W(\theta) \frac{\partial^2u_s}{\partial t^2}({e},\xx,t)a_s({e},\xx,t)+\\
+                          &W(\theta)\frac{\partial^2u_r}{\partial t^2}({e},\xx,t)a_r({e},\xx,t).
+\label{eq:Fgradt}
+\end{align}
+This new gradient avoids crosstalk and emphasizes wavefields traveling in the 
+same direction. This method increases the cost of the correlation step. If the 
+smoothing stencil along time axis is short, then efficient options like check-point
+access could be used for propagating wavefields and computing the propagation
+directions \citep{symes2007reverse}.
+
+\subsection{Inversion with space-lag gathers}
+One can also use the information contained in space-lag 
+gathers~\citep{rickett:883}. If the velocity model is correct, then space-lag
+ gathers focus at $(\lambda_x,\lambda_y)=(0,0)$. If the velocity model is incorrect, the 
+gathers contain defocused energy outside $\hh=\bf{0}$. This criterion is used
+by~\cite{shen:VE49,Yang2011,Wiktor} to formulate wavefield tomography using
+ the OF
+\beq
+J = \frac{1}{2} \norm{P(\hh)R(\xx,\hh)}^2,
+\label{eq:sof}
+\eeq
+where $P(\hh)=|\hh|$ is a penalty operator. Even with correct velocity, this OF 
+does not become zero due to the band-limited nature of the data and due to 
+illumination effects~\citep{tony_seg:cwp12}. Nevertheless, this OF provides an
+ effective criterion for velocity updating.
+
+We compute the gradient of equation~\ref{eq:sof} using the same workflow as the 
+one used for equation~\ref{eq:tof}~\citep{Yang2011}. The adjoint sources are 
+defined as
+\beq
+g_s(\xx,{e}) = \sum_\hh  T(-\hh) P^2(\hh) R(\xx,\hh) T(-\hh) \UR({e},\xx,t)
+\label{eq:gsx}
+\eeq
+for the source side, and
+\beq
+g_r(\xx,{e}) = \sum_\hh  T(+\hh) P^2(\hh) R(\xx,\hh) T(+\hh) \US({e},\xx,t)
+\label{eq:gsx}
+\eeq
+for the receiver side. Here $T(\pm\hh)$ is a space shifting operator applied to
+ the wavefields. The only difference between the time-lag and space-lag gather 
+formulation is in the OF and in the computation of the adjoint sources. The 
+gradient and adjoint wavefields are computed using the same wave-equation and 
+background velocity model as in the case of the time-lag gathers 
+(equations~\ref{eq:gradt} and~\ref{eq:Fgradt}).
+
+\subsection{Main results}
+
+Figures~\ref{fig:cmodel-iter000} to \ref{fig:ximgiter014} show an application of the described method
+to an inversion excercise from the Sigsbee 2A synthetic model. \rfg{cmodel-iter000}
+shows the starting velocity model, \rfg{img_iter000} the corresponding seismic
+image, and \rfg{ximgiter000} the corresponding gathers (note the defocusing of 
+the energy away from zero lag). \rfg{cmodel-iter014} depicts the updated velocity 
+model, \rfg{img_iter014} the corresponding image, and \rfg{ximgiter014} the updated
+gathers. Note how after iterations the energy of the gathers is correctly focused 
+at zero lag. 
+ The setup proposed in this paper leads to increased focusing
+of reflected energy above the boundary while at the same time
+maximizes the backscattered energy. 
+
+\inputdir{paperII}
+
+\multiplot{6}{cmodel-iter000,img_iter000,ximgiter000,cmodel-iter014,img_iter014,ximgiter014}
+{width=0.45\textwidth}%
+{RTM backscattering optimization: (a) initial model, (b) RTM image obtained with the initial model,
+(c) extended image gathers from the initial model (observe the energy spread away zero offset). 
+The bottom row shows the updated (d) velocity model, (e) seismic image, and (f) extended image gathers 
+which show better focusing around $\lambda_x=0$. The vertical lines indicate the position of the 
+extracted space-lag gathers.}
+
+

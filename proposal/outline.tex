@@ -1,0 +1,148 @@
+\newpage
+\section{Thesis outline}
+
+\inputdir{.}
+\plot{Table}{width=\textwidth}{Thesis summary: the two rows correspond to the modeling methods
+used in this thesis, whereas the two columns correspond to the applications where the modeling
+is used. Within each box one can see the specific application pointing to the corresponding
+chapter. The arrows connect different concepts and technologies with the corresponding chapter number. }
+
+In this thesis I explore different ways to measure the velocity errors in the subsurface. I 
+use several methods in the image-domain and in the data-domain. I discuss different
+modeling operators (two-way and Marchenko). \rfg{Table} shows the links between different
+combinations of modeling operators with the seismic exploration problem of interest, which
+in this thesis is related either to seismic imaging or to wavefield tomography. As 
+mentioned before, the two problems are interrelated. In this section I briefly 
+describe all the components of my the thesis, including 
+past and future projects and the links between them. 
+
+%\subsection{1-Understanding reverse time migration backscattering: noise or signal? (completed: \cite{DiazRTM})}
+%In the first project, I describe the kinematic (and focusing) properties of the 
+%so-called RTM backscattering. These types of low wavenumber events
+%arise in the presence of sharp boundaries in the velocity model. These boundaries 
+%produce complex wave propagation which includes complex wave scattering (i.e., the
+%waves travel in all directions in both wavefields). During the imaging condition
+%(or the extended imaging condition), the low wavenumber event appears 
+%when the wavefields are in synchronization (traveling in the same direction) and produce
+%a strong correlation along the path connecting the source with the interface, and the 
+%interface with the receiver. 
+%Commonly, these events are seen as a drawback for the RTM method because they obstruct the image of the geologic
+%structure, which is the real objective for the process.
+% I show numerical and theoretical analysis for the purpose of understanding the {reverse time migration} backscattering
+%energy in conventional and extended images.  I show that the synchronization and focusing information of the backscattering
+% is sensitive to velocity errors; this implies that a correct velocity model produces RTM backscattering with maximum energy. Therefore, before
+%filtering the RTM backscattered energy, one should try to obtain a model that maximizes it.
+%
+%\subsection{2-Wavefield tomography using RTM backscattering (completed: \cite{diaz2015})}
+%Continuing along the same lines, in this chapter I  propose an optimization workflow where
+%both the sediment velocity and the sharp boundary are updated iteratively. 
+%The presence of sharp boundaries in the model leads to high and low wavenumber 
+%components in the objective function gradient; the high wavenumber components
+%correspond to the correlation of wavefields traveling in opposite directions,
+% whereas the low wavenumber components correspond to the correlation
+%of wavefields traveling in the same direction. 
+%This behavior is similar to  
+%reverse-time migration where the high wavenumber components represent the 
+%reflectors (the signal) and the low wavenumber components represent 
+%backscattering (noise). The opposite is true in tomography: the low 
+%wavenumber components represent changes to the velocity model and
+% the high wavenumber components are noise that needs to be filtered out.
+%We use a directional filter based on Poynting vectors during the
+% gradient computation to preserve the smooth components of the gradient, thus
+%spreading information away from the sharp boundary.
+%Our tests indicate that velocity models are better constrained when we include
+%the sharp boundaries (and the associated backscattering) in wavefield tomography.
+%
+
+\subsection{1- CIP wavefield tomography with illumination compensation (in progress, to be submitted 
+to Geophysical Prospecting or Geophysics: \citep{pantin2015optimizing} )}
+
+Image domain wavefield tomography exploits focusing characteristics of extended images 
+for updating the velocity field. In order to make good use of this information, one must 
+understand how such images behave if the migration velocity is accurate. This is not trivial 
+since focusing depends on the acquisition setup, as well as on illumination variation caused by 
+the geology separating the acquisition array from the imaged structure, the data bandwidth, etc. I 
+address this problem using a combination of migration/demigration to construct penalty functions that
+ characterize focusing by incorporating acquisition parameters and data bandwidth. Moreover, instead of
+ sampling the extended images at a preset distance along the surface, I sample the image by constructing 
+common image-point gathers, which are also much more economical from a computation point of view \citep{SavaVasconselos}. Coupled
+ with image residuals exploiting illumination-based penalty functions, I construct robust wavefield 
+tomographc updates in areas of poor or uneven illumination \citep{tony_seg:cwp12}. Models obtained with this type of methodology 
+are good starting points to more sensitive, but less robust waveform inversion methods. After retrieving
+the velocity model with the illumination-based tomography, I continue the inversion using 
+waveform tomography in the data-domain. I show an application of the method to synthetic examples 
+and to a marine 2D dataset. The examples shown in this chapter depict a 
+robust wavefield-based tomography approach from long wavenumbers (to which image-domain
+CIP tomography is more sensitive) to short wavenumbers (which data-domain methods
+are more sensitive). Hence, I propose a full wavenumber approach and apply it to a real dataset 
+example. 
+
+\subsection{2- Seismic tomography using local correlation functions (in progress, \cite{DiazLcorr})}
+
+Wavefield tomography in the data domain is usually formulated by using the
+data difference as the misfit criterion. The data difference, however, is 
+susceptible to cycle skipping which leads to convergence into local minima. To
+overcome the strong non-linearity, a multi-scale approach to the inversion is
+often needed. The success of this approach relies on the low-frequency content
+of the data. Instead, the data domain tomography misfit criterion
+using local correlations. Correlation-based inversions are less
+sensitive to local minima than difference-based inversions. Correlations,
+however, are often contaminated with cross-talk between events; in addition,
+the global correlations give just a general idea of the kinematic errors of
+the model because of the summation along the entire time axis. Alternatively, local
+correlations with Gaussian windows, advocated in this paper, are able to
+extract the local kinematic errors in the misfit between modeled and observed
+data. Local correlations are also less sensitive to cross-talk of seismic events
+than their global correlation counterpart because the summation is performed
+locally as a function of time. Less correlation cross-talk leads to cleaner
+cleaner gradients. I further improve the gradients
+using a penalty function that is consistent with the bandwidth of the seismic
+data, which is more realistic than linear penalty functions designed to annihilate
+infinite bandwidth data. This penalty function resembles the illumination-based
+penalty functions applied in the previous chapter for image-domain wavefield tomography.
+
+Local as opposed to global correlations provide cleaner measures of similarity between two functions.
+The main difference is that local correlation performs a local sum instead of summing 
+over all the time samples. This is the key to eliminating the comparison between
+ unrelated seismic events present in the observed and modeled data. This feature 
+allows us to extract local kinematic errors that are 
+more instructive than the misfit extracted using global correlations.
+
+\subsection{3- Extended imaging analysis  using Marchenko wavefields (in progress) }
+In this chapter, I plan to use the wavefields reconstructed in the Marchenko framework
+for extended imaging. I will analyze the links between extended images and Multi Dimensional Deconvolution (MDD). 
+ From the MDD response we can extract angle-dependant reflectivity information in 
+a similar way as it is done in extended imaging.
+ The reflectivity response from MDD, however, can be potentially more 
+consistent because it comes from an inversion framework during the imaging condition which involves temporal and spatial
+deconvolution. Also, the input Marchenko wavefields are  an expression of the true 
+Green's functions warped by the input background model. The redatumed wavefields are 
+consistent with the relative amplitude variations present in the data. Additionally, 
+ the extended images computed from Marchenko wavefields contain better illumination because
+they incorporate the use of internal and surface-related multiples. 
+ In this chapter I also analyze the sensitivity of the Marchenko-based extended images
+to errors in the background model which is the first step for a tomography setup. 
+
+
+
+\subsection{4- Wavefield tomography using multiple scattered waves (in progress)} 
+By properly using multi-scattered waves, one can increase the sensitivity of the seismic
+data to errors in the background velocity model. Usually, the surface-related and internal
+multiples are handled incorrectly by imaging and tomographic operators. The 
+misplaced multiples produce coherent defocused events that drive the inversion
+to the wrong direction. The misplaced multiples under the Born approximation 
+contain a moveout that the tomographic operator interprets as if the background velocity model is too fast.   
+ The use of the Marchenko wavefields can potentially overcome this problem since 
+the multiples are imaged at the same place as the corresponding primaries, not only  increasing
+the illumination, but also eliminating the bias in the velocity update. 
+ Despite errors or smoothness in the background model, the retrieved Marchenko fields
+contain all the scattering phenomena that is observed in the data. This means that
+this fields obey the wave equation in the background model, but at the same time 
+show scattered waves that are an expression of the true recorded reflectivity
+at the surface. Using the full scattering nature of the seismic data 
+can be a big step forward in tomography because it would eliminate all
+multiple removal as a preprocessing step. Instead, one can make use of the multiples
+which at this stage can be regarded as an independent additional dataset. 
+
+
+

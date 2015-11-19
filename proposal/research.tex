@@ -1,0 +1,666 @@
+\newpage
+\section{Proposed research}
+
+In this section, I review in more detail the concepts developed in each 
+of the projects of the proposal. Most projects share a similar background
+technology like modeling operators (two-way or Marchenko), extended, and 
+conventional imaging. On the tomographic side, all the methods
+share the constraints on the wave equation. This constraints implies that all
+computed wavefields follow the wave equation. Hence,  the 
+obtained objective function gradients share the steps of the adjoint step method 
+described in \cite{plessix}.  
+
+\section{1- CIP wavefield tomography with illumination compensation}
+
+Extended-image gathers~\citep{rickett:883,SavaVasconselos}
+highlight the spatial and temporal consistency between wavefields by exploring
+ the focusing information in the image domain. 
+ The moveout in the gather is sensitive to
+velocity perturbations, and hence can be optimized. The most
+general extended gather can be defined as follows:
+\beq
+R(\xx,\hh,\tau)= \sum_{{e}} \sum_{t} \US({e},\xx - \hh,t-\tau) \UR({e},\xx+\hh,t+\tau),
+\label{eq:eic}
+\eeq
+ where $\hh$ is the space-lag vector, $\tau$ the time-lag, $\xx$ the image location, $e$ the
+experiment index, $\US$ the 
+ source wavefield, and $\UR$ the receiver wavefield. Given the increase of dimensions 
+for extensions in space and time, one can take advantage of a sparse sampling 
+of the extended images in a subset of image locations $\xx_c$ instead of the full image space $\xx$. One smart
+way to  decide the locations $\xx_c$ is by placing the observation points at the reflector
+locations \citep{cullison}.  
+ Note that the process for computing the extended
+image is linear with respect to one of the wavefields. Hence, one can 
+define the extended image in a matrix-vector form as 
+\beq
+  {\bf R} = {\bf I}_{s} {\bf u}_r = {\bf I}_{r} {\bf u}_s,
+\label{eq:eicops}
+\eeq
+where $\bf R$ is the vector representation of the extended image, and 
+ ${\bf I}_s$ and ${\bf I}_r$ are the imaging operators for the source and receiver wavefield,
+respectively. 
+
+Even though the commutation of the forward mappings (Equation~\ref{eq:eicops})
+ produces the same result ($\bf R$), the adjoint 
+mapping satisfies different equations. The operator ${\bf I}_s^\top$ implements
+\beq
+  \tilde{\UR}(e,\xx+\hh,t+\tau) += \sum_{\tau,\hh}R(\xx,\hh,\tau) \US(e,\xx - \hh,t-\tau),
+\label{eq:adj1}
+\eeq
+whereas ${\bf I}_r^\top$ satisfies
+\beq
+  \tilde{\US}(e,\xx-\hh,t-\tau) += \sum_{\tau,\hh}R(\xx,\hh,\tau) \UR(e,\xx + \hh,t+\tau).
+\eeq
+The $+=$ implies that the adjoint wavefield is accumulated in the output after
+summing all posible lags $\hh,\tau$.
+
+
+The source and receiver wavefields follow the wave equation, which in this case
+is 
+\beq
+  \swe{u(\xx,t)} = f(\xx,t),
+\label{eq:we}
+\eeq
+where $\m=s^2(\xx)$ is the squared slowness. The source wavefield $\US$ is computed by forward
+propagation of the source function $\fs$, whereas the receiver wavefield $\UR$ is created by backward (adjoint)
+propagation of the recorded data $\fr$ as summarized by the following system of equations:
+\beq \label{eqn:FSV}
+\MAT{ \L(m,t) & 0 \\ 0  & \L^\top(m,t)}
+\MAT{ \us \\ \ur} =
+\MAT{ \fs \\ \fr} ,
+\eeq
+where $\L$ and $\L^\top$ are the matrix representation of the forward and adjoint (reverse) propagators, respectively. 
+
+One can learn a great deal about the velocity model by looking at the focusing information
+encoded in the extended images. A model with a good kinematic agreement with 
+the true background velocity exhibits 
+a maximum correlation between source and receiver wavefields around $(\hh,\tau)=({\bf 0},0)$. Under velocity 
+inaccuracies, the
+extended gathers exhibit a moveout that is indicative of 
+ errors in the model~\citep{YangSava:moveout}. Hence,
+ the energy on the gathers can be brought around zero lag through an
+inversion process in which the velocity model can be updated. A typical 
+objective function \citep{ShenSymes.geo.2008,Wiktor,tony:gp15} based on 
+extended images is 
+\beq
+ J_1(\m) = \norm{P(\hh,\tau) R(\xx,\hh,\tau)}^2,
+\eeq
+where $P$ is a penalty operator whose purpose is to 
+highlight the events in the image that show velocity inaccuracies. 
+ The penalty operator is usually defined using the lags:
+\beq
+  P(\hh,\tau) = \sqrt{ \hh^2 +(v\tau)^2},
+\eeq
+where $v$ is the local velocity. This penalty function is 
+highly idealized since it produces a zero residual if the 
+extended image is a perfect spike (i.e. $R(\xx,\hh,\tau)=\delta(\xx,\hh,\tau)$).
+ In order to relax such requirements, \cite{tony_seg:cwp12} propose
+a penalty function based on illumination, which depends on the 
+acquisition setup, data bandwidth, and the velocity model itself. 
+ To compute the action of the illumination (blurring  
+operator) one can cascade a demigration/migration process 
+applied to spikes placed at the extended image locations $\xx_c$:
+\beq
+  \tilde{R}(\xx_c,\hh,\tau) = {\bf M} {\bf M}^\top \sum_{i} \delta(\xx-\xx_c^i,\hh,\tau)
+\eeq
+with $\bf M^\top$ being a demigration operator and $\bf M$ the extended imaging process. The index
+$i$ corresponds to the cip
+ The synthetic image $\tilde{R}$ contains the action of the source function, the acquisition, 
+and the model at the image locations $\xx_c$. Once $\tilde{R}$ is obtained, one can 
+proceed and compute the penalty by 
+\beq
+  \tilde{P}(\xx_c,\hh,\tau) = \frac{1}{Env(\tilde{R}(\xx_c,\hh,\tau))},
+\eeq
+where $Env$ is an envelope function that captures the energy of the synthetic  
+image $\tilde{R}$.
+Effectively, $\tilde{R}$ contains the extended point spread functions (PSF) of the model, 
+and is computed similarly to \cite{valenciano:2009} and \cite{FletcherLSM}.
+
+
+In order to include the zero-lag information one can add an extra term in the objective 
+function, similarly to \cite{shen:VE49,Wiktor}. Alternatively, I  
+include the zero-lag term directly into the inversion by changing the goal 
+of the objective function to a maximization problem~\citep{Zhang}:
+\beq
+ J_2(\m) = -\norm{H(\hh,\tau) R(\xx,\hh,\tau)}^2.
+\label{eq:j2}
+\eeq
+By adding the negative in front of the norm, we turn the problem back to minimization. The
+operator $H$ has the opposite purpose from operator $P$, i.e. $H \approx 1-P$; 
+now the main task of $H$ is to ``highlight'' the energy around zero lag. By using $J_2$ instead of 
+$J_1$, we fuse all lags in a seamless manner into the inversion. Another advantage of
+$J_2$ is that avoids the extra image power term in the inversion (to include zero lag).
+%%
+
+
+\subsection{Tomography setup}
+We are interested in the gradient of equation \ref{eq:j2} to update the background velocity
+model. In order to compute the gradient 
+we follow the recipe from \cite{Plessix.gji2006.asm} for PDE constrained 
+objective functions. First, we define the augmented functional
+\beq
+  A(\m,\us,\ur,a^e_s,a^e_r) = -J_2(\m) + < a^e_s,\L\us^e-\fs> +<a_r,\L^\top\ur^e-\fr>,
+\label{eq:aug1}
+\eeq
+where $<.,.>$ defines a dot product between vectors in  the $(\xx,t)$ space, $a_s$ is the 
+adjoint source wavefield, and $a_r$ is the adjoint receiver wavefield. The superscript $^e$ refers
+to the experiment index. 
+The augmented functional depends on the model $\m$, the forward state variables
+$\us$ and $\ur$, and the adjoint state variables $a_s$ and $a_r$.
+ From the  first optimality conditions, $\frac{\partial A }{\partial a_s}=0$
+and $\frac{\partial A }{\partial a_r}=0$, 
+ we obtain the system in equation \ref{eqn:FSV}. 
+
+In order to find the adjoint source wavefield $a_s$, I rewrite equation \ref{eq:aug1} as:
+\beq
+    A(\m,\us,\ur,a_s,a_r) = - < H I_r \us, H I_r \us> +< a_s,\L\us-\fs> +<a_r,\L^\top\ur-\fr>.
+\eeq
+By setting $\frac{\partial A }{\partial \us}=0$ I obtain
+\beq
+   \L^\top a_s = I_r^\top H^\top H I_r \us =  I_r^\top H^\top H R. 
+\eeq
+ The operator $H$ is diagonal and real, which means $H^\top=H$. This equation tell us to 
+use the receiver wavefield $\ur$ as imaging operator together with the image residual $H^\top H R$.
+ The wavefield $a_s$ travels from the image towards the source $\fs$. 
+
+To find the adjoint the adjoint receiver wavefield $a_r$, I redefine  equation \ref{eq:aug1}  to 
+the equivalent form
+\beq
+    A(\m,\us,\ur,a_s,a_r) = - < H I_s \ur, H I_s \ur> +< a_s,\L\us-\fs> +<a_r,\L^\top\ur-\fr>.
+\eeq
+Now, we set $\frac{\partial A }{\partial \ur}=0$ to obtain the last adjoint variable $a_r$:
+\beq
+   \L a_r = I_s^\top H^\top H R.
+\eeq
+
+From the last optimality condition we obtain the actual gradient:
+\beq
+  \frac{\partial J_2 }{\partial \m}=  -\sum_{t,e}  \frac{\partial^2 \us}{\partial t^2}a_s + \frac{\partial^2 \ur}{\partial t^2}a_r.
+\eeq
+
+\subsection{Main results}
+ I demonstrate the proposed workflow with a real 2D marine dataset
+acquired with a variable depth cable  \citep{soubaras2010variable}.
+The streamer depth increases as a function of offset, which enhances the frequency
+content of the data by producing a mixed notch response. Hence,
+the increasing cable depths improve the low frequency content at 
+intermediate and far offsets which is very helpful for data-domain waveform tomography (DWT). The acquisition setup 
+in the modeling software mimics the
+variable depth streamer cable and the free surface \citep{hicks2002arbitrary}, and hence it is consistent with the observed data .
+  
+ \rfg{image-winit} shows the initial image obtained from the model \rfg{vel-winit}, and  \rfg{anglex-image-winit}
+shows the corresponding angle gathers. The initial model is constructed by time-domain moveout analysis followed
+by Dix conversion to depth. \rfg{image-wtomo} shows the updated RTM image
+after tomography (described in the previous section). Observe the increased focusing shown in the updated image. 
+ \rfg{anglex-image-wtomo} shows the corresponding gathers, whereas \rfg{vel-wtomo} is the updated velocity model. The
+illumination-based tomographic step decreases the velocity along the section and produces an increase of the flatness
+in the gathers. \rfg{image-wfwi} is the RTM image corresponding to the waveform inversion model. Note the improved
+focusing of the image in the shallow part of the section, which is more apparent in the angle gathers 
+depicted in \rfg{anglex-image-wfwi}. The final model is shown in \rfg{vel-wfwi}. Note how further details are 
+added into the velocity model, which changed the structure of the image and made it flatter in the
+reflector at $z=2.2$km. The low-wavenumber energy
+in the final image is produced by details added into the velocity model. 
+
+The combination between image-domain and data-domain wavefield
+tomography seeks to exploit the features of each method. The image-domain 
+wavefield tomography methods are sensitive to the smooth components
+of the model due to the definition of the inverse problem. Once I obtain
+ a smooth model that improves focusing in the CIP gathers,
+ I proceed to further refine the model using data-domain
+ wavefield tomography. The image-domain wavefield tomography
+model corrects for most kinematic errors in the model, 
+whereas
+the data-domain wavefield tomography model 
+corrects early arrival phase errors in the data, and
+introduces  discontinuities in the model directly correlated with events in 
+the image.
+
+
+
+
+
+\inputdir{paperIII}
+
+\multiplot{3}{image-winit,image-wtomo,image-wfwi}{width=\textwidth}%
+{RTM images from (a) the initial model, (b) illumination-based tomographic model, and (c) data-domain inversion model.}
+
+
+
+\multiplot{3}{anglex-image-winit,anglex-image-wtomo,anglex-image-wfwi}{width=\textwidth}%
+{Angle gathers retrieved at sparse surface locations from (a) the initial model, (b) illumination-based tomographic model, and (c) data-domain inversion model}
+
+
+
+\multiplot{3}{vel-winit,vel-wtomo,vel-wfwi}{width=\textwidth}%
+{Velocity profiles from (a) the initial model, (b) illumination-based tomographic model, and (c) data-domain inversion model}
+
+
+
+
+
+
+
+\newpage
+\section{2-Seismic tomography using local correlation functions }
+Here, I propose to use local
+temporal correlation functions to extract the misfit information in the data
+domain (at the receiver locations), instead of measuring such correlations
+in a global sense, as suggested by other approaches. To compute the local
+correlation functions, I use the method of \cite{hale2006}, which performs
+the local summation in an efficient manner using recursive Gaussian filters
+\citep{hale2006recursive}. Local correlations minimize the cross-talk between
+seismic events, since the comparison between observed and simulated waveforms
+is performed locally in time. This is a key advantage of our method because
+it has the ability to produce cleaner adjoint sources, which translate
+into cleaner gradients (with less cross-talk than the global correlation
+functionals).
+
+
+
+
+
+
+Consider the problem of measuring the similarity between two signals $f(t)$ and
+$g(t)$ (\rFgs{f}-\ref{fig:g}). One way is to measure the difference between
+$f$ and $g$. This approach is highly sensitive if the two signals are close
+enough (in a kinematic sense) to each other. However, if the two signals
+contain a kinematic difference longer than half a period, this functional is
+not informative \citep{Bunks95}. Instead of determining the similarity by
+measuring the difference, one can determine the similarity through correlation. In the most
+common case, one can use a global correlation function \citep{Tristan}. Here,
+I follow the convention of \cite{hale2006} and define centered correlations:
+%%%
+\beq
+  c(\tau) = (f\star g)(\tau) = \int \limits_{-\infty}^{\infty} f(t' -\tau/2)g(t'+\tau/2) dt'. 
+  \label{eqn:gcorr}
+\eeq
+%%%
+The correlation function $c(\tau)$ gives us a general sense of the similarity
+between $f(t)$ and $g(t)$. Alternatively, one can estimate the similarity in a
+localized way \citep{hale2006}, by capturing how the two signals are
+related to each other along the time axis:
+%%%
+\beq
+ c(t,\tau) = (f \star_l g)(t,\tau) = \int \limits_{-\infty}^{\infty} w(t'-t) f(t'-\tau/2) g(t'+\tau/2)dt', 
+ \label{eqn:lcorr} 
+\eeq 
+%%%
+where $w(t'-t) \equiv e^{-\tau^2/4\sigma^2}e^{-(t'-t)^2/\sigma^2}$ is a
+Gaussian window centered at $t'$ and $\sigma$ its standard deviation.
+ As $\sigma\rightarrow \infty$, the local correlations behave
+like the global correlations at each time $t$, i.e. they are invariant with
+respect to time $t$. This localized formulation is equivalent to convolving the
+shifted product $h_\tau(t') = f(t'-\tau/2)g(t'+\tau/2)$ with a Gaussian window:
+$ c(t,\tau) = (G * h_{\tau})(t)$. The convolution is efficiently implemented
+using recursive Gaussian filters (for which the convolution cost is independent
+of the Gaussian half-width $\sigma$) \citep{hale2006recursive}. One can think
+about \req{lcorr} as a linear operator defined as ${\bf c} = {\bf C g}={\bf G
+}{\bf S} {\bf g}$, where $\bf C= G S$ is the local correlation matrix, $\bf G $ is
+a block diagonal matrix (with each block being a convolution matrix with the
+Gaussian function), and $\bf S$ contains shifted versions of $f$. The transposed
+(adjoint) operator ${\bf C}^\top$ implements a local convolution as ${\bf
+C}^\top = {\bf S}^\top {\bf G}$. By construction, the matrix $\bf G$ is SPD
+since all of the blocks are SPD: hence, ${\bf G}^\top = \bf G$. Mathematically,
+ the adjoint operator is implemented as follows:
+\beq
+  f^* (t)  = \int \limits_{\tau_{min}}^{\tau_{max}} \lp \int\limits_{-\infty}^{\infty} w(t'-t+\tau/2) c(t'+\tau/2,\tau) dt' \rp g(t+\tau) d\tau,  
+  \label{eq:adjt}
+\eeq
+where $\tau_{min}$ and $\tau_{max}$ are the minimum and maximum time-lags, respectively, and $f^*$ represents the adjoint of $f$. 
+
+
+\inputdir{paperIV}
+\multiplot{4}{f,g,gcorr,lcorr}{width=0.45\textwidth} {Signals
+(a) $f(t)$ and (b) $g(t)$ to exemplify the correlation functions, (c) is the
+global correlation $f\star g$ (invariant with time), and (d) $f\star_l g$ is
+the local correlation with a Gaussian window with $\sigma=0.3s$.}
+
+
+
+
+
+\rfg{gcorr} shows the global correlation between the signals in \rFgs{f} and
+\ref{fig:g}. Note that the global correlation is time-invariant and contains
+crosstalk between events (around $\tau=-0.3$s and $\tau=0.3$s); the crosstalk is
+captured because the correlation lags are big enough to facilitate interference
+between different events. In contrast, \rFg{lcorr} shows the local correlation
+between $f(t)$ and $g(t)$; no crosstalk is observed because the Gaussian
+window prevents interference between distant events. However, it 
+is still possible to observe crosstalk between events using local correlations if the events
+lie within the correlation window of standard deviation $\sigma$.
+
+\subsection{Tomography setup}
+
+Here, I  show the application of correlation functionals for the 
+inverse tomographic problem under the physics of the acoustic wave equation (equation~\ref{eq:we}).
+ For the remainder of this chapter, I 
+express the wave equation as the linear operator $\Lop(\m)$ with its corresponding
+adjoint (time reversal) operator $\Lop^\top(\m)$.
+ I design a correlation-based objective
+function that maximizes the correlation between observed and modeled data:
+%%%
+\beq
+  J(\m) = \frac{\ltnorm{P(\tau) d^{o}\star_l d^{\m}}}
+           {\ltnorm{d^{o}\star_l d^{\m}}}=
+          \frac{\ltnorm{ {\bf P C d^\m}}}{\ltnorm{{\bf C d^\m}}},
+  \label{eqn:of}
+\eeq
+%%%
+where $P(\tau)$ is a penalty operator that enhances energy outside $\tau=0$
+(which I want to minimize), $\m$ is the model parameter, and $d^o(e,\xx_r,t)$
+and $d^m(e,\xx_r,t)$ are the observed and modeled data for each experiment $e$,
+respectively. The correlation matrix $\bf C$ is built using shifted versions
+of the observed data $d^o$ along with the Gaussian convolution, as defined
+by the process in equation~\ref{eqn:lcorr}. The application of the penalty
+operator $P(\tau)$ is equivalent to a diagonal penalty matrix $\bf P$. Here,
+the L2 norm squared $\ltnorm{.}$ is defined over receiver coordinates $\xx_r$,
+experiment index $e$, time $t$, and correlation lag $\tau$.
+
+ The objective function in equation~\ref{eqn:of} is similar to that of
+\cite{Tristan} except that I use local instead of global
+correlation, and I normalize the denominator. The normalization
+balances the objective function by the energy of the correlation function
+\citep{warner}. This step eliminates the objective function bias for positive
+and negative errors.
+
+To solve the optimization problem, I use gradient descent methods. 
+Similar to the previous chapter, I use the adjoint
+state method framework \citep{plessix} to obtain the gradient by
+defining the problem under equality constraints given by the wave equation as
+%%%
+\beq
+  \begin{aligned}
+    & \underset{\m}{\text{minimize}}
+    & & J(\m) \\
+    & \text{subject to}
+    & & \L u = \fs.
+  \end{aligned}
+\eeq
+%%%
+ These constraints satisfy the wave equation for the modeled data $d^\m$ for
+every experiment $e$. The augmented functional $A$ is defined as
+\beq
+  A(u_s,a_s,\m) = J(\m)  - \sum_e< a_s, \L u_s -s >,
+  \label{eqn:lagrangian}
+\eeq
+from which one obtains the appropriate Lagrange multipliers $a_s(e,\xx,t)$        
+(adjoint wavefields) that satisfy the constrained equation. We use the notation $<.,.>$ 
+for the dot product between two vectors.
+
+The stationary points of the Lagrangian provides the equations to solve 
+the problem. The first condition
+\beq
+\frac{\partial A }{\partial a_s} =0
+\eeq  
+leads to the state variable problem 
+\beq
+  \Lop (\m) u_s(e,\xx,t) = s(e,\xx,t)
+\eeq
+for each experiment $e$. The second condition
+\beq
+ \frac{\partial A }{\partial u_s} = 0
+\eeq
+leads to the adjoint state variable system
+\beq
+  \Lop^\top(\m) a_s(e,\xx,t) = g_s(e,\xx,t),
+\eeq
+where $g_s(e,\xx,t)$ is the adjoint source for this specific choice of objective
+function.
+ The adjoint sources are given by
+\beq
+  g_s = -\frac{1}{\ltnorm{{\bf C }d^\m}}{\bf C^\top}\lp {{\bf P^\top P} -J{\bf I}}\rp {\bf C } d^\m. 
+\eeq
+%%
+ This expression tells us to twice penalize the correlation and subtract
+the value of the objective function from it before computing the adjoint
+correlation. This process effectively balances the influence between the
+numerator and denominator in the adjoint source. At early iterations, when $J$
+is larger, the norm of the correlation has greater influence on the adjoint
+source; as iterations continue, the penalty term becomes more prominent.
+ Once one solves for $u_s$ and
+$a_s$, the gradient of $J$ is computed with the last condition:
+%%
+\beq
+  \frac{\partial A }{\partial \m} = 0,
+\eeq
+from which I obtain the gradient
+\beq
+  \partial_{\m} J= \sum_{t,e} \frac{\partial^2 \us}{\partial t^2}a_s,
+\eeq
+where the double dot indicates the second derivative in time. 
+
+\subsection{Main results}
+
+\rFgs{gr-penaltyBP-global-vel-neg},~\ref{fig:gr-penaltyBP-global-vel-zer},
+and \ref{fig:gr-penaltyBP-global-vel-pos} show the gradients from the global
+correlations. Strong crosstalk between events is visible as high wavenumber
+(reflection-like) events coincident at the free surface and elsewhere. However, the gradients
+from local correlations (\rFgs{gr-penaltyBP-local-vel-neg},~\ref{fig:gr-penaltyBP-local-vel-zer},
+and \ref{fig:gr-penaltyBP-local-vel-pos}) are cleaner and present the correct gradient direction
+without the contamination from crosstalk, which is almost non-existent for the
+chosen window.
+ In this simple setting, I expect two sensitivity paths:
+(1) from source to receiver, and (2) from source to the free surface and
+from the free surface to the receivers. However, one can observe several more
+events in the global correlation gradients. These extra events come from the
+crosstalk present in global correlations, which is then propagated into the
+adjoint wavefields. 
+
+\multiplot{6}{gr-penaltyBP-global-vel-neg,gr-penaltyBP-local-vel-neg,gr-penaltyBP-global-vel-zer,gr-penaltyBP-local-vel-zer,gr-penaltyBP-global-vel-pos,gr-penaltyBP-local-vel-pos}{width=0.48\textwidth} {Sensitivity kernels for an
+experiment with free surface boundary condition and a Gaussian anomaly placed
+in between the source and the receiver (for which the surface reflection
+event is not sensitive). The left and right columns show gradients for global
+ and local correlations, respectively. From top to bottom, the
+gradients correspond to low, correct, and high velocity.}
+
+
+Local as opposed to global correlations provide cleaner measures of similarity
+between two functions. The main difference is that local correlation performs
+a local sum instead of summing over all the time samples. This is the key to
+eliminating the comparison between unrelated seismic events present in the
+observed and modeled data. This feature allows to extract local kinematic
+errors that are more instructive than the misfit extracted using global
+correlations. Less cross-talk in the correlations translates into cleaner
+adjoint sources, which can produce more informative model updates than those of
+global correlation framework.
+ The adjoint operator for the local correlations method suggests several
+possible applications including objective functions based on local deconvolution,
+ which extends further to local-matched filters applications. 
+
+
+
+
+
+
+
+
+\newpage
+\section{3- Extended wavefield imaging using Marchenko wavefields}
+
+
+
+
+In this section, I introduce the Marchenko modeling framework which is able to correctly
+handle primaries, internal, and surface-related multiples. The modeling operator
+contains similarities with that of finite difference extrapolation from 
+equation~\ref{eq:we}.
+ The work of \cite{Singh2015} extendends the one of \cite{Fil2012} to handle surface-related
+multiples. Their method
+describes the total Green's function $G(\xx,e,\omega)$ which includes
+primaries, internal, and surface-related multiples. One can think about the total
+field $G$ as the sum of the wavefields $\US$ and $\UR$ from previous chapters. 
+ The main difference is how the wavefields $\US$ and $\UR$ are obtained. 
+ Here, the experiment index $e$ is characterized by its coordinate at the 
+surface ($z=0$) $\xx_0$. 
+
+
+For every point $\xx$ in the total wavefield $G$ one wants to solve for, two focusing $f_1$ and $f_2$ solutions are first found. 
+The focusing function $f_1$ is a solution to the wave equation that produces a wavefield which completely 
+focuses at point $\xx$, given data at the surface $\xx_0$. Alternatively, the focusing function
+ $f_2$ produces a focused wavefield at the point $\xx_0$, given a reflection response 
+from level $\xx$. 
+
+Once the focusing solutions are found through the algorithm described by \cite{wapenaar2014green} (and 
+extended by \cite{Singh2015} to handle free surface multiples), the upgoing and downgoing 
+components of the Green's function G are found. The directional components are complementary and satisfy 
+the relation
+\beq
+ G(\xx,e,\omega) = \US(\xx,e,\omega) +\UR(\xx,e,\omega).
+\eeq
+
+Here, the wavefield $\UR$ represents the upgoing component of the Green's function, 
+whereas $\US$ represents the downgoing component. 
+ Following the imaging principle \citep{unified} the image $R(\xx)$ can be constructed 
+where both wavefields coincide in space and time (or frequency $\omega$): 
+\beq
+  R(\xx) = \sum_{e,\omega}  \US(\xx,e,\omega)\overline{\UR}(\xx,e,\omega),
+\eeq
+where $\overline{\UR}$ is the complex conjugate of $\UR$. Alternatively, the 
+image can be found through the process of Multi Dimensional Deconvolution (MDD) proposed in \cite{Joost},
+which solves the following linear problem:
+\beq
+ \UR(\xx',e,t) = \int_{\partial D_i} d\xx \int_{-\infty}^{\infty}  \US(\xx,e,t-t') R(\xx',\xx,t') dt'.
+\label{eq:mdd} 
+\eeq
+Once the reflection response is found, the seismic image is defined as  
+\beq
+R(\xx) = R(\xx,\xx'=\xx,t'=0). 
+\eeq
+Equation \ref{eq:mdd} finds a reflectivity response that obbeys the scattering relation between 
+the source wavefield and the receiver wavefield at the reflector position. It simply says that
+the scattered wavefield $\UR$ must be equal to the incident wavefield $\US$ scaled by the 
+reflection coefficient $R$. Since we deal with bandlimited wavefields, the integration over
+positions $\xx$ and  time lag $t'$ implies that the influence of the reflectivity in the
+scattered wavefield does not arise from an unique point, instead it generates over an 
+area and around the time where both wavefields coincide. This relation must be satisfied for
+every experiment index $e$; hence, it must be solved in a least squares sense.  
+
+
+\subsection{Connecting Marchenko and conventional imaging}
+
+In terms of imaging, the reflectivity response in equation~\ref{eq:mdd} clearly resembles
+the extended image found in equation~\ref{eq:eic}. The extended imaging condition can 
+be directly applied to the Marchenko wavefields in the same way as with conventional
+finite difference extrapolated wavefields.
+ Redefining $\xx' = \xx + \hh$ and  $t'=\tau$ and substituting it in equation~\ref{eq:mdd} yields
+a relation similar to the adjoint of the extended imaging condition (equation \ref{eq:adj1}).
+
+More importantly, the reflection response $R(\xx,\xx',t')$ contains important information
+about the background model, and can be used for tomography. The main difference between
+the MDD reflection response $R(\xx,\xx',t')$ and the extended images $R(\xx,\hh,\tau)$ is that the ealier 
+better honors the dynamic information encoded in the wavefields than the later one.  
+
+
+\subsection{Preliminary results}
+
+Figures \ref{fig:00_low}-\ref{fig:02_high} show an application of the extended imaging
+condition to the Marchenko wavefields. The three images indicate the sensitivity of the 
+method to velocity errors of -20\%, 0\%, and +20\%, respectively. 
+ The possibility of measuring velocity errors opens avenues for research 
+in tomography. The original model contains 3 layers with strong scattering producing 
+internal and surface-related multiples. The obtained results show 
+that the Marchenko wavefields accuracy still depends on the background 
+model. The moveout in the gathers is similar to that obtained with conventional
+wavefields. The main difference is, that despite the strong scattering 
+in the medium, the gathers only show 2 interfaces (the multiples are weak). 
+
+
+
+
+
+\inputdir{marchenko}
+
+\multiplot{3}{00_low,01_correct,02_high}{width=0.3\textwidth}%
+{Preliminary results showing the sensitivity of the imaging process using the Marchenko modeling 
+framework to errors in the background model: (a) a -20\% velocity error, (b) the correct 
+background velocity, and (c) a +20\% velocity error. Note how the multiples below the deepest
+reflector are very weak with respect to the amplitude of the imaged interfaces. }
+
+\newpage
+\section{4- Wavefield tomography with multiple scattered waves}
+ Multiple scattered wavefields travel through the earth
+along many different paths compared to the limited paths experienced by 
+single scattered waves. If one could use the full scattering 
+nature of the recorded data, the sensitivity to errors in the
+background model can greatly increase. 
+In order to understand the increase in sensitivity, let us
+consider a simple synthetic example. 
+\rfgs{vel}-\ref{fig:den} show a velocity and a density model, respectively.
+ The reflectivity in the model comes from the density contrast. The source 
+and receiver coordinates are located in the surface $6km$ apart from each 
+other at $\xx_s=(1.0,0.0)$km and $\xx_r=(7.0,0.0)$km, respectively. 
+
+ In order to recreate a Born modeling experiment (single scattering), I 
+use an absorbing boundary condition at the surface during finite difference. Likewise,
+ to understand the multiple scattering case, I use a free surface boundary condition. 
+  To recreate the sensitivity kernels, I first model data from the source location $\xx_s$ 
+and record it at the receiver location $\xx_r$. Later, I backward propagate the data
+into the model. Then, I obtain the kernels by correlating the forward propagated
+wavefield with the backpropagated recorded wavefield. I only keep the correlation 
+of events that travel along the same direction in space  and time. 
+   \rfg{ss-xx-kernel-fsm} shows the kernel obtained in the single scattering 
+mode (absorbing boundary condition). It shows that the reflection is likely 
+to happen not on a point, but rather on an area in the reflector located at $z=1km$. The
+spread of the kernel is related to the bandwidth present in the data, the larger the bandwidth
+the narrower the kernel paths become. The kernel says that any property outside the correlation
+path should not change the recorded wavefield at receiver $\xx_r$. 
+
+\rfg{ss-xx-kernel-f} shows the kernel for the data recorded with a free surface boundary
+condition. The correlation samples the same path as in the Born case and at the same time
+it adds different combinations of wavefields that bounce in the surface and are recorded are  $\xx_r$. 
+ It shows that the sensitivity of the multiple-scattered data to the background model is much 
+greater than that of the Born scattered data.  
+
+
+
+
+
+\inputdir{kernels}
+\multiplot{4}{vel,den,ss-xx-kernel-fsm,ss-xx-kernel-f}{width=0.9\textwidth}%
+{Band limited sensitivity kernels: (a) shows the background velocity model, (b) is the density model, (c) is an image
+kernel under the single scattering assumption connecting source $\xx_s =(1.0,0)$km  and
+  image point $\xx=(4.0,1.0)$km with receiver point at $\xx_r=(7.0,0.0)$km, and (d) the sensitivity 
+kernel connecting $\xx_s-\xx-\xx_r$ with every possible path given by the multiples and primaries. }
+
+
+\subsection{Retrieving the rough components of the model}
+  The Marchenko wavefields follow the kinematics of the background model used to retrieve
+the direct arrivals from each point $\xx$ one is interested for imaging. Interestingly, the 
+retrieved wavefield show reflections (of any sort) even if the background model
+is smooth. The reflections are predicted by the recorded data during the solution of the
+Marchenko equation. 
+ 
+ That means that the wavefields follow the background model and at the same time follow
+the reflectivity of the original model. This can be defined as
+\beq
+    u = \US+\UR  = u_0 +\delta u
+\eeq
+where $u$ is the total Marchenko wavefield, $u_0$ is the wavefield from the background model, and 
+ $\delta u$ the scattered wavefield. Hence, if the background model $\m_0$ explains the 
+kinematics of the true model, then the retrieved wavefield follows the homogeneous wave equation 
+for the true model:
+\beq
+    \m(\xx) \omega^2 u(\xx,e,\omega) +\nabla^2 u(\xx,e,\omega) =0.
+\eeq 
+
+The model $\m$ can be solved directly in a least squares sense for every experiment $e$. Alternatively,
+ one could solve for the perturbation $\delta \m$ that explains the wavefield $u$:
+\beq
+    (\m_0(\xx) + \delta \m (\xx)) \omega^2 u(\xx,e,\omega) +\nabla^2 u(\xx,e,\omega) =0,
+\eeq
+\beq
+    -\delta \m (\xx) \omega^2 u(\xx,e,\omega)  = \m_0 (\xx) \omega^2 u(\xx,e,\omega)  + \nabla^2 u(\xx,e,\omega)
+  \label{eq:nlb}
+\eeq
+Equation ~\ref{eq:nlb} resembles the Born modeling formula. In Born modeling, the incident wavefield (left hand side) is 
+approximated by the background wavefield  $u_0$:
+\beq
+    -\delta \m (\xx) \omega^2 u_0(\xx,e,\omega)  = \m_0 (\xx) \omega^2 u(\xx,e,\omega)  + \nabla^2 u(\xx,e,\omega).
+  \label{eq:lb}
+\eeq
+Here, no approximation is needed since the total wavefield $u$ is solved independently through the Marchenko modeling framework. 
+Solving equation ~\ref{eq:nlb} for the perturbation $\delta\m$ can be regarded as a nonlinear inversion were 
+all scattered modes are used for the inversion, as opposed to least squares inversion were only the single scattered
+field is used. 
+
+

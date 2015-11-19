@@ -1,0 +1,63 @@
+\input{Share/pcsmacros}
+\include{pythonlisting}
+
+\huge
+\pgfdeclareimage[height=0.85in]{mypic}{esteban}
+\linethickness{0.2mm}
+
+\title[]{ LSM }
+\author[]{Esteban  D\'{i}az}
+\institute{Center for Wave Phenomena, 
+Colorado School of Mines 
+}
+\date{}
+\logo{}
+
+
+\def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
+\def\cen#1{\begin{center}        \textbf{#1} \end{center}}
+
+% ------------------------------------------------------------
+\mode<beamer> { \cwpcover }
+
+\begin{frame}
+ \[
+    J(\delta u,\m) = \ltnorm { K(d -\delta u)}
+  \]
+\end{frame}
+
+
+
+\begin{frame}
+ \[
+    A(\delta u,\delta m, a) = J(\delta u,\m) - <a,L \delta u +\partial^2_t u_o \delta m> 
+  \]
+\end{frame}
+
+
+\begin{frame}
+  $\partial_{a } A =0$
+
+  \[
+    L \delta u =-\partial^2_t u_o \delta m
+  \]
+\end{frame}
+
+\begin{frame}
+  $\partial_{\partial u } A =0$
+
+  \[
+    L^\top a = K^T K(d - \delta u)
+  \]
+\end{frame}
+\begin{frame}
+  $\partial_{\delta m } A =0$
+
+  \[
+    \partial_{\delta m} J = \sum_t \partial^2_t u_0 a
+  \]
+\end{frame}
+
+
+
+

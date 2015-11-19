@@ -47,8 +47,6 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 	#endif
 	#include "fft1.h"
 
-	void fft1 (float *, float *, sf_file, bool, bool, bool);
-
 	int main(int argc, char* argv[])
 	{
 
@@ -64,7 +62,7 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
     float *MS_0, *ms_0, *ms_2, *MS2;
     float *gp1, *gm1;
 		float	*window, *taper, pi;
-		int		*tw;
+		int		*tw,allocated=0;
 
 	    /* I/O files */
 	    sf_file FF_arrival;
@@ -207,40 +205,44 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 	    /* Allocate arrays											  */
 	    /*------------------------------------------------------------*/
 		/* First arrival - Time */
-		F_arrival = (float *)calloc(nt*ntr,sizeof(float));
+		F_arrival = (float *)calloc(nt*ntr,sizeof(float)); allocated+=nt*ntr;
 		sf_floatread(F_arrival,nt*ntr,FF_arrival);
-		ms   = (float *)calloc(nt*ntr,sizeof(float));
-		ms_0 = (float *)calloc(nt*ntr,sizeof(float));
-		ms_2 = (float *)calloc(nt*ntr,sizeof(float));
-		f1m_0= (float *)calloc(nt*ntr,sizeof(float));
-		f1m  = (float *)calloc(nt*ntr,sizeof(float));
-		f1pS = (float *)calloc(nt*ntr,sizeof(float));
-		f1p  = (float *)calloc(nt*ntr,sizeof(float));
-		memcpy(ms,F_arrival,nt*ntr*sizeof(float));
+		ms   = (float *)calloc(nt*ntr,sizeof(float));allocated+=nt*ntr;
+		ms_0 = (float *)calloc(nt*ntr,sizeof(float));allocated+=nt*ntr;
+		ms_2 = (float *)calloc(nt*ntr,sizeof(float));allocated+=nt*ntr;
+		f1m_0= (float *)calloc(nt*ntr,sizeof(float));allocated+=nt*ntr;
+		f1m  = (float *)calloc(nt*ntr,sizeof(float));allocated+=nt*ntr;
+		f1pS = (float *)calloc(nt*ntr,sizeof(float));allocated+=nt*ntr;
+		f1p  = (float *)calloc(nt*ntr,sizeof(float));allocated+=nt*ntr;
+		memcpy(ms,F_arrival,nt*ntr*sizeof(float));allocated+=nt*ntr;
 
 		/* Allocate for coda M of f2 - Frequency */
-		MS   = (float *)calloc(2*nf*ntr,sizeof(float));
-		MS_0 = (float *)calloc(2*nf*ntr,sizeof(float));
-		MS1  = (float *)calloc(2*nf*ntr,sizeof(float));
-		MS2  = (float *)calloc(2*nf*ntr,sizeof(float));
-		F1m_0= (float *)calloc(2*nf*ntr,sizeof(float));
-		F1m  = (float *)calloc(2*nf*ntr,sizeof(float));
-		F1m1 = (float *)calloc(2*nf*ntr,sizeof(float));
-		F1pS = (float *)calloc(2*nf*ntr,sizeof(float));
-		F1p  = (float *)calloc(2*nf*ntr,sizeof(float));
+		MS   = (float *)calloc(2*nf*ntr,sizeof(float));allocated+=2*nf*ntr;
+		MS_0 = (float *)calloc(2*nf*ntr,sizeof(float));allocated+=2*nf*ntr;
+		MS1  = (float *)calloc(2*nf*ntr,sizeof(float));allocated+=2*nf*ntr;
+		MS2  = (float *)calloc(2*nf*ntr,sizeof(float));allocated+=2*nf*ntr;
+		F1m_0= (float *)calloc(2*nf*ntr,sizeof(float));allocated+=2*nf*ntr;
+		F1m  = (float *)calloc(2*nf*ntr,sizeof(float));allocated+=2*nf*ntr;
+		F1m1 = (float *)calloc(2*nf*ntr,sizeof(float));allocated+=2*nf*ntr;
+		F1pS = (float *)calloc(2*nf*ntr,sizeof(float));allocated+=2*nf*ntr;
+		F1p  = (float *)calloc(2*nf*ntr,sizeof(float));allocated+=2*nf*ntr;
 		/* The three flags of fft1 are: inv, sym, and opt */
-		fft1(F_arrival,MS,FF_arrival,0,0,1);
+
+    fft1_init (nt, dt, ot, true, false);
+    fft1_2D_fwd(F_arrival,MS,ntr);
+    //sf_warning("passed fft? yes");
+		//fft1(F_arrival,MS,FF_arrival,0,0,1);
 	/*	memcpy(FA,2*nf*ntr*sizeof(float));*/
 
-      fprintf(stderr,"nt2 is %d\n",nt2);
+    fprintf(stderr,"nt2 is %d\n",nt2);
 		/* Output wavefields */
-		G = (float *)calloc(nt2*ntr,sizeof(float));
-		gp1= (float *)calloc(nt*ntr,sizeof(float));
-		gp= (float *)calloc(nt2*ntr,sizeof(float));
-		gm1= (float *)calloc(nt*ntr,sizeof(float));
-		gm= (float *)calloc(nt2*ntr,sizeof(float));
-		Gp= (float *)calloc(2*nf*ntr,sizeof(float));
-		Gm= (float *)calloc(2*nf*ntr,sizeof(float));
+		G = (float *)calloc(nt2*ntr,sizeof(float));allocated+=nt2*ntr;
+		gp1= (float *)calloc(nt*ntr,sizeof(float));allocated+=nt*ntr;
+		gp= (float *)calloc(nt2*ntr,sizeof(float));allocated+=nt2*ntr;
+		gm1= (float *)calloc(nt*ntr,sizeof(float));allocated+=nt*ntr;
+		gm= (float *)calloc(nt2*ntr,sizeof(float));allocated+=nt2*ntr;
+		Gp= (float *)calloc(2*nf*ntr,sizeof(float));allocated+=nf*ntr;
+		Gm= (float *)calloc(2*nf*ntr,sizeof(float));allocated+=nf*ntr;
 
 
 		
@@ -254,36 +256,17 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 	    
 		/* Load the reflection response into the memory */
 		if (verb) fprintf(stderr,"Before loading R %d\n",2*nf*ntr);
-		Refl = (float *)calloc(2*nf*ntr*nshots,sizeof(float));
+		Refl = (float *)calloc(2*nf*ntr*nshots,sizeof(float));allocated+=2*nf*ntr*nshots;
 		
 		/* Read REFL_000.rsf */
-		filename1 = sf_getstring("refl");
-		/* 000.rsf are 7 characters */
-		len = strlen(filename1)-7;
-		/* copy the filename without 000.rsf */
-		strncpy(filename2,filename1,len);
-		filename2[len] = '\0';
-		if (verb) fprintf(stderr,"filename2 is: %s and len is: %d\n",filename2,len);
-		/*if (NULL == filename1) {
-			fprintf(stderr,"Cannot read header file %s",filename1);
-		}*/
-	  
-		for (ishot=0; ishot<nshots; ishot++) {
-      /* write xxx.rsf in the string filename3 */
-      sprintf(filename3,"%03d.rsf\0",ishot);
-      for (i=0; i<7; i++)
-      	filename2[len+i] = filename3[i];
-      	filename2[len+7] = '\0';
-      if (verb && (ishot % 100 ==0)) fprintf(stderr,"Loaded up to %s in memory\n",filename2);
-      FRefl = sf_input(filename2);
-      sf_floatread(&Refl[ishot*2*nf*ntr],2*nf*ntr,FRefl);
-      sf_fileclose(FRefl);
-      /*if (verb) fprintf(stderr,"Iteration %d\n",ishot);*/
-		}
+    FRefl = sf_input("refl");
+    sf_warning("reading refl");
+    sf_floatread(Refl,2*nf*nshots*ntr,FRefl); 
+    sf_warning("read refl");
 
 		/* Build time-window */
-		tw = (int *)calloc(ntr,sizeof(int));
-		window = (float *)calloc(nt*ntr,sizeof(float));
+		tw = (int *)calloc(ntr,sizeof(int)); allocated+=ntr;
+		window = (float *)calloc(nt*ntr,sizeof(float));allocated+=nt*ntr;
 		/*memset(window,0,nt*ntr*sizeof(float));*/
 	    /* I am not sure why I set it to this value */
 		/*for (ix=0; ix<ntr; ix++) {
@@ -301,6 +284,7 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
         }
 			}
 		}
+
 		if (verb) fprintf(stderr,"---> Build time-window1\n");
 		for (ix=0; ix<ntr; ix++) {
 			twc = (int)(tw[ix]-shift-10);
@@ -341,7 +325,9 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 		/* Tapering */
 		pi = 4.0*atan(1.0);
 		
-		taper = (float *)calloc(ntr,sizeof(float));
+		taper = (float *)calloc(ntr,sizeof(float));allocated+=ntr;
+    sf_warning("estimated memory: %f bytes",allocated*4.0f);
+
 		memset(taper,0,ntr*sizeof(float));
 
 		for (ix=0; ix<tap; ix++) {
@@ -388,9 +374,9 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 					} /* End of loop over frequencies */
 				} /* End of loop over receivers (traces) */
 			}
-      // Inverse fft
-			fft1(F1m_0,f1m_0,FRefl,1,0,1);
-			fft1(MS2,ms_2,FRefl,1,0,1);
+
+      fft1_2D_inv (F1m_0, f1m_0,ntr);
+      fft1_2D_inv (MS2, ms_2,ntr);
 
 			#ifdef _OPENMP
 			#pragma omp parallel for private(ix,it) \
@@ -406,8 +392,9 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 					f1m[it+ix*nt] = f1m_0[it+ix*nt];
 				}	
 			}
-			
-			fft1(f1m,F1m,FF_arrival,0,0,1);
+		  fft1_2D_fwd(f1m,F1m,ntr);
+	
+			//fft1(f1m,F1m,FF_arrival,0,0,1);
 
 
 	/* initialise MS the coda for f1+ */
@@ -438,7 +425,9 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 					} /* End of loop over frequencies */
 				} /* End of loop over receivers (traces) */
 			}
-			fft1(MS_0,ms_0,FRefl,1,0,1);
+
+		  fft1_2D_inv(MS_0,ms_0,ntr);
+			//fft1(MS_0,ms_0,FRefl,1,0,1);
 
 			#ifdef _OPENMP
 			#pragma omp parallel for private(ix,it) \
@@ -454,7 +443,8 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 				}	
 			}
 			
-			fft1(ms,MS,FF_arrival,0,0,1);
+		  fft1_2D_fwd(ms,MS,ntr);
+
 
 
 	if (verb) fprintf(stderr,"---> Beginning Iteration\n");
@@ -497,7 +487,8 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 			} /* End of loop over shot positions */
 
 			/* Get time domain output of f1m and ms */
-			fft1(F1m1,f1m,FRefl,1,0,1);
+		  fft1_2D_inv(F1m1,f1m,ntr);
+
 			
 			#ifdef _OPENMP
 			#pragma omp parallel for private(ix,it) \
@@ -510,7 +501,7 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 				}	
 			}
 			
-			fft1(f1m,F1m,FF_arrival,0,0,1);
+		  fft1_2D_fwd(f1m,F1m,ntr);
 
 			for (ishot=0; ishot<nshots; ishot++) {
 		
@@ -542,7 +533,8 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 			} /* End of loop over shot positions */
 
 			/* Get time domain output of f1m and ms */
-			fft1(MS1,ms,FRefl,1,0,1);
+		  fft1_2D_inv(MS1,ms,ntr);
+
 			
 			#ifdef _OPENMP
 			#pragma omp parallel for private(ix,it) \
@@ -554,8 +546,7 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 					ms[it+ix*nt] =-ms_2[it+ix*nt]+ scale*window[it+ix*nt]*(ms[it+ix*nt]);  
 				}	
 			}
-			
-			fft1(ms ,MS ,FF_arrival,0,0,1);
+		  fft1_2D_fwd(ms,MS,ntr);
 
 			if(iter%4==0) fprintf(stderr,"Iteration %d\n",iter);
 
@@ -574,7 +565,8 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 				/* note  this is the time reverse version of f1p */
 			}	
 		}
-		fft1(f1pS,F1pS,FF_arrival,0,0,1);
+		fft1_2D_fwd(f1pS,F1pS,ntr);
+
 
 	/* to get G by looping over shots */
 		memset(Gp,0,2*nf*ntr*sizeof(float));
@@ -609,9 +601,8 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 					} /* End of loop over frequencies */
 				} /* End of loop over receivers (traces) */
 			}
-			fft1(Gp,gp1,FRefl,1,0,1);
-			fft1(Gm,gm1,FRefl,1,0,1);
-
+		  fft1_2D_inv(Gp,gp1,ntr);
+		  fft1_2D_inv(Gp,gm1,ntr);
 		if (Pf1) { 
 			if (verb) fprintf(stderr,"---> Build f1p\n");
 			for (ishot=0; ishot<nshots; ishot++) {
@@ -635,7 +626,7 @@ sfmarchenko < downgoing.rsf refl=REFL_000.rsf conj=y verb=n Gtot=y niter=21 nsho
 					} /* End of loop over frequencies */
 			}
 		}
-			fft1(F1p,f1p,FRefl,1,0,1);
+		  fft1_2D_inv(F1p,f1p,ntr);
 	 
 
 

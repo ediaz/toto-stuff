@@ -55,6 +55,9 @@ psava@mines.edu
 % Norm symbol
 \newcommand{\norm}[1]{\left|\left|#1\right|\right|}
 
+% Norm symbol
+\newcommand{\normx}[2]{\left|\left|#1\right|\right|^{2}_{#2}}
+\newcommand{\ltnorm}[1]{\normx{#1}{2}}
 
 %\def\req#1{(\ref{#1})}
 
@@ -693,7 +696,7 @@ a_x \; a_y \; a_z
 \def\model{m}
 \def\data {d}
 
-\def\Lop{ {\mathbf{L}}}
+\def\Lop{ {\L}}
 \def\Sop{ {\mathbf{S}}}
 \def\Eop{ {\mathbf{E}}}
 \def\Iop{ {\mathbf{I}}}

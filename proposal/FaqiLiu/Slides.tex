@@ -1,0 +1,117 @@
+\input{Share/pcsmacros}
+\include{pythonlisting}
+
+\huge
+\pgfdeclareimage[height=0.85in]{mypic}{esteban}
+\linethickness{0.2mm}
+
+\title[]{ Sensitivity kernels from multiples }
+\author[]{Esteban  D\'{i}az}
+\institute{Center for Wave Phenomena, 
+Colorado School of Mines 
+}
+\date{}
+\logo{}
+
+
+\def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
+\def\cen#1{\begin{center}        \textbf{#1} \end{center}}
+
+% ------------------------------------------------------------
+\mode<beamer> { \cwpcover }
+
+\inputdir{kernels}
+
+\begin{frame}
+  \plot{den}{width=\textwidth}{\klabel{60}{-5}{density}}
+\end{frame}
+
+
+\begin{frame}
+  \plot{vel}{width=\textwidth}{\klabel{60}{-5}{velocity}}
+\end{frame}
+
+\begin{frame}
+  \plot{ss-xx-kernel-fsm}{width=\textwidth}{\klabel{50}{-5}{Born scattered}}
+\end{frame}
+
+\begin{frame}
+  \plot{ss-xx-kernel-f}{width=\textwidth}{\klabel{50}{-5}{Multiple scattered}}
+\end{frame}
+
+
+\begin{frame}
+  \plot{kernel-full}{width=\textwidth}{\klabel{50}{-5}{Multiple scattered}}
+\end{frame}
+
+
+
+\begin{frame}
+  (Liu et al., 2011)
+
+  $S(x,z,t)$:
+  \[
+    S_{+}(x,k_z,t) = 
+    \begin{cases}
+    S(x,k_z,t)      & \quad \text{if } k_z\geq0\\
+    0               & \quad \text{if } k_z < 0
+  \end{cases}
+  \]
+
+  \[
+    S_{-}(x,k_z,t) = 
+    \begin{cases}
+    0               & \quad \text{if } k_z\geq0\\
+    S(x,k_z,t)      & \quad \text{if } k_z < 0
+  \end{cases}
+  \]
+\end{frame}
+
+
+\begin{frame}
+  (Liu et al., 2011)
+
+  $R(x,z,t)$:
+  \[
+    R_{+}(x,k_z,t) = 
+    \begin{cases}
+    R(x,k_z,t)      & \quad \text{if } k_z\geq0\\
+    0               & \quad \text{if } k_z < 0
+  \end{cases}
+  \]
+
+  \[
+    R_{-}(x,k_z,t) = 
+    \begin{cases}
+    0               & \quad \text{if } k_z\geq0\\
+    R(x,k_z,t)      & \quad \text{if } k_z < 0
+  \end{cases}
+  \]
+\end{frame}
+
+
+\begin{frame}
+\[
+  I(\xx) = \sum_t S^*_+ (\xx,t) R_- (\xx,t) + S^*_- (\xx,t) R_+ (\xx,t)
+\]
+\end{frame}
+
+
+\begin{frame}
+  \plot{kernel-full}{width=\textwidth}{\klabel{30}{-5}{full}}
+\end{frame}
+
+\begin{frame}
+  \plot{ss-xx-kernel-fR}{width=\textwidth}{\klabel{30}{-5}{Faqi}}
+\end{frame}
+
+\begin{frame}
+  \plot{ss-xx-kernel-f}{width=\textwidth}{\klabel{30}{-5}{Smooth= Full - Faqi}}
+\end{frame}
+
+\begin{frame}
+  \plot{kernel-full}{width=\textwidth}{\klabel{30}{-5}{full}}
+\end{frame}
+
+
+

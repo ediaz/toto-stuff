@@ -1,6 +1,6 @@
-1.8-svn	sfsegyread	proposal/Satyan/for_marchecko:	ediaz@wl-dhcp-239-4.Mines.EDU	Wed Nov  4 13:41:00 2015
+1.8-svn	sfsegyread	proposal/Satyan/for_marchecko:	ediaz@Estebans-MBP-2.attlocal.net	Wed Nov 18 15:02:36 2015
 
-	n2=196617
+	n2=601
 	data_format="native_int"
 	esize=4
 	in="/var/tmp/tfile@"
