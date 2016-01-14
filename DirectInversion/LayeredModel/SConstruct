@@ -1,0 +1,22 @@
+from rsf.proj import *
+from slides_fig import *
+from rsf.recipes import fdmod
+
+
+par = {'ox':0,'dx':0.004,'nx':601,
+       'oz':0,'dz':0.004,'nz':251,
+       'ot':0,'dt':0.001,'nt':1501}
+
+fdmod.param(par)
+
+slide = slideFig(par,ratio='16:9')
+
+Result('wave',slide.cgrey('pclip=99.8'))
+Result('s2',slide.cgrey('color=E mean=y'))
+Result('ds','window f1=15 n1=221|pad beg1=15 end1=15|'+slide.cgrey('color=E pclip=99'))
+
+Result('s0sm',slide.cgrey('color=E mean=y'))
+
+
+
+End()

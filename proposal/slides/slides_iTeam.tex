@@ -1,0 +1,386 @@
+\input{Share/pcsmacros}
+\include{pythonlisting}
+
+\title[]{Extended imaging with Marchenko fields}
+\subtitle{}
+\author[]{Esteban D\'{i}az}
+\date{}
+\logo{}
+
+
+
+\Large
+
+\def\big#1{\begin{center} \LARGE \textbf{#1} \end{center}}
+\def\cen#1{\begin{center}        \textbf{#1} \end{center}}
+
+% ------------------------------------------------------------
+\mode<beamer> { \cwpcover }
+
+
+\inputdir{XFig}
+
+
+\begin{frame}
+  \plot{f-3}{width=0.7\textwidth}{}
+\end{frame}
+
+\begin{frame}
+  \plot{f-2}{width=0.7\textwidth}{}
+\end{frame}
+
+\begin{frame}
+  \plot{f-1}{width=0.7\textwidth}{}
+\end{frame}
+
+\begin{frame}
+  \plot{f-0}{width=0.7\textwidth}{}
+\end{frame}
+
+\begin{frame}
+  \plot{g+1}{width=0.7\textwidth}{}
+\end{frame}
+
+\begin{frame}
+  \plot{g+2}{width=0.7\textwidth}{}
+\end{frame}
+
+\inputdir{forMarchenko}
+\begin{frame}
+  \plot{ro}{width=0.7\textwidth}{}
+\end{frame}
+
+\begin{frame}
+  \plot{shot250}{width=0.7\textwidth}{}
+\end{frame}
+
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0000}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0000}{width=\textwidth}{\klabellarge{-20}{-15}{$t=0.000s$}}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0001}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0001}{width=\textwidth}{\klabellarge{-20}{-15}{$t=0.100s$}}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0002}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0002}{width=\textwidth}{\klabellarge{-20}{-15}{$t=0.200s$}}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0003}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0003}{width=\textwidth}{\klabellarge{-20}{-15}{$t=0.300s$}}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0004}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0004}{width=\textwidth}{\klabellarge{-20}{-15}{$t=0.400s$}}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0005}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0005}{width=\textwidth}{\klabellarge{-20}{-15}{$t=0.500s$}}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0006}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0006}{width=\textwidth}{\klabellarge{-20}{-15}{$t=0.600s$}}
+\end{columns}
+\end{frame}
+
+
+
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0007}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0007}{width=\textwidth}{\klabellarge{-20}{-15}{$t=0.700s$}}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0008}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0008}{width=\textwidth}{\klabellarge{-20}{-15}{$t=0.800s$}}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0009}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0009}{width=\textwidth}{\klabellarge{-20}{-15}{$t=0.900s$}}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0010}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0010}{width=\textwidth}{\klabellarge{-20}{-15}{$t=1.000s$}}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0011}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0011}{width=\textwidth}{\klabellarge{-20}{-15}{$t=1.100s$}}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0012}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0012}{width=\textwidth}{\klabellarge{-20}{-15}{$t=1.200s$}}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0013}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0013}{width=\textwidth}{\klabellarge{-20}{-15}{$t=1.300s$}}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0014}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0014}{width=\textwidth}{\klabellarge{-20}{-15}{$t=1.400s$}}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0015}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0015}{width=\textwidth}{\klabellarge{-20}{-15}{$t=1.500s$}}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{Gp_perc_100_t-0016}{width=\textwidth}{}
+  \column{0.5\textwidth}
+    \plot{Gm_perc_100_t-0016}{width=\textwidth}{\klabellarge{-20}{-15}{$t=1.600s$}}
+\end{columns}
+\end{frame}
+
+\huge
+\begin{frame}
+  \[ 
+  R(\xx) = \sum_{t,\xx_s} G^+(\xx,\xx_s,t) G^-(\xx,\xx_s,t)
+  \]
+\sep  
+  \itab{$G^+$: downgoing wavefield}\\
+  \itab{$G^-$: upgoing wavefield}\\
+\end{frame}
+
+
+
+
+\begin{frame}
+  \[ 
+  R(\xx) = \sum_{t,\xx_s} \US(\xx,\xx_s,t) \UR(\xx,\xx_s,t)
+  \]
+\sep  
+  \itab{$u_s$: source wavefield}\\
+  \itab{$u_r$: receiver wavefield}
+\end{frame}
+
+
+\begin{frame}
+  \plot{img_perc_100}{width=0.7\textwidth}{}
+\end{frame}
+
+
+\begin{frame}
+  \plot{img_wfl_perc_100}{width=0.7\textwidth}{}
+\end{frame}
+
+
+\begin{frame}
+  \big{errors in the background}
+\end{frame}
+
+\begin{frame}
+  \plot{img_perc_090}{width=0.7\textwidth}{}
+\end{frame}
+
+\begin{frame}
+  \plot{img_perc_100}{width=0.7\textwidth}{}
+\end{frame}
+
+\begin{frame}
+  \plot{img_perc_110}{width=0.7\textwidth}{}
+\end{frame}
+
+
+
+
+
+\begin{frame}
+  \[ 
+  R(\xx,\hh,\tau) = \sum_{t} \US(\xx +\hh,t+\tau) \UR(\xx-\hh,t-\tau)
+  \]
+\sep  
+  \itab{$\bf u_s$: source wavefield}\\
+  \itab{$\bf u_r$: receiver wavefield}\\
+  {\itab{$\hh,\tau$: space and time-lags}} 
+\end{frame}
+
+
+
+\begin{frame}
+  \[
+    {\bf r}_{\hh,\tau} = {\bf I_s} {\bf u_r}  
+  \]
+\sep  
+  \itab{$\bf u_s$: source wavefield}\\
+  \itab{$\bf u_r$: receiver wavefield}\\
+  {\itab{$\hh,\tau$: space and time-lags}} 
+\end{frame}
+
+
+\begin{frame} \frametitle{Multi Dimensional Deconvolution}
+  \[
+   {\bf I_s}^\top {\bf r}_{\hh,\tau} \approx  {\bf u_r}  
+  \]
+\sep  
+  \itab{$\bf u_s$: source wavefield}\\
+  \itab{$\bf u_r$: receiver wavefield}\\
+  {\itab{$\hh,\tau$: space and time-lags}} 
+\end{frame}
+
+\begin{frame} \frametitle{Multi Dimensional Deconvolution}
+  \[
+   {\bf r}_{\hh,\tau} = \lp {\bf I_s} {\bf I_s}^\top \rp^{-1} {\bf I_s}  {\bf u_r}  
+  \]
+\sep  
+  \itab{$\bf u_s$: source wavefield}\\
+  \itab{$\bf u_r$: receiver wavefield}\\
+  {\itab{$\hh,\tau$: space and time-lags}} 
+\end{frame}
+
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{eic_Gm_perc_090}{height=0.8\textheight}{}
+  \column{0.5\textwidth}
+    \plot{eic_wfl_perc_090}{height=0.8\textheight}{}
+\end{columns}
+\end{frame}
+
+
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{eic_Gm_perc_100}{height=0.8\textheight}{}
+  \column{0.5\textwidth}
+    \plot{eic_wfl_perc_100}{height=0.8\textheight}{}
+\end{columns}
+\end{frame}
+
+
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{eic_Gm_perc_110}{height=0.8\textheight}{}
+  \column{0.5\textwidth}
+    \plot{eic_wfl_perc_110}{height=0.8\textheight}{}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+  \big{angle domain}
+\end{frame}
+
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{angle_eic_Gm_perc_090}{height=0.8\textheight}{}
+  \column{0.5\textwidth}
+    \plot{angle_eic_wfl_perc_090}{height=0.8\textheight}{}
+\end{columns}
+\end{frame}
+
+
+
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{angle_eic_Gm_perc_100}{height=0.8\textheight}{}
+  \column{0.5\textwidth}
+    \plot{angle_eic_wfl_perc_100}{height=0.8\textheight}{}
+\end{columns}
+\end{frame}
+
+
+
+
+\begin{frame}
+\begin{columns}
+  \column{0.5\textwidth}
+    \plot{angle_eic_Gm_perc_110}{height=0.8\textheight}{}
+  \column{0.5\textwidth}
+    \plot{angle_eic_wfl_perc_110}{height=0.8\textheight}{}
+\end{columns}
+\end{frame}
+
+

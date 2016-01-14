@@ -66,21 +66,21 @@ of FWI make solving the issue of non-linearity an area of very active research.
 \subsection{Assumptions of conventional imaging and tomography}
 The methods described above rely on the Born modeling approximation, which means that 
 they can accurately image/describe seismic events that scatter only once inside the earth. However,
- the seismic data can contain strong multi-scattering  that reflects in the seismic images 
-in the form of coherent noise, and is characterized by defocusing (or moveout) in the common-image gathers (CIG) . 
+ the seismic data can contain strong multi-scattering  that appears in the seismic images 
+in the form of coherent noise, and is characterized by defocusing (or moveout) in the common-image gathers (CIG). 
  To overcome this problem, before imaging (or before tomography), the multiples (either internal
 or surface-related) are removed from the recorded data \citep{SRME,ArtWeiglein,guitton2005,Herrmann} or from the 
 migrated CIGs \citep{SavaGuitton,Wang,Weibull}. If the multiples are not correctly attenuated, 
 they can contaminate the seismic image and be misleading during the tomographic inversion. 
 
 In Born-based imaging, we assume that the image at point $\xx$ is constructed from the 
-wavepath that originates at the source location $\xx_s$, bounces at image point $\xx$, and is recorded
+wavepath that originates at the source location $\xx_s$, reflects at image point $\xx$, and is recorded
 at the surface at point $\xx_r$. Hence, the image point $\xx$ is illuminated by only 
-one direction. 
+one direction (or around two in the case of multi-pathing due to a low velocity discontinuity). 
  Any other wavepath that connects the source $\xx_s$ and receiver $\xx_r$ at
 the image point $\xx$ is neglected, \rfg{BornImaging}. Alternatively, if we take into account
 all the possible paths that connect the source $\xx_s$ with the receiver $\xx_r$ through the image point $\xx$,
- we can illuminate this point from many different angles, \rfg{MultiImaging}. Illumination from 
+ we can illuminate this point from many other different angles, \rfg{MultiImaging}. Illumination from 
 multiple directions allows to better reconstruct the 
 representation of the scatterer at point $\xx$ during the imaging condition process. 
 
@@ -90,8 +90,8 @@ the image point $\xx$, and from the receiver  $\xx_r$ to the image point $\xx$, 
 that the information extracted at the image point $\xx$ contains limited sensitivity to
 the background model. In contrast, within the multi-scattering framework, the sensitivity of the 
 image point $\xx$ to the background model is along all possible paths that connect
-the source point $\xx_s$ with receiver point $\xx_r$ at image point $\xx$, \rfg{MultiTomo}.
-
+the source point $\xx_s$ with receiver point $\xx_r$ at image point $\xx$, \rfg{MultiTomo},
+ which implies higher sensitivity to the background model parameters. 
 \inputdir{.}
 
 \multiplot{4}{BornImaging,BornTomo,MultiImaging,MultiTomo}{width=0.48\textwidth}%
@@ -134,7 +134,7 @@ In this section, I review the current state of the art in the field of imaging a
 by discussing the trends and approaches that have been developed in recent years. I focus my 
 review on wavefield-based approaches since these methods are of interest in this proposal. The field of 
 imaging and velocity model building is interconnected; usually developments on one side lead to 
-improvements in the other.
+improvements on the other.
 I identify three great categories for wavefield-based approaches
  for velocity model building: data-domain, image-domain, and mixed-domain. 
 
@@ -156,7 +156,7 @@ images. During tomography, the errors are backprojected in the model, producing 
 direction which is used during tomography. 
 In order to keep the backprojection operator consistent with the imaging operator, 
 tomography methods have moved  towards  wavefield-based kernels~\citep{Woodward_1992,SavaBiondi.gp.wemva1,SavaBiondi.gp.wemva2,
-Xie2008FiniteFreqSensitityKernel}. 
+ShenSymes.geo.2008,Xie2008FiniteFreqSensitityKernel,Wiktor,tony_seg:cwp12,perrone2015waveform}. 
 
 Gathers based on subsurface wavefield correlation lag~\citep{rickett:883,sava:S209,GPR:GPR888}
 show the quality of the focusing in the subsurface. \cite{ShenSymes.geo.2008} extend
@@ -183,9 +183,9 @@ imaging.}
 
 Even though FWI is an old concept~\citep{lailly1983seismic,tarantola,
 Pratt99,Sirgue,VirieuxFWI}, 
-it wasn't until the blind test exercise \citep{billette20052004}
+it wasn't until the 2005 EAGE blind test exercise \citep{billette20052004}
 that great attention was drawn to the method. Since then, many articles have been 
-published on the subject \citep{guittonTLE} \red{(this is the introduction article for the TLE 2013 FWI issue)}. The goal of FWI 
+published on the subject. The goal of FWI 
 is extremely ambitious: it aims to find a model that explains all the recorded data
 at the seismic receivers. The oscillatory nature of the seismic wavefields makes the problem
 highly non-linear and very difficult to solve. In order to make the problem more
@@ -205,7 +205,7 @@ They propose to use a sparse set of frequencies that produce a continuous sampli
 of the model wavenumbers  (considering a 1D earth velocity gradient).
  More
 recently, along the same lines, \cite{TariqWavenumber} suggests a multi-scale approach which directly controls
-the model wavenumbers by using a scattering angle preconditioner; in this approach the model is inverted
+the model wavenumbers by using a scattering angle filter; in this approach the model is inverted
 by solving first for low wavenumbers and later for high wavenumbers. \cite{Rocha2015elastic} 
 advocate for a scattering angle filter based on the energy norm. 
  In order to further simplify the 
@@ -219,15 +219,15 @@ FWI problem.
  \cite{Luo91} promote the inversion of the travel-time information, rather
 than the amplitude, by minimizing the lag position of the maximum correlation between
 modeled and observed data. Their approach requires manual picking of the correlation maximum
-at each iteration. \cite{van2010correlation} seek to automatize the method of \citep{Luo91} 
+at each iteration. \cite{van2010correlation} seek to automatize the method of \cite{Luo91} 
 by minimizing the energy of the correlation outside zero lag. This method resemble those 
 of the image domain extended image optimization mentioned above.
 \cite{GJI:GJI4970} make
 an extensive review of several objective functions and analyze their sensitivity 
 for the global seismology tomography. 
 \cite{van2013mitigating} propose to mitigate the local
-minima by changing the optimization
-approach which relaxes the constraints on the wave equation, allowing further matching of the data
+minima problem by changing the optimization
+approach by relaxing the constraints on the wave equation, allowing further matching of the data
 at the receivers. Along the same lines, 
 \cite{simon,warner} propose to minimize the energy of the optimum Wiener filter that
 matches the model data with the observed data. 
@@ -242,7 +242,7 @@ of image-domain inversion  with those of data-domain inversion. \cite{clement}
  pioneered  this approach by proposing to separate the inversion into smooth 
 components (the background model) and rough components (the reflectivity). In performing
 this separation, the background model is not contaminated by the local minima related artifacts. 
- \cite{Xu,HWang,Zhou01092015,Zedong} show examples of this iterative process where 
+ \cite{Xu},\cite{HWang},\cite{Zhou01092015},\cite{Zedong} show examples of this iterative process where 
 the separation of scale is performed and the background model is built together with the
 reflectivity. With a similar motivation, but with an objective function that resembles that of \cite{Luo91},
  \cite{MaWarping} propose to use the same scale separation scheme by driving 
@@ -252,7 +252,7 @@ the traveltime residuals to zero, as opposed to direct waveform matching.
  is described by an extended image. By mapping the data into this extended reflectivity domain, 
  the full Born data can be explained since all the kinematic errors are captured by the image (or model)
 extensions. This modeling operator has been used by \cite{BiondiAli:2014} to construct
-an inversion framework where the data is always matched (because of the model extensions), 
+an inversion framework where the data are always matched (because of the model extensions), 
  but the kinematic inaccuracies are captured by the curvature of the gathers. 
  \cite{FleuryPerrone} develop a framework where both focusing in the  extended images and data matching 
 goals are optimized simultaneously. Instead, \cite{diaz2013data} propose a cascaded 
@@ -283,9 +283,9 @@ stochastic optimization approaches, which might be able to
 of such methods is that they also provide an estimate of the model uncertainty,
 which can be helpful for understanding
 the null space of the problem. On the computational side, a thousands of forward simulations
-must be calculated. However, this could be done efficiently since 
+must be calculated. Even though this could be done efficiently since 
 there is no need to store wavefields (as needed for deterministic 
-solutions). \cite{Sen91} show applications to 
+solutions) is still too costly for today's computers. \cite{Sen91} show applications to 
 1D stochastic inversion; more recently, \cite{stochasticPisa,SenWorkshop} show examples
 of 2D stochastic waveform inversion. In the context of seismic inversion, stochastic inversion
 is greatly employed for reservoir characterization \citep{boschReview}, which could 
@@ -314,19 +314,20 @@ the inverse scattering framework proposed by Vladimir Marchenko \citep{marchenko
 
 The multiples within the Marchenko modeling framework are used 
 together with the primaries in a global prediction procedure \citep{Behura,Wapenaar,Singh2015}.
-The input information to the process is the surface recorded data and 
+The input information to the process are the surface recorded data and 
 a background velocity model. From the background model, the first arrival is 
-computed (e.g., using an Eikonal solver). Once the travel time is computed, the 
-iterative procedure retrieves the Green's function from a point $\xx$ to the receivers $\xx_r$ at the surface. By 
+computed (e.g., by direct finite difference modeling or by using an Eikonal solver \citep{Behura}). Once 
+the travel time is computed, the iterative procedure retrieves the Green's function 
+from a point $\xx$ to the receivers $\xx_r$ at the surface. By 
 computing the Green's functions at every point in the subsurface grid and  by using 
-reciprocity, one can obtain the Green's functions from each point in the surface $\xx_r$ to 
-every point $\xx$ in the subsurface. The retrieved Green's functions are separated 
+reciprocity, one can obtain the Green's functions from each point at the surface $\xx_r$ to 
+every point $\xx$ in the subsurface. The retrieved Green's functions are also separated 
 into upgoing and downgoing components. These components are used for imaging 
 in a way similar to the conventional one-way and RTM wavefield-based approaches. 
  The main difference between Marchenko wavefield and more conventional modeling approaches is that
 the multiples and primaries reflection occur at the right interface, regardless of the 
 accuracy of the background velocity model. However, the consistency between the observation 
-point $\xx_r$ still depends on the background velocity. 
+point $\xx_r$ still depends on the quality of the background velocity. 
 
 
 

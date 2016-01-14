@@ -28,11 +28,11 @@ Flow(['pasurf_cp.su','pasurf_ro.su','pasurf_cs.su'],None,
   OpenSeis+'makemod '+
   '''
   sizex=%(sizex)g sizez=%(sizez)g 
-  dx=%(dx)g dz=%(dx)g cp0=2400 ro0=2000 cs0=0 \
+  dx=%(dx)g dz=%(dx)g cp0=2000 ro0=2000 cs0=0 \
 	orig=%(ox)g,%(oz)g    file_base=pasurf.su \
-	intt=def x=-1200,1200 z=200,200 poly=0 cp=2400 ro=2000 cs=0 \
-	intt=def x=-1200,1200 z=400,400 poly=0 cp=2400 ro=3000 cs=0 \
-	intt=def x=-1200,1200 z=500,500 poly=0 cp=2400 ro=1900 cs=0 \
+	intt=def x=-1200,1200 z=200,200 poly=0 cp=2000 ro=2000 cs=0 \
+	intt=def x=-1200,1200 z=400,400 poly=0 cp=2000 ro=3000 cs=0 \
+	intt=def x=-1200,1200 z=500,500 poly=0 cp=2000 ro=1900 cs=0 \
     verbose=0 
   '''%par)
 models = ['pasurf_cp.su','pasurf_ro.su','pasurf_cs.su']
@@ -137,9 +137,9 @@ Flow('pfarsrc.su',None,
 
 
 
-for model in [0.8,1.0,1.2]:
+for model in [0.9,1.0,1.1]:
   perc = 'perc_%03d'%(model*100)
-  par['vel'] = 2400.0*model
+  par['vel'] = 2000.0*model
   Flow([perc+'_cp.su'],None,
   OpenSeis+'makemod '+
   '''

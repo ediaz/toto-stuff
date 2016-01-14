@@ -1,7 +1,7 @@
 from rsf.proj import *
 from rsf.recipes import fdmod
 from aweOP import aweop2d
-
+from slides_fig import *
 
 par = {'nx':401,'dx':0.02,'ox':0,
        'nz':101,'dz':0.02,'oz':0,
@@ -26,7 +26,6 @@ Flow('den','vel',
   spike nsp=2 mag=1000,2000 k1=0,%(kdepth)d l1=50,101 
   '''%par)
 
-Result('den',fdmod.cgrey('color=j mean=y',par))
 
 
 wav = 'wav'
@@ -102,6 +101,7 @@ Flow('ss-xx-kernel-fR',['ssp_s','ssp_x','ssn_x','ssn_x'],
 
 
 
+slide = slideFig(par,ratio='16:9',font=25)
 
 
 
@@ -143,7 +143,7 @@ Flow('kernel-full',['ss-x_wfl','ss-x_Twfl'],'add mode=p ${SOURCES[1]} |stack axi
 Flow('kernel-fullsm',['ss-x_wflsm','ss-x_Twflsm'],'add mode=p ${SOURCES[1]} |stack axis=3 > tmp.rsf && reverse which=2 opt=i <tmp.rsf |add tmp.rsf |scale rscale=-1 ')
 
 for kernel in ['kernel-full','kernel-fullsm','ss-xx-kernel-fsm','ss-xx-kernel-f','ss-xx-kernel-fR']:
-  Result(kernel,fdmod.cgrey('color=E pclip=99',par))
+  Result(kernel,slide.cgrey('color=E pclip=99'))
 
 
 
@@ -152,6 +152,7 @@ for kernel in ['kernel-full','kernel-fullsm','ss-xx-kernel-fsm','ss-xx-kernel-f'
 
 
 
+Result('den',slide.cgrey('color=j mean=y'))
 
 
 

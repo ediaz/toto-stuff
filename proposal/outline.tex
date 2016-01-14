@@ -8,7 +8,7 @@ is used. Within each box one can see the specific application pointing to the co
 chapter. The arrows connect different concepts and technologies with the corresponding chapter number. }
 
 In this thesis I explore different ways to measure the velocity errors in the subsurface. I 
-use several methods in the image-domain and in the data-domain. I discuss different
+use several methods in the image-domain and in the data-domain. I also discuss different
 modeling operators (two-way and Marchenko). \rfg{Table} shows the links between different
 combinations of modeling operators with the seismic exploration problem of interest, which
 in this thesis is related either to seismic imaging or to wavefield tomography. As 
@@ -74,8 +74,7 @@ waveform tomography in the data-domain. I show an application of the method to s
 and to a marine 2D dataset. The examples shown in this chapter depict a 
 robust wavefield-based tomography approach from long wavenumbers (to which image-domain
 CIP tomography is more sensitive) to short wavenumbers (which data-domain methods
-are more sensitive). Hence, I propose a full wavenumber approach and apply it to a real dataset 
-example. 
+are more sensitive).
 
 \subsection{2- Seismic tomography using local correlation functions (in progress, \cite{DiazLcorr})}
 
@@ -84,17 +83,17 @@ data difference as the misfit criterion. The data difference, however, is
 susceptible to cycle skipping which leads to convergence into local minima. To
 overcome the strong non-linearity, a multi-scale approach to the inversion is
 often needed. The success of this approach relies on the low-frequency content
-of the data. Instead, the data domain tomography misfit criterion
-using local correlations. Correlation-based inversions are less
-sensitive to local minima than difference-based inversions. Correlations,
+of the data. Instead, I propose a data domain tomography misfit criterion
+based on local correlations. Correlation-based inversions are less
+sensitive to local minima than difference-based inversions. Global correlations,
 however, are often contaminated with cross-talk between events; in addition,
 the global correlations give just a general idea of the kinematic errors of
-the model because of the summation along the entire time axis. Alternatively, local
-correlations with Gaussian windows, advocated in this paper, are able to
+the model because of they act on the entire time axis. Alternatively, local
+correlations with Gaussian windows, advocated in this chapter, are able to
 extract the local kinematic errors in the misfit between modeled and observed
 data. Local correlations are also less sensitive to cross-talk of seismic events
 than their global correlation counterpart because the summation is performed
-locally as a function of time. Less correlation cross-talk leads to cleaner
+locally as a function of time. Less correlation cross-talk leads to 
 cleaner gradients. I further improve the gradients
 using a penalty function that is consistent with the bandwidth of the seismic
 data, which is more realistic than linear penalty functions designed to annihilate
@@ -104,25 +103,35 @@ penalty functions applied in the previous chapter for image-domain wavefield tom
 Local as opposed to global correlations provide cleaner measures of similarity between two functions.
 The main difference is that local correlation performs a local sum instead of summing 
 over all the time samples. This is the key to eliminating the comparison between
- unrelated seismic events present in the observed and modeled data. This feature 
+ unrelated seismic events present in the observed and modeled data which produces cross-talk during 
+the gradient computation. This feature 
 allows us to extract local kinematic errors that are 
 more instructive than the misfit extracted using global correlations.
 
 \subsection{3- Extended imaging analysis  using Marchenko wavefields (in progress) }
-In this chapter, I plan to use the wavefields reconstructed in the Marchenko framework
-for extended imaging. I will analyze the links between extended images and Multi Dimensional Deconvolution (MDD). 
+In this chapter, I plan to use wavefields reconstructed in the Marchenko framework
+for extended imaging, i.e., to construct representations of the subsurface that depend
+on the angle of incidence. I will analyze the links between extended images and 
+Multi Dimensional Deconvolution (MDD). The MDD algorithm solves an inverse problem 
+for the extended reflectivity and is constructed in such a way that the incident wavefield
+scaled by the reflectivity explains the scattered field. Instead, the extended
+image is just a correlation between the incident and scattered fields.
  From the MDD response we can extract angle-dependant reflectivity information in 
 a similar way as it is done in extended imaging.
  The reflectivity response from MDD, however, can be potentially more 
 consistent because it comes from an inversion framework during the imaging condition which involves temporal and spatial
-deconvolution. Also, the input Marchenko wavefields are  an expression of the true 
+deconvolution. The process can be applied to wavefields reconstructed with
+any modeling framework; however, I compare the two-way and Marchenko operators
+for this chapter. 
+ The input Marchenko wavefields are  an expression of the true 
 Green's functions warped by the input background model. The redatumed wavefields are 
-consistent with the relative amplitude variations present in the data. Additionally, 
+consistent with the relative amplitude variations present in the data. This fidelity
+can be of great importance when analyzing amplitude variations with angle (AVA). Additionally, 
  the extended images computed from Marchenko wavefields contain better illumination because
 they incorporate the use of internal and surface-related multiples. 
  In this chapter I also analyze the sensitivity of the Marchenko-based extended images
-to errors in the background model which is the first step for a tomography setup. 
-
+to errors in the background model which is the first step for tomographic model
+reconstruction.
 
 
 \subsection{4- Wavefield tomography using multiple scattered waves (in progress)} 
@@ -130,19 +139,19 @@ By properly using multi-scattered waves, one can increase the sensitivity of the
 data to errors in the background velocity model. Usually, the surface-related and internal
 multiples are handled incorrectly by imaging and tomographic operators. The 
 misplaced multiples produce coherent defocused events that drive the inversion
-to the wrong direction. The misplaced multiples under the Born approximation 
-contain a moveout that the tomographic operator interprets as if the background velocity model is too fast.   
+toward lower velocity updates. The misplaced multiples under the Born approximation 
+have a moveout that the tomographic operator interprets as if the background velocity model is too fast.   
  The use of the Marchenko wavefields can potentially overcome this problem since 
 the multiples are imaged at the same place as the corresponding primaries, not only  increasing
 the illumination, but also eliminating the bias in the velocity update. 
  Despite errors or smoothness in the background model, the retrieved Marchenko fields
-contain all the scattering phenomena that is observed in the data. This means that
-this fields obey the wave equation in the background model, but at the same time 
+contain all the scattering phenomena that are observed in the data. This means that
+such fields obey the wave equation in the background model, but at the same time 
 show scattered waves that are an expression of the true recorded reflectivity
 at the surface. Using the full scattering nature of the seismic data 
 can be a big step forward in tomography because it would eliminate all
 multiple removal as a preprocessing step. Instead, one can make use of the multiples
-which at this stage can be regarded as an independent additional dataset. 
+which thus can be regarded as an independent additional dataset. 
 
 
 
