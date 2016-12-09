@@ -1,0 +1,317 @@
+#!/usr/bin/env python
+
+from rsf.proj import *
+#import pcsutil,encode
+from rsf.recipes import fdmod,adcig
+from math import *
+from eicOP import eicop2d
+from aweOP import aweop2d
+from slides_fig import slideFig 
+
+
+#-------------------------
+par ={
+        'dx':4,
+        'nshots':500,
+        'niter':10,
+        'ompnth':7,
+        'ntm1':1800
+        }
+#-------------------------
+par['scale']=(1*par['dx']/(1*997.813))
+OpenSeis = '$CWPROOT/OpenSource/bin/'
+
+#----------------------------------------
+# Here you remove first arrivals (which reduces artifacts from the normalization):
+Flow('Ru1',['data/avelu1.rsf','data/adiru1.rsf'],
+    '''
+    math d=${SOURCES[1]} output="input-d"
+    ''')
+
+Flow('REFL','Ru1',
+  '''
+  scale rscale=%(scale)g |
+  pad beg1=%(ntm1)d |put o1=-1.800|
+  fft1 
+  '''%par)
+
+## first arrival from finite difference modeling (time reversed)
+Flow('tf','fa','pad beg1=1800|put o1=-1.8')
+Flow('tf1','farrival',
+	'''
+	pad beg1=1800|put o1=-1.800 |
+        fft1 |math output="conj(input)" | fft1 inv=y
+	'''%par) 
+
+
+Flow('wav','farrival','window n2=1 |pad beg1=1800 |spike k1=1801 |ricker2 frequency=30|fft1 ')
+Flow('delaywav','wav','math output="input*exp(-2*acos(-1)*x1*I*1)"|fft1 inv=y')
+
+
+
+
+Result('tf','grey')
+Result('tf1','grey')
+
+
+
+par2 = {'ox':-1.0,'dx':0.004,'nx':501,
+        'oz':0.0 ,'dz':0.004,'nz':251,
+        'ot':0.0, 'dt':0.001,'nt':1800,
+        'nhx':30,'nhy':0,'nht':0,'nhz':0,'gaus':'n', 'verb':'y'}
+fdmod.param(par2)
+fdmod.boxarray('gg',par2['nz'],par2['oz'],par2['dz'],par2['nx'],par2['ox'],par2['dx'],par2)
+
+
+
+slide = slideFig(par2,ratio='16:9',font=25)
+
+for model in [0.9,1.0,1.1]:
+  perc = 'perc_%03d'%(model*100)
+  
+  for z in range(0,1000,20):
+    fa = 'data/farrival_z%03d'%z+'_'+perc
+    tf = 'tf_z%03d'%z+'_'+perc
+    Flow(tf,fa,'pad beg1=1800|put o1=-1.8')
+    
+    Flow(['Gp3_z%03d'%z+'_'+perc,'Gm3_z%03d'%z+'_'+perc,'G3_z%03d'%z+'_'+perc],[tf,'REFL'],
+          '''
+          ./sfG_autofocus_toto2 refl=${SOURCES[1]}
+          conj=y twin=y Pf1=y PG=y ompnth=%d niter=%d nshots=%d 
+          scale=%g eps=%g shift=%d verb=y r=%d tap=%d
+          Gm=${TARGETS[1]} G=${TARGETS[2]}  
+          ''' % (par['ompnth'],par['niter'],par['nshots'],1.0,1e-4,-21,-1,151))
+
+  Gp = 'Gp_'+perc
+  G = 'G_'+perc
+  Gm = 'Gm_'+perc 
+  Flow(Gp,map(lambda x:'Gp3_z%03d_'%x+perc,range(0,1000,20)),
+    'cat axis=3 ${SOURCES[1:%d]} | put d3=20 o1=0 |sftransp plane=13 memsize=1000|'%len(range(0,1000,20))
+    +'''
+     put d1=0.02 d2=0.004 o2=-1.0 | 
+     sinc d1=0.004 n1=251 o1=0 
+     ''')
+
+  Flow(Gm,map(lambda x:'Gm3_z%03d_'%x+perc,range(0,1000,20)),
+    'cat axis=3 ${SOURCES[1:%d]} | put d3=20 o1=0 |sftransp plane=13 memsize=1000|'%len(range(0,1000,20))
+    +'''
+     put d1=0.02 d2=0.004 o2=-1.0 | 
+     sinc d1=0.004 n1=251 o1=0 
+     ''')
+
+  Flow(G,map(lambda x:'G3_z%03d_'%x+perc,range(0,1000,20)),
+    'cat axis=3 ${SOURCES[1:%d]} | put d3=20 o1=0 |sftransp plane=13 memsize=1000|'%len(range(0,1000,20))
+    +'''
+     put d1=0.02 d2=0.004 o2=-1.0 | 
+     sinc d1=0.004 n1=251 o1=0 
+     ''')
+
+  Result('img_'+perc,[Gp,Gm],'add mode=p ${SOURCES[1]} |stack axis=3 |'+slide.cgrey(''))
+
+
+
+for model in [0.9,1.0,1.1]:
+  perc = 'perc_%03d'%(model*100)
+
+  Gp = 'Gp_'+perc
+  Gm = 'Gm_'+perc 
+  eic2d = eicop2d(Gm,'gg',par2)
+  eic2d.FORW(Gp,'eic_tmp_'+Gm)
+  eic2d.FORW(Gm,'eic_psf_tmp_'+Gm)
+  Flow('eic_'+Gm,'eic_tmp_'+Gm,
+   'window |put n2=%(nz)d d2=%(dz)g o2=%(oz)g n3=%(nx)d d3=%(dx)g o3=%(ox)g|stack axis=3 '%par2)
+  Flow('eic_psf_'+Gm,'eic_psf_tmp_'+Gm,
+   'window |put n2=%(nz)d d2=%(dz)g o2=%(oz)g n3=%(nx)d d3=%(dx)g o3=%(ox)g|stack axis=3 |scale rscale=-1|scale axis=123|smooth rect1=5 rect2=5 repeat=25'%par2)
+
+  Flow('eic_Gm_dec_'+perc,['eic_'+Gm,'eic_psf_'+Gm],
+       'math psf=${SOURCES[1]} output="input/(psf +0.2 )" ')
+
+
+
+  Flow('ic_'+Gm,[Gm,Gp],
+   'add mode=p ${SOURCES[1]} |stack axis=3'%par2)
+
+  Result('ic_'+Gm,slide.cgrey(''))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Flow('shot250','REFL','window n2=501 f2=%d |fft1 inv=y|window min1=0 |put o2=-1 d2=0.004|pad beg1=60|costaper nw2=100|tpow tpow=1|ricker2 frequency=20|transp'%(250*501))
+Flow('wavfd','shot250','transp|window n2=1 |spike k1=61 |ricker2 frequency=20 |transp')
+fdmod.point('ss',0.0,0.0,par2)
+fdmod.horizontal('rr',0.0,par2)
+
+for model in [0.9,1.0,1.1]:
+  perc = 'perc_%03d'%(model*100)
+  vel  = 'vel_'+perc
+  par2['vel'] = model
+
+  Flow(vel,None,'math n1=%(nz)g d1=%(dz)g o1=%(oz)g n2=%(nx)d d2=%(dx)g o2=%(ox)g output="2*%(vel)g"'%par2)  
+
+  Ls = aweop2d(vel,par2,'ss','','',custom='nb=200 dabc=y')
+  Lr = aweop2d(vel,par2,'','rr','',custom='nb=200 dabc=y')
+
+  Ls.FORW('wavfd','swfl_'+perc)
+  Lr.ADJT('rwfl_'+perc,'shot250')
+
+
+  eic2d = eicop2d('swfl_'+perc,'gg',par2)
+  eic2d.FORW('rwfl_'+perc,'eic2_tmp_'+vel)
+  eic2d.FORW('swfl_'+perc,'eic2_psf_tmp_'+vel)
+  Flow('eic_wfl_'+perc,'eic2_tmp_'+vel,
+   'window |put n2=%(nz)d d2=%(dz)g o2=%(oz)g n3=%(nx)d d3=%(dx)g o3=%(ox)g|stack axis=3 |scale rscale=-1'%par2)
+  Flow('eic_psf_wfl_'+perc,'eic2_psf_tmp_'+vel,
+   'window |put n2=%(nz)d d2=%(dz)g o2=%(oz)g n3=%(nx)d d3=%(dx)g o3=%(ox)g|stack axis=3 |scale rscale=-1|scale axis=123'%par2)
+
+  Flow('eic_wfl_dec_'+perc,['eic_wfl_'+perc,'eic_psf_wfl_'+perc],
+       'math psf=${SOURCES[1]} output="input/(psf +0.4 )" ')
+
+
+
+
+
+  Result('img_wfl_'+perc,['swfl_'+perc,'rwfl_'+perc],'add mode=p ${SOURCES[1]} |stack axis=3 |'+slide.cgrey(''))
+
+
+
+
+#for model in [0.9,1.0,1.1]:
+#  perc = 'perc_%03d'%(model*100)
+#  vel  = 'vel_'+perc
+#  Gm = 'Gm_'+perc 
+#
+#  
+#  eic2d = eicop2d('gm_'+perc,'gg',par2)
+#  Flow('wswfl_'+perc,'swfl_'+perc,'window f3=60 n3=1800|put d3=0.001')
+#  eic2d.FORW('wswfl_'+perc,'eic2_tmp_mix_'+vel)
+#  Flow('eic_mix_'+Gm,'eic2_tmp_mix_'+vel,
+#   'window |put n2=%(nz)d d2=%(dz)g o2=%(oz)g n3=%(nx)d d3=%(dx)g o3=%(ox)g|stack axis=3 '%par2)
+#
+
+
+
+
+
+
+
+
+from rsf.recipes import adcig
+
+eic= 'eic_wfl_'+perc
+Flow('dip',eic, 'transp|window n2=1 |math output="0"')
+Flow('vpvs',eic, 'transp|window n2=1 |math output="2"')
+
+slide._v_scale(0.9)
+
+for model in [0.9,1.0,1.1]:
+  perc = 'perc_%03d'%(model*100)
+
+  for eic in ['eic_wfl_'+perc,'eic_Gm_'+perc]:
+    Result(eic,eic,'transp | '+adcig.xgrey('pclip=100  larnersz=50 ',par2))
+
+    Flow('angle_'+eic,[eic,'dip','vpvs'],
+      'transp|'+adcig.cig2ssk(201,-1,0.01)+'|'+
+                adcig.xsk2ang(91,-45,1))
+    Result('angle_'+eic,adcig.agrey('pclip=100  larnersz=50  ',par2))#%(slide.par['height']),par2))
+
+velsu = 'data/pasurf_cp.su'
+rhosu = 'data/pasurf_ro.su'
+
+Flow('cp',velsu,'suread endian=0 |scale rscale=0.001|put  n1=%(nz)d d1=%(dz)g o1=%(oz)g n2=%(nx)d d2=%(dx)g o2=%(ox)g n3=1'%par2)
+Flow('ro',rhosu,'suread endian=0 |scale rscale=1.000|put  n1=%(nz)d d1=%(dz)g o1=%(oz)g n2=%(nx)d d2=%(dx)g o2=%(ox)g'%par2)
+
+Result('cp',slide.cgrey('mean=y color=j'))
+Result('ro',slide.cgrey('mean=y color=j'))
+Result('shot250','transp|'+slide.dgrey(''))
+
+
+
+Flow('y','cp','window n1=1 |math output="x1"')
+Flow('x','y','math output="0"')
+Flow('z','x','window ')
+
+Flow('shotfile',['z','y','x'],'cat ${SOURCES[1:3]} axis=2|transp')
+
+Flow('ttables',['cp','shotfile'],
+  'eikonal shotfile=${SOURCES[1]} verb=y |window |transp plane=13 memsize=10000|transp plane=23 memsize=1000')
+
+
+Flow('wav501','wav','spray axis=2 n=501 d=1 o=0')
+Flow('farr',['ttables','wav501'],
+  '''
+  window n2=1 f2=30 n3=1 f3=250|spray axis=2 n=1876 d=0.266667 o=0 |transp| rtoc >tmp1.rsf  &&
+  math t=tmp1.rsf <${SOURCES[1]} output="(input*exp(-I*2*acos(-1)*real(t)*x1))" |
+  fft1 inv=y |put o1=-1.8 d1=0.001|scale axis=123 |put n3=1 d3=1 o3=1 n4=1 d4=1 o4=1 
+  ''')
+
+
+
+
+for t in range(18):
+  perc = 'perc_100'
+  Gp = 'Gp_'+perc
+  Gm = 'Gm_'+perc 
+  G = 'G_'+perc 
+  snap = '_t-%04d'%t
+  
+  Result(Gp+snap,Gp,'window j3=100|byte gainpanel=a perc=100 |window f3=%d n3=1|'%t+slide.cgrey('',0.45))
+  Result(Gm+snap,Gm,'window j3=100|byte gainpanel=a perc=100 |window f3=%d n3=1|'%t+slide.cgrey('',0.45))
+  Result(G+snap,G,'window j3=100|byte gainpanel=a perc=100 |window f3=%d n3=1|'%t+slide.cgrey('',0.45))
+
+
+
+
+
+
+
+
+#### OMP test #########
+    
+Flow('farrSp',map(lambda x:'tf_z%03d_perc_100'%x,range(100,501,20)),
+  'cat axis=3 ${SOURCES[1:-1]}')
+
+Flow(['Gp_ser','Gm_ser','G_ser'],['farrSp','REFL'],
+          '''
+          ./sfG_autofocus_omp refl=${SOURCES[1]}
+          conj=y twin=y Pf1=y PG=y ompnth=%d niter=%d nshots=%d 
+          scale=%g eps=%g shift=%d verb=y r=%d tap=%d
+          Gm=${TARGETS[1]} G=${TARGETS[2]}  
+          ''' % (1,1,par['nshots'],1.0,1e-4,-21,-1,151))
+
+
+Flow(['Gp_omp','Gm_omp','G_omp'],['farrSp','REFL'],
+          '''
+          ./sfG_autofocus_omp refl=${SOURCES[1]}
+          conj=y twin=y Pf1=y PG=y ompnth=%d niter=%d nshots=%d 
+          scale=%g eps=%g shift=%d verb=y r=%d tap=%d
+          Gm=${TARGETS[1]} G=${TARGETS[2]}  
+          ''' % (8,1,par['nshots'],1.0,1e-4,-21,-1,151))
+
+
+Flow('farrSp_w','farrSp','window j2=2')
+Flow('REFL_w','REFL','window j2=2')
+
+Flow(['Gp_omp_w','Gm_omp_w','G_omp_w'],['farrSp_w','REFL_w'],
+          '''
+          ./sfG_autofocus_omp refl=${SOURCES[1]}
+          conj=y twin=y Pf1=y PG=y ompnth=%d niter=%d nshots=%d 
+          scale=%g eps=%g shift=%d verb=y r=%d tap=%d
+          Gm=${TARGETS[1]} G=${TARGETS[2]}  
+          ''' % (8,1,251,1.0,1e-4,-21,-1,151))
+
+
+
+
+End()
+

@@ -1,6 +1,6 @@
-1.8-svn	sfsuread	Satyan/for_marchecko/data:	ediaz@Estebans-MacBook-Pro-2.local	Mon Nov 23 22:06:27 2015
+1.8-svn	sfsegyread	Satyan/for_marchecko/data:	ediaz@Estebans-MBP-2.attlocal.net	Tue Jan 26 15:31:08 2016
 
-	n2=501
+	n2=601
 	data_format="native_int"
 	esize=4
 	in="/var/tmp/Satyan/for_marchecko/data/tfile@"

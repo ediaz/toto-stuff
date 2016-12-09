@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+
+from rsf.proj import *
+#import pcsutil,encode
+from rsf.recipes import fdmod
+from math import *
+#-------------------------
+par ={
+        'dx':4,
+        'nshots':500,
+        'niter':10,
+        'ompnth':7,
+        'ntm1':1800
+        }
+#-------------------------
+par['scale']=(1*par['dx']/(1*997.813))
+OpenSeis = '$CWPROOT/OpenSource/bin/'
+
+#----------------------------------------
+# Here you remove first arrivals (which reduces artifacts from the normalization):
+Flow('Ru1',['avelu1.rsf','adiru1.rsf'],
+    '''
+    math d=${SOURCES[1]} output="input-d"
+    ''')
+
+Flow('REFL','Ru1',
+  '''
+  scale rscale=%(scale)g |
+  pad beg1=%(ntm1)d |put o1=-1.800|
+  fft1 
+  '''%par)
+
+## first arrival from finite difference modeling (time reversed)
+Flow('tf','fa','pad beg1=1800|put o1=-1.8')
+Flow('tf1','farrival',
+	'''
+	pad beg1=1800|put o1=-1.800 |
+        fft1 |math output="conj(input)" | fft1 inv=y
+	'''%par) 
+Result('tf','grey')
+Result('tf1','grey')
+
+
+
+
+Flow(['Gp3','Gm3','G3','f1_0','f1p','windt','conv'],['tf','REFL'],
+        '''
+        ./sfG_autofocus_toto2 refl=${SOURCES[1]}
+        conj=y twin=y Pf1=y PG=y ompnth=%d niter=%d nshots=%d 
+        scale=%g eps=%g shift=%d verb=y r=%d tap=%d
+        Gm=${TARGETS[1]} G=${TARGETS[2]}  
+        f1m=${TARGETS[3]} f1p=${TARGETS[4]} window=${TARGETS[5]} conv=${TARGETS[6]}
+        ''' % (par['ompnth'],par['niter'],par['nshots'],1.0,1e-4,-21,-1,151))
+
+End()
+

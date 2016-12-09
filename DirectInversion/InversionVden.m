@@ -38,7 +38,7 @@ s2 = 1./(v0(:)+dv(:)).^2;
 b = 1./(dd(:));
 
 % loop over frequencies
-sloc = [1:2:100]; %source locations in x 
+sloc = [1:1:100]; %source locations in x 
 ns = size(sloc,2);
 
 Ps = getP(n,2,sloc); % source coordinate injection operator
@@ -52,7 +52,7 @@ Ps = getP(n,2,sloc); % source coordinate injection operator
 Q  = speye(ns);
 
 
-freqs = [10:10:10];
+freqs = [10:1:11];
 nw = size(freqs,2);
 i=0;
 for f = freqs

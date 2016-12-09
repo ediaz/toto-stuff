@@ -1,0 +1,245 @@
+from rsf.proj import *
+from rsf.recipes import fdmod
+from injOP import injop2d 
+from aweOP import aweop2d
+from corrFunc import  * 
+from LBFGSB_new import lbfgs_b
+from slides_fig import slideFig 
+
+def waveplot(custom,par):
+    return '''
+    graph title="" min1=%g 
+    plotfat=5 plotcol=5
+    label1=%s unit1=%s
+    label2="" unit2=""
+    parallel2=n screenratio=0.3 screenht=3
+    yll=1
+    %s
+    ''' % (par['ot'],par['lt'],par['ut'],
+           par['labelattr']+' '+custom)
+
+Cluster(name='modeling',email='ediazpan@mines.edu',time=1,nodetype='psava',ppn=12)
+
+
+java = WhereIs('java')+' -server -ea -Xmx12g '
+ediaz = ' ediaz.rsf.'
+lcorr = java+ediaz+'LocalCorr '
+
+
+dx=0.01
+dt= 0.001
+nl=200
+par = {'nt':1501,'ot':0.0,'dt':dt,
+       'nz':121 ,'oz':0.0,'dz':dx,
+       'nx':301 ,'ox':0.0,'dx':dx,
+       'nl':nl  ,'dl':dt ,'ol':-nl*dt,
+       'kt':70,'frq':15}
+
+fdmod.param(par)
+
+maxz = (par['nz']-1)*par['dz']+par['oz']
+maxx = (par['nx']-1)*par['dx']+par['ox']
+mx = 0.5*maxx
+mz = 0.5*maxz
+sz = 0.2
+sx = 0.2
+
+########################
+# Build survey
+######
+
+ss = 'ss'
+rr = 'rr'
+zs = 90*par['dz']
+fdmod.point(ss,0.7,zs,par)
+fdmod.point(rr,2.3,zs,par)
+
+
+slide = slideFig(par,ratio='16:9',font=25)
+scalar = 1.0
+for c in [rr,ss]:
+  Plot(c,slide.ssplot('',scalar=scalar))
+
+
+
+wav = 'wav'
+Flow(wav,None,
+  '''
+  spike n1=%(nt)d d1=%(dt)g o1=%(ot)g k1=%(kt)d n2=1 |
+  ricker2 frequency=20|halfint inv=y |
+  transp|scale rscale=1e8'''%par)
+
+sigma ={'vel-pos':300.0, 'vel-neg':300.0}
+nl    ={'vel-pos':150,  'vel-neg':150}
+
+Flow('vel-zer',None,
+  '''
+  math n1=%(nz)d d1=%(dz)g o1=%(oz)g 
+       n2=%(nx)d d2=%(dx)g o2=%(ox)g output="2.5"
+  '''%par)
+
+vel = 'vel-zer'
+dat = 'dat'
+
+
+
+gpar = {'cx':mx,'sx':0.2,'cz':zs,'sz':0.2}
+gauss ='exp(-((x2-%(cx)g)^2/(2*%(sx)g)^2+(x1-%(cz)g)^2/(2*%(sz)g)^2)) '%gpar
+
+Flow('vel-neg','vel-zer',
+  #'math output="input*0.9"')
+  'math output="input -0.2*%s "'%gauss )
+
+Flow('vel-pos','vel-zer',
+  #'math output="input*1.1"')
+  'math output="input +0.2*%s "'%gauss )
+
+
+nl=200
+Flow('penaltyDSO',None,'spike n1=%d o1=%g d1=%g |math output="abs(x1)"'%(nl*2+1,-nl*par['dt']*2,par['dt']*2))
+
+Flow('penaltyBP','wav', 
+  '''
+  window  >tmp.rsf &&
+   <tmp.rsf python test.py g=tmp.rsf nlag=%d |
+    envelope |
+  smooth rect1=1 |
+  scale axis=123 |
+  math output="1/(input+1)"|
+  scale axis=123 |
+  math output="input -1 "|
+  scale axis=123|
+  math output="input +1" |
+  scale rscale=1. |
+  math output="input*abs(x1)"
+  '''%nl)
+
+
+parP = {'nt':nl*2+1,'ot':-nl*2*dt,'dt':2*dt,
+       'nz':121 ,'oz':0.0,'dz':dx,
+       'nx':301 ,'ox':0.0,'dx':dx,
+       'nl':nl  ,'dl':dt ,'ol':-nl*dt,
+       'kt':70,'frq':15}
+
+fdmod.param(parP)
+
+Plot(ss+'a',ss,slide.ssplot('wantaxis=y',scalar=scalar))
+
+
+for pen in ['penaltyDSO','penaltyBP']:
+  Result(pen,pen,waveplot('label1="\F10 t\F3"',parP))
+
+s3 = {'-local':200.,'-global':9000}
+for vel in ['vel-zer','vel-neg','vel-pos']:
+  dat = 'dat-'+vel
+  L =  aweop2d(vel,par,ss,rr,'',custom='nb=100  fsrf=y ')
+  L.FORW(wav,dat)
+
+  Plot(vel,slide.cgrey('bias=2.5 color=E ',scalar=scalar))
+  if vel =='vel-zer':
+    Result(vel,['ssa','rr'],'Overlay')
+  else:
+    Result(vel,[vel,'ss','rr'],'Overlay')
+  for c in ['-local','-global']:
+    for pen in ['penaltyDSO','penaltyBP']:
+      m = vel+'-zer'+'-'+pen+c
+      Flow(m,'vel-zer','window')
+      GR  = 'gr-'+pen+c+'-'+vel
+      OF  = 'of-'+pen+c+'-'+vel
+      lc = LocalNormCorr([wav],[ss],[dat],[rr],nl,s3[c],par,pen,
+                         customfd='nb=100  fsrf=y ')
+      lc.gradient(GR,OF,m)
+
+
+
+# plotting:
+for c in ['-local','-global']:
+  for pen in ['penaltyDSO','penaltyBP']:
+    i = 0
+    for vel in ['vel-neg','vel-zer','vel-pos']:
+      GR  = 'gr-'+pen+c+'-'+vel
+      Plot(GR,map(lambda x:'gr-'+pen+c+'-vel-%s'%x,['neg','zer','pos']),
+        'cat axis=3 ${SOURCES[1:3]} |byte gainpanel=a color=E pclip=99.9|window f3=%d n3=1|'%i+
+         slide.cgrey('color=E',scalar=scalar))
+      Result(GR,[GR,'ss','rr'],'Overlay')
+      i+=1
+
+
+
+parx = {'nt':301,'ot':0.5,'dt':0.001,
+       'nz':121 ,'oz':0.0,'dz':dx,
+       'nx':301 ,'ox':0.0,'dx':dx,
+       'nl':nl  ,'dl':dt ,'ol':-nl*dt,
+       'kt':70,'frq':15}
+
+fdmod.param(parx)
+
+slidex= slideFig(parx,ratio='16:9',font=25)
+
+
+
+Plot('dat-neg',['dat-vel-neg'],
+  'window max2=1.2|'+slidex.waveplot('yll=1 min2=-0.5 max2=0.6 plotcol=6  plotfat=4',scalar=scalar))
+
+Plot('dat-zer',['dat-vel-zer'],
+  'window max2=1.2|'+slidex.waveplot('yll=1 min2=-0.5 max2=0.6 plotcol=3  plotfat=4  ',scalar=scalar))
+
+Plot('dat-pos',['dat-vel-pos'],
+  'window max2=1.2|'+slidex.waveplot('yll=1 min2=-0.5 max2=0.6 plotcol=4  plotfat=4',scalar=scalar))
+
+Result('data-comp',['dat-neg','dat-zer','dat-pos'],
+  'Overlay')
+
+
+
+
+
+
+
+#
+parc = {'nt':1501,'ot':0.0,'dt':dt,
+       'nz':101 ,'oz':0.0,'dz':0.02,
+       'nx':nl*2+1  ,'dx':2*dt ,'ox':-nl*2*dt }
+fdmod.param(parc)
+#
+Result('lcorr-neg','corrs/corr-vel-neg-zer-penaltyBP-local-000','window|'+fdmod.dgrey(
+  '''
+  screenratio=0.4 screenht=6 unit2=s xll=2 label2="\F10 t\F3"
+  transp=n grid2=y g2num=%g griddash=1. gridcol=8
+  '''%(-parc['ox']),parc))
+
+Result('gcorr-neg','corrs/corr-vel-neg-zer-penaltyBP-global-000',fdmod.dgrey(
+  '''
+  screenratio=0.4 screenht=6 unit2=s xll=2 label2="\F10 t\F3"
+  transp=n grid2=y g2num=%g griddash=1. gridcol=8
+  '''%(-parc['ox']),parc)) 
+
+Result('lcorr-zer','corrs/corr-vel-zer-zer-penaltyBP-local-000',fdmod.dgrey(
+  '''
+  screenratio=0.4 screenht=6 unit2=s xll=2 label2="\F10 t\F3"
+  transp=n grid2=y g2num=%g griddash=1. gridcol=8
+  '''%(-parc['ox']),parc))
+
+Result('gcorr-zer','corrs/corr-vel-zer-zer-penaltyBP-global-000',fdmod.dgrey(
+  '''
+  screenratio=0.4 screenht=6 unit2=s xll=2 label2="\F10 t\F3"
+  transp=n grid2=y g2num=%g griddash=1. gridcol=8
+  '''%(-parc['ox']),parc))
+
+Result('lcorr-pos','corrs/corr-vel-pos-zer-penaltyBP-local-000',fdmod.dgrey(
+  '''
+  screenratio=0.4 screenht=6 unit2=s xll=2 label2="\F10 t\F3"
+  transp=n grid2=y g2num=%g griddash=1. gridcol=8
+  '''%(-parc['ox']),parc))
+
+Result('gcorr-pos','corrs/corr-vel-pos-zer-penaltyBP-global-000',fdmod.dgrey(
+  '''
+  screenratio=0.4 screenht=6 unit2=s xll=2 label2="\F10 t\F3"
+  transp=n grid2=y g2num=%g griddash=1. gridcol=8
+  '''%(-parc['ox']),parc))
+
+
+
+
+
+End()

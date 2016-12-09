@@ -1,0 +1,182 @@
+from rsf.cluster import *
+from rsf.proj import WhereIs
+from rsf.recipes import fdmod, adcig
+import cggNWA as cgg
+from NSD import steepest_descent
+from wet import *
+from ciputils import *
+from solvers import solver 
+
+###################
+# Have to call Cluster first
+Cluster(name='cgg',email='',time=5,nodetype='psava',ppn=12)
+###################
+cggpar = cgg.getpar()
+mt = 3.8
+### Migration grid: ######
+minx,maxx = 0.0,33.0 
+minz,maxz = 0.0, 3.0
+dx,dt = 0.015,0.0020
+#########################
+
+migpar = {'ox':minx,'dx':dx,'nx':int((maxx-minx)/dx),'mx':maxx,
+          'oz':cggpar['oz'],'dz':dx,'nz':int(maxz/dx),'mz':maxz,
+          'ot':cggpar['ot'],'dt':dt,'nt':int(mt/dt),'mt':mt,
+          'oh':0.169,'dh':0.0125,'nh':648,
+          'os':cggpar['ox'],'ds':0.075,'ns':200,
+          'aper':1.0,
+          'tdelay':0.100,
+          'fmax':5,#8,
+          'migvel':'veldepth',
+          'jsnap':5,
+          'nb':100,
+          'nho':40,
+          'nhx':60,'nhz':0,'nhy':0,'nht':70,'gaus':'n'
+          }
+fdmod.param(migpar)
+migpar['maxh']= migpar['oh']+(migpar['nh']-1)*migpar['dh']
+migpar['maxsx'] = migpar['os'] +(migpar['ns']-1)*migpar['ds']
+migpar['kt'] = int(migpar['tdelay']/migpar['dt'])
+
+vel = migpar['migvel'] 
+Flow('migwav',None,
+      '''
+      spike n1=%(nt)d d1=%(dt)g o1=%(ot)g k1=%(kt)d |
+      '''%migpar+
+      '''
+      ricker2 frequency=%(fmax)g|'''%(migpar)+'''transp |scale rscale=1e6
+      ''')
+
+# Prepare data and wavelet for migration/inversion
+_nodes = 10  
+_ipn = int(migpar['ns']/_nodes)
+for isou in range(migpar['ns']):
+  stag = '-%04d'%(isou)
+  idata= 'data/ishot'+stag
+  mdat = 'migdat/ishot'+stag
+  Flow(mdat,idata,
+    '''
+    pad beg1=%(kt)d |put o1=0 |
+    ricker2 frequency=%(fmax)g|
+    sinc o1=%(ot)g d1=%(dt)g n1=%(nt)d |transp|scale rscale=1e8
+    '''%migpar)
+
+dS = ['migwav']*len(range(migpar['ns']))
+ss = map(lambda x:'data/ss-%04d'%x,range(migpar['ns']))
+dR = map(lambda x:'migdat/ishot-%04d'%x,range(migpar['ns']))
+rr = map(lambda x:'data/rr-%04d'%x,range(migpar['ns']))
+
+vel = migpar['migvel']
+velo = vel+'-int' 
+Flow(velo,vel,
+  '''
+  remap1 n1=%(nz)d d1=%(dz)g o1=%(oz)g |
+  transp|
+  remap1 n1=%(nx)d d1=%(dx)g o1=%(ox)g |
+  transp 
+  '''%migpar)
+
+parcip=dict(
+     sigma1=4,sigma2=8, # local orient filter parms
+     hw1=4,hw2=12,      # structure smoothing halfwidths
+     szclip=0.60,       # sets semblance vals = zero that are <= zclip
+     lzclip=0.60,       # sets linearity vals = zero that are <= zclip
+     jmem='8g',         # java memory
+     r1=4,r2=4,        # grid aligned ellipses (z is 3x sampled vs. x,y)
+     nmax=5000,
+     exclusion='exclusion'
+     )
+
+def getLocations(gg,image,par):
+    imgtag = image.replace("/","_")
+    msk = imgtag+'msk'
+    nimage = imgtag+'noise'
+    Flow(msk,image,'math output="1"| costaper nw1=30 nw2=60')
+    Flow(nimage,image,'scale axis=123 |scale rscale=100|noise | agc rect1=80')
+    ciputils.pickcip(gg,nimage,msk,parcip)
+
+
+getLocations('gg','image',parcip)
+
+
+jx = 5 
+dcig = jx*migpar['dx']
+ncig = int((maxx-minx)/(dcig))
+ocig = minx
+
+migpar['dcig'] = dcig
+migpar['ncig'] = ncig
+migpar['ocig'] = ocig
+
+#fdmod.boxarray('gg',migpar['nz'],migpar['oz'],migpar['dz'],
+#                    ncig,ocig,dcig,migpar)
+
+
+
+
+Plot('gg',fdmod.ssplot('',migpar))
+vel='veldepth'
+wb = 'wb.txt'
+wmask= 'wmask'
+rtm = 'RTM-'+vel
+xrtm = 'X'+rtm
+
+Flow(wmask,[velo,wb],'picks2rsf picks=${SOURCES[1]} extend=y')
+Flow('exclusion',wmask,'math output="x1"|mask min=.15 |dd type=float |smooth rect1=20')
+#Flow(wmask,[velo],'math output="x1"|mask min=1. |dd type=float |smooth rect1=20 ')
+
+Flow('mute','gmute',
+  'transp |window |put n3=1 n2=1 n4=%d |transp |math output="input"'%(migpar['nz']*ncig))
+#wet = wetID(dS,ss,dR,rr,'gg',migpar,mask=wmask)
+#wet.setMute('mute')
+#wet.setPrec(10,80,5)
+#wet.setImPower(1)
+#wet.setCompute(nodes=20,time=12)
+#wet.setScalar(1)
+#wet.setPicker(parcip)
+#wet.gradient('gr-cip-'+velo,'of-cip-'+velo,velo)
+#wet.computeIlluPenalty(velo)
+
+
+
+selected = [158]
+ggin='images/gg-veldepth-int'
+for i in selected:
+  Flow('tmp/gg-%03d-veldepth-int'%i,ggin,
+     'window f2=%d n2=1'%i)
+Flow('ggselected',map(lambda x:'tmp/gg-%03d-veldepth-int'%x,selected),'cat axis=2 ${SOURCES[1:-1]}')
+
+
+
+#kernel tests
+
+Plot('ggselected',fdmod.ssplot('',migpar))
+
+vel = velo+'-ill'
+Flow(vel,velo,'window')
+wet = wetIDMax(dS,ss,dR,rr,'ggselected',migpar,mask=wmask)
+wet.setMute('mute')
+wet.setPrec(5,5,5)
+wet.setSigmas(sz=1,sx=0.6,st=0.1)
+wet.setCompute(nodes=20,time=12)
+wet.setScalar(.00025e07)
+wet.setPicker(parcip)
+#wet.gradient('gr-cip-'+vel,'of-cip-'+vel,vel)
+
+
+Flow('ub',vel,'math output="5.0" ')
+Flow('lb',vel,'math output="1.5" ')
+inv = solver(op=wet,
+             m='model_final_cip',
+             xo=vel,
+             ncalls=30,
+             name='maxtest5',
+             cluster=True,
+             opt='SD',oc=True,  
+             ub='ub',lb='lb')
+inv.run()
+
+
+
+
+End()

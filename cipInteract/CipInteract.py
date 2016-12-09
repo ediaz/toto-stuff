@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+
+
+
 import numpy as np
 import rsf.api as rsf
 import matplotlib.pyplot as plt
@@ -125,7 +128,7 @@ ax.imshow(image.T,
           extent=[ox,ox+(nx-1)*dx,oz+(nz-1)*dz,oz],
           cmap = plt.get_cmap('gray'),
           vmin=image.min()*clip,
-          vmax=image.max()*clip)
+          vmax=image.max()*clip,aspect=(((nz-1)*dz)/((nx-1)*dx)*100))
 ax.set_xlabel(r'$x(km)$')
 ax.set_ylabel(r'$z(km)$')
     
@@ -146,9 +149,9 @@ line, = ax.plot(xs, ys, '.', picker=5)  # 5 points tolerance
 
 
 
-ohz,dhz,nhz = get_axis(Fcip,1)
-ohx,dhx,nhx = get_axis(Fcip,2)
-oht,dht,nht = get_axis(Fcip,3)
+ohz,dhz,nhz = get_axis(Fcip,4)
+ohx,dhx,nhx = get_axis(Fcip,1)
+oht,dht,nht = get_axis(Fcip,2)
 
 print nhz,nhx,nht
 cips = np.zeros((npoints,nht,nhx,nhz),'f')

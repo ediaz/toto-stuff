@@ -146,9 +146,9 @@ line, = ax.plot(xs, ys, '.', picker=5)  # 5 points tolerance
 
 
 
-ohz,dhz,nhz = get_axis(Fcip,1)
-ohx,dhx,nhx = get_axis(Fcip,2)
-oht,dht,nht = get_axis(Fcip,3)
+ohz,dhz,nhz = get_axis(Fcip,4)
+ohx,dhx,nhx = get_axis(Fcip,1)
+oht,dht,nht = get_axis(Fcip,2)
 
 print nhz,nhx,nht
 cips = np.zeros((npoints,nht,nhx,nhz),'f')

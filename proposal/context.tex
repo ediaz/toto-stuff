@@ -1,97 +1,122 @@
 \section{Introduction}
-% 
-%
-% Two-way propagators importance 
-%
- Two-way propagators are routinely used in reverse time migration (RTM)~\citep{baysal:1514, whitmore:382, GPR:GPR413}.
- In general, and especially in complex geological settings, the use of two-way wavefields
-produce better images than other methods such as Kirchhoff migration \citep{Schneider,Blestein87} and one-way equation
- migration \citep{gazdag:1342,gazdag:124}. RTM's propagation engine, a two-way wave equation, 
-makes this imaging method robust and accurate because it honors the kinematics of 
-the wave phenomena by allowing waves to propagate in all directions regardless of
- the complexity in the  velocity model. A drawback of the RTM propagation 
-engine (and any of the mentioned before)
-is that it fails to properly handle multiple-scattered waves. Another type of propagator, called
-Marchenko \citep{Fil2012,Behura,Wapenaar,Singh2015}, is 
-based on an integral solution to the inverse scattering problem first proposed by
-\cite{rose2002,rose2002single}.  This modeling operator correctly handle 
-primaries and multiple scattered waves; hence, it makes use of the full-scattered nature 
-of the recorded seismic data by redatuming the surface observations inside the medium
-given the kinematics provided by the background model. In this proposal, I use the two-way equation and the Marchenko
-modeling framework to estimate updates in the background velocity model which is the main 
-driver for the quality of the seismic image. 
-%
-%
-%
-\subsection{The role of the velocity model}
-The quality of the seismic image depends on the choice of wave propagator, but more importantly
- on the quality of the background model. The better the velocity, the more
- focused the seismic image becomes. By analyzing the quality of the 
-seismic image,  one can update the background velocity model in such a way that the image quality improves. 
- By increasing the focusing in the seismic images, we are effectively improving the synchronization
-of the source and receiver wavefields at the image locations. 
- Image focusing can be observed in zero-offset sections by measuring the 
-continuity and image strength, or by analyzing focusing of point diffractors. 
- However, if the events in the image mostly consist of continuous reflectors (layers inside the earth),
-it becomes hard to assess the accuracy of the background model. 
- In order to retrieve the information about the kinematic error, one must extend the 
-image in a larger space. In the context of two-way operators, 
-the extension is usually performed by some extended correlation in the image domain
-~\citep{rickett:883,sava:S209,GPR:GPR888}, in the angle domain~\citep{sava:1065,yoon,Jin,yoon2,Vyas}, or 
- in the surface offset domain \citep{giboli}. 
- Once a suitable extension is chosen, the velocity error information can be extracted by measuring 
-focusing in the extended gathers~\citep{ShenSymes.geo.2008,Wiktor,tony_seg:cwp12,Shan:chevron,BiondiAli:2014,diaz2015,tony:gp15},
- measuring moveout in the angle or surface offset gathers \citep{Liu2010,yiShen,Fleury} or, alternatively,
- measuring the consistency between individual shot record images \citep{perrone2015waveform}.
 
-Another school of inversion looks for similarities between simulated and recorded data
-directly at the receiver locations. This problem, usually referred to as Full Waveform Inversion (FWI),
-is generally formulated by  improving the consistency between modeled and observed data. 
- Originally, \cite{tarantola} introduced the data difference as 
-a similarity estimate in the time domain. Alternatively, the problem 
-can be solved in the frequency domain \citep{Pratt99}. Contrary to 
- the image-domain formulation, data-domain inversion is highly non-linear, 
-i.e., the objective function has many local minima. To overcome this non-linearity,
- a multi-scale separation approach is needed \citep{Bunks95}. Within each scale (frequency
-or frequency band), the problem can be more linear if the initial model
-is closer to the one corresponding to the global minimum. To tackle the intrinsic
-non-linearity a great deal of research has been proposed to adjust the objective 
-function \citep{ShinHa.geo.2008,shin_cha,Sirgue,engquist2013application,Luo91,warner,TariqChoi}. In theory, the resolution
-of FWI can approach that of a seismic image. Hence, as a byproduct of the 
-inversion, the resolution of the velocity model can be used for reservoir characterization, 4D analysis,
-and improving the seismic image itself \cite{sirgue20093d}. The great benefits
-of FWI make solving the issue of non-linearity an area of very active research. 
+Two-way propagators are routinely used in reverse time migration
+(RTM)~\citep{baysal:1514, whitmore:382, GPR:GPR413}. In general,
+and especially in complex geological settings, the use of two-way
+wavefields produce better images than other methods such as Kirchhoff
+migration \citep{Schneider,Blestein87} and one-way equation migration
+\citep{gazdag:1342,gazdag:124}. RTM's propagation engine, a two-way
+wave equation, makes this imaging method robust and accurate
+because it honors the kinematics of the wave phenomena by allowing
+waves to propagate in all directions regardless of the complexity
+in the velocity model. A drawback of the RTM propagation engine
+(and any of the mentioned before) is that it fails to properly
+handle multiple-scattered waves. Another type of propagator, called
+Marchenko \citep{Fil2012,Behura,Wapenaar,Singh2015}, is based on an
+integral solution to the inverse scattering problem first proposed
+by \cite{rose2002,rose2002single}. This modeling operator correctly
+handle primaries and multiple scattered waves; hence, it makes use of
+the full-scattered nature of the recorded seismic data by redatuming
+the surface observations inside the medium given the kinematics
+provided by the background model. In this proposal, I use the two-way
+equation and the Marchenko modeling framework to estimate updates
+in the background velocity model which is the main driver for the
+quality of the seismic image. % % %
+
+\subsection{The role of the velocity model}
+
+The quality of the seismic image depends on the choice of wave
+propagator, but more importantly on the quality of the background
+model. The better the velocity, the more focused the seismic
+image becomes. By analyzing the quality of the seismic image, one
+can update the background velocity model in such a way that the
+image quality improves. By increasing the focusing in the seismic
+images, we are effectively improving the synchronization of the
+source and receiver wavefields at the image locations. Image
+focusing can be observed in zero-offset sections by measuring the
+continuity and image strength, or by analyzing focusing of point
+diffractors. However, if the events in the image mostly consist
+of continuous reflectors (layers inside the earth), it becomes
+hard to assess the accuracy of the background model. In order to
+retrieve the information about the kinematic error, one must extend
+the image in a larger space. In the context of two-way operators,
+the extension is usually performed by some extended correlation
+in the image domain ~\citep{rickett:883,sava:S209,GPR:GPR888},
+in the angle domain~\citep{sava:1065,yoon,Jin,yoon2,Vyas},
+or in the surface offset domain \citep{giboli}. Once a
+suitable extension is chosen, the velocity error information
+can be extracted by measuring focusing in the extended
+gathers~\citep{ShenSymes.geo.2008,Wiktor,tony_seg:cwp12,Shan:chevron,
+BiondiAli:2014,diaz2015,tony:gp15}, measuring moveout in the
+angle or surface offset gathers \citep{Liu2010,yiShen,Fleury} or,
+alternatively, measuring the consistency between individual shot
+record images \citep{perrone2015waveform}.
+
+Another school of inversion looks for similarities between simulated
+and recorded data directly at the receiver locations. This problem,
+usually referred to as Full Waveform Inversion (FWI), is generally
+formulated by improving the consistency between modeled and observed
+data. Originally, \cite{tarantola} introduced the data difference
+as a similarity estimate in the time domain. Alternatively, the
+problem can be solved in the frequency domain \citep{Pratt99}.
+Contrary to the image-domain formulation, data-domain inversion
+is highly non-linear, i.e., the objective function has many
+local minima. To overcome this non-linearity, a multi-scale
+separation approach is needed \citep{Bunks95}. Within each scale
+(frequency or frequency band), the problem can be more linear
+if the initial model is closer to the one corresponding to the
+global minimum. To tackle the intrinsic non-linearity a great deal
+of research has been proposed to adjust the objective function
+\citep{ShinHa.geo.2008,shin_cha,Sirgue,engquist2013application,Luo91,
+warner,TariqChoi}. In theory, the resolution of FWI can approach
+that of a seismic image. Hence, as a byproduct of the inversion,
+the resolution of the velocity model can be used for reservoir
+characterization, 4D analysis, and improving the seismic image itself
+\cite{sirgue20093d}. The great benefits of FWI make solving the issue
+of non-linearity an area of very active research.
 
 
 \subsection{Assumptions of conventional imaging and tomography}
-The methods described above rely on the Born modeling approximation, which means that 
-they can accurately image/describe seismic events that scatter only once inside the earth. However,
- the seismic data can contain strong multi-scattering  that appears in the seismic images 
-in the form of coherent noise, and is characterized by defocusing (or moveout) in the common-image gathers (CIG). 
- To overcome this problem, before imaging (or before tomography), the multiples (either internal
-or surface-related) are removed from the recorded data \citep{SRME,ArtWeiglein,guitton2005,Herrmann} or from the 
-migrated CIGs \citep{SavaGuitton,Wang,Weibull}. If the multiples are not correctly attenuated, 
-they can contaminate the seismic image and be misleading during the tomographic inversion. 
 
-In Born-based imaging, we assume that the image at point $\xx$ is constructed from the 
-wavepath that originates at the source location $\xx_s$, reflects at image point $\xx$, and is recorded
-at the surface at point $\xx_r$. Hence, the image point $\xx$ is illuminated by only 
-one direction (or around two in the case of multi-pathing due to a low velocity discontinuity). 
- Any other wavepath that connects the source $\xx_s$ and receiver $\xx_r$ at
-the image point $\xx$ is neglected, \rfg{BornImaging}. Alternatively, if we take into account
-all the possible paths that connect the source $\xx_s$ with the receiver $\xx_r$ through the image point $\xx$,
- we can illuminate this point from many other different angles, \rfg{MultiImaging}. Illumination from 
-multiple directions allows to better reconstruct the 
-representation of the scatterer at point $\xx$ during the imaging condition process. 
+The methods described above rely on the Born modeling approximation,
+which means that they can accurately image/describe seismic events
+that scatter only once inside the earth. However, the seismic data
+can contain strong multi-scattering that appears in the seismic
+images in the form of coherent noise, and is characterized by
+defocusing (or moveout) in the common-image gathers (CIG). To
+overcome this problem, before imaging (or before tomography), the
+multiples (either internal or surface-related) are removed from the
+recorded data \citep{SRME,ArtWeiglein,guitton2005,Herrmann} or from
+the migrated CIGs \citep{SavaGuitton,Wang,Weibull}. If the multiples
+are not correctly attenuated, they can contaminate the seismic image
+and be misleading during the tomographic inversion.
 
-On the tomography side of the problem, the Born approximation implies that the sensitivity 
-kernel updates the velocity model along the direct path between the source coordinate $\xx_s$ to 
-the image point $\xx$, and from the receiver  $\xx_r$ to the image point $\xx$, \rfg{BornTomo}. This means
-that the information extracted at the image point $\xx$ contains limited sensitivity to
-the background model. In contrast, within the multi-scattering framework, the sensitivity of the 
-image point $\xx$ to the background model is along all possible paths that connect
-the source point $\xx_s$ with receiver point $\xx_r$ at image point $\xx$, \rfg{MultiTomo},
- which implies higher sensitivity to the background model parameters. 
+In Born-based imaging, we assume that the image at point $\xx$ is
+constructed from the wavepath that originates at the source location
+$\xx_s$, reflects at image point $\xx$, and is recorded at the
+surface at point $\xx_r$. Hence, the image point $\xx$ is illuminated
+by only one direction (or around two in the case of multi-pathing due
+to a low velocity discontinuity). Any other wavepath that connects
+the source $\xx_s$ and receiver $\xx_r$ at the image point $\xx$ is
+neglected, \rfg{BornImaging}. Alternatively, if we take into account
+all the possible paths that connect the source $\xx_s$ with the
+receiver $\xx_r$ through the image point $\xx$, we can illuminate
+this point from many other different angles, \rfg{MultiImaging}.
+Illumination from multiple directions allows to better reconstruct
+the representation of the scatterer at point $\xx$ during the imaging
+condition process.
+
+On the tomography side of the problem, the Born approximation implies
+that the sensitivity kernel updates the velocity model along the
+direct path between the source coordinate $\xx_s$ to the image point
+$\xx$, and from the receiver $\xx_r$ to the image point $\xx$,
+\rfg{BornTomo}. This means that the information extracted at the
+image point $\xx$ contains limited sensitivity to the background
+model. In contrast, within the multi-scattering framework, the
+sensitivity of the image point $\xx$ to the background model is
+along all possible paths that connect the source point $\xx_s$ with
+receiver point $\xx_r$ at image point $\xx$, \rfg{MultiTomo}, which
+implies higher sensitivity to the background model parameters.
 \inputdir{.}
 
 \multiplot{4}{BornImaging,BornTomo,MultiImaging,MultiTomo}{width=0.48\textwidth}%
@@ -130,43 +155,56 @@ the sensitivity kernel from the multiple scattered waves.}
 
 
 \section{State of the art}
-In this section, I review the current state of the art in the field of imaging and tomography 
-by discussing the trends and approaches that have been developed in recent years. I focus my 
-review on wavefield-based approaches since these methods are of interest in this proposal. The field of 
-imaging and velocity model building is interconnected; usually developments on one side lead to 
-improvements on the other.
-I identify three great categories for wavefield-based approaches
- for velocity model building: data-domain, image-domain, and mixed-domain. 
+
+In this section, I review the current state of the art in the field
+of imaging and tomography by discussing the trends and approaches
+that have been developed in recent years. I focus my review on
+wavefield-based approaches since these methods are of interest in
+this proposal. The field of imaging and velocity model building is
+interconnected; usually developments on one side lead to improvements
+on the other. I identify three great categories for wavefield-based
+approaches for velocity model building: data-domain, image-domain,
+and mixed-domain.
 
 %I also touch base on the methods that account for multiple-scattering and tomography
 
 \subsection{Image-domain methods}
- Image-domain tomography aims to find a velocity model that increases the image quality. Usually, 
-every image-domain tomography implementation utilizes (to some degree)
-the semblance principle \citep{Alyahya1989VAiterativeProfileMig} which  
- states that individual shot record images must be similar to each other. 
-Hence, the velocity model is optimized by improving the consistency between shot-record 
-images. More recently, 
-  \cite{perrone2015waveform} use a similar concept to find the background velocity 
-model by minimizing the path that is needed to warp two neighboring shot record images. 
- 
 
-The measurement of the focusing (or inconsistency error) nowadays is commonly done on RTM
-images. During tomography, the errors are backprojected in the model, producing an update
-direction which is used during tomography. 
-In order to keep the backprojection operator consistent with the imaging operator, 
-tomography methods have moved  towards  wavefield-based kernels~\citep{Woodward_1992,SavaBiondi.gp.wemva1,SavaBiondi.gp.wemva2,
-ShenSymes.geo.2008,Xie2008FiniteFreqSensitityKernel,Wiktor,tony_seg:cwp12,perrone2015waveform}. 
+ Image-domain tomography aims to find a velocity model that
+increases the image quality. Usually, every image-domain tomography
+implementation utilizes (to some degree) the semblance principle
+\citep{Alyahya1989VAiterativeProfileMig} which states that individual
+shot record images must be similar to each other. Hence, the velocity
+model is optimized by improving the consistency between shot-record
+images. More recently, \cite{perrone2015waveform} use a similar
+concept to find the background velocity model by minimizing the path
+that is needed to warp two neighboring shot record images.
 
-Gathers based on subsurface wavefield correlation lag~\citep{rickett:883,sava:S209,GPR:GPR888}
-show the quality of the focusing in the subsurface. \cite{ShenSymes.geo.2008} extend
-the concept of differential semblance optimization~\citep{symes.carazzone} to wave-equation
-based tomography. Their method finds a velocity model by minimizing the defocused energy in
- the extended gathers. This method has been improved to account for two-way wavefields
-\citep{Wiktor,tony_seg:cwp12,Shan:chevron,BiondiAli:2014,diaz2015} and to account 
-for different extensions which can be obtained at sparse locations \citep{tony:gp15}. Alternatively,
- the model can be optimized by imposing flatness in angle-domain common-image-gathers
-\citep{ursin,biondiAngle,Liu2010,Montel,yiShen}. 
+
+The measurement of the focusing (or inconsistency error)
+nowadays is commonly done on RTM images. During tomography,
+the errors are backprojected in the model, producing an
+update direction which is used during tomography. In order to
+keep the backprojection operator consistent with the imaging
+operator, tomography methods have moved towards wavefield-based
+kernels~\citep{Woodward_1992,SavaBiondi.gp.wemva1,SavaBiondi.gp.wemva
+2,
+ShenSymes.geo.2008,Xie2008FiniteFreqSensitityKernel,Wiktor,tony_seg:c
+wp12,perrone2015waveform}.
+
+Gathers based on subsurface wavefield correlation
+lag~\citep{rickett:883,sava:S209,GPR:GPR888} show
+the quality of the focusing in the subsurface.
+\cite{ShenSymes.geo.2008} extend the concept of differential
+semblance optimization~\citep{symes.carazzone} to wave-equation
+based tomography. Their method finds a velocity model by
+minimizing the defocused energy in the extended gathers. This
+method has been improved to account for two-way wavefields
+\citep{Wiktor,tony_seg:cwp12,Shan:chevron,BiondiAli:2014,diaz2015}
+and to account for different extensions which can be obtained at
+sparse locations \citep{tony:gp15}. Alternatively, the model can be
+optimized by imposing flatness in angle-domain common-image-gathers
+\citep{ursin,biondiAngle,Liu2010,Montel,yiShen}.
 
 
 \inputdir{.}
@@ -182,152 +220,181 @@ imaging.}
 \subsection{Data-domain methods}
 
 Even though FWI is an old concept~\citep{lailly1983seismic,tarantola,
-Pratt99,Sirgue,VirieuxFWI}, 
-it wasn't until the 2005 EAGE blind test exercise \citep{billette20052004}
-that great attention was drawn to the method. Since then, many articles have been 
-published on the subject. The goal of FWI 
-is extremely ambitious: it aims to find a model that explains all the recorded data
-at the seismic receivers. The oscillatory nature of the seismic wavefields makes the problem
-highly non-linear and very difficult to solve. In order to make the problem more
-linear, numerous strategies and modifications have been proposed. The multi-scale approach \citep{Bunks95}
-proposes to solve the problem in a cascaded way: from low frequencies to high frequencies. At low frequencies,
-the seismic data is less oscillatory which makes the problem more linear. In their multi-scale, approach 
-the result from each band is fed into the next one as opposed to solving the problem using the 
-full bandwidth at once. However, the success of the approach relies on the 
-low frequency content of the acquired data, which unfortunately is not 
-low enough. 
- \rfg{Claerbout} \citep{Claerbout:1985:IEI:3887} shows a pictorial representation of the gap of 
-information we observe in the seismic data.  From tomography, we can obtain
-low wavenumbers in the model, and from imaging we can retrieve high wavenumbers. However, there is a 
-gap (2-5Hz at the time he made the sketch) which we cannot recover yet. 
- \cite{Sirgue} propose a similar continuation approach in the frequency domain (rather than the time domain). 
-They propose to use a sparse set of frequencies that produce a continuous sampling 
-of the model wavenumbers  (considering a 1D earth velocity gradient).
- More
-recently, along the same lines, \cite{TariqWavenumber} suggests a multi-scale approach which directly controls
-the model wavenumbers by using a scattering angle filter; in this approach the model is inverted
-by solving first for low wavenumbers and later for high wavenumbers. \cite{Rocha2015elastic} 
-advocate for a scattering angle filter based on the energy norm. 
- In order to further simplify the 
-data within the inversion, \cite{ShinHa.geo.2008} and \cite{shin_cha} propose to  damp the data
-to highlight not only low frequencies but also the earlier arrivals. In their hierarchical 
-approach, the earlier arrivals are fitted first, and then the damping is incrementally  relaxed to allow more
-data into the inversion. 
+Pratt99,Sirgue,VirieuxFWI}, it wasn't until the 2005 EAGE blind test
+exercise \citep{billette20052004} that great attention was drawn to
+the method. Since then, many articles have been published on the
+subject. The goal of FWI is extremely ambitious: it aims to find a
+model that explains all the recorded data at the seismic receivers.
+The oscillatory nature of the seismic wavefields makes the problem
+highly non-linear and very difficult to solve. In order to make the
+problem more linear, numerous strategies and modifications have
+been proposed. The multi-scale approach \citep{Bunks95} proposes to
+solve the problem in a cascaded way: from low frequencies to high
+frequencies. At low frequencies, the seismic data is less oscillatory
+which makes the problem more linear. In their multi-scale, approach
+the result from each band is fed into the next one as opposed to
+solving the problem using the full bandwidth at once. However, the
+success of the approach relies on the low frequency content of the
+acquired data, which unfortunately is not low enough. \rfg{Claerbout}
+\citep{Claerbout:1985:IEI:3887} shows a pictorial representation
+of the gap of information we observe in the seismic data. From
+tomography, we can obtain low wavenumbers in the model, and from
+imaging we can retrieve high wavenumbers. However, there is a gap
+(2-5Hz at the time he made the sketch) which we cannot recover
+yet. \cite{Sirgue} propose a similar continuation approach in the
+frequency domain (rather than the time domain). They propose to use a
+sparse set of frequencies that produce a continuous sampling of the
+model wavenumbers (considering a 1D earth velocity gradient). More
+recently, along the same lines, \cite{TariqWavenumber} suggests a
+multi-scale approach which directly controls the model wavenumbers
+by using a scattering angle filter; in this approach the model is
+inverted by solving first for low wavenumbers and later for high
+wavenumbers. \cite{Rocha2015elastic} advocate for a scattering angle
+filter based on the energy norm. In order to further simplify the
+data within the inversion, \cite{ShinHa.geo.2008} and \cite{shin_cha}
+propose to damp the data to highlight not only low frequencies
+but also the earlier arrivals. In their hierarchical approach,
+the earlier arrivals are fitted first, and then the damping is
+incrementally relaxed to allow more data into the inversion.
 
-Numerous objective functions have been proposed to tackle the non-linearity of the
-FWI problem.
- \cite{Luo91} promote the inversion of the travel-time information, rather
-than the amplitude, by minimizing the lag position of the maximum correlation between
-modeled and observed data. Their approach requires manual picking of the correlation maximum
-at each iteration. \cite{van2010correlation} seek to automatize the method of \cite{Luo91} 
-by minimizing the energy of the correlation outside zero lag. This method resemble those 
-of the image domain extended image optimization mentioned above.
-\cite{GJI:GJI4970} make
-an extensive review of several objective functions and analyze their sensitivity 
-for the global seismology tomography. 
-\cite{van2013mitigating} propose to mitigate the local
-minima problem by changing the optimization
-approach by relaxing the constraints on the wave equation, allowing further matching of the data
-at the receivers. Along the same lines, 
-\cite{simon,warner} propose to minimize the energy of the optimum Wiener filter that
-matches the model data with the observed data. 
- \cite{ChoiTariq} propose to use the unwrapped phase together with 
-Laplace damping to tackle the inherent non-linearity of seismic waveforms. 
+Numerous objective functions have been proposed to tackle the
+non-linearity of the FWI problem. \cite{Luo91} promote the inversion
+of the travel-time information, rather than the amplitude, by
+minimizing the lag position of the maximum correlation between
+modeled and observed data. Their approach requires manual picking of
+the correlation maximum at each iteration. \cite{van2010correlation}
+seek to automatize the method of \cite{Luo91} by minimizing the
+energy of the correlation outside zero lag. This method resemble
+those of the image domain extended image optimization mentioned
+above. \cite{GJI:GJI4970} make an extensive review of several
+objective functions and analyze their sensitivity for the global
+seismology tomography. \cite{van2013mitigating} propose to mitigate
+the local minima problem by changing the optimization approach by
+relaxing the constraints on the wave equation, allowing further
+matching of the data at the receivers. Along the same lines,
+\cite{simon,warner} propose to minimize the energy of the optimum
+Wiener filter that matches the model data with the observed data.
+\cite{ChoiTariq} propose to use the unwrapped phase together with
+Laplace damping to tackle the inherent non-linearity of seismic
+waveforms.
 
 
 \subsection{Mixed-domain methods}
 
 Recently, an emerging trend simultaneously considers the objectives
-of image-domain inversion  with those of data-domain inversion. \cite{clement} 
- pioneered  this approach by proposing to separate the inversion into smooth 
-components (the background model) and rough components (the reflectivity). In performing
-this separation, the background model is not contaminated by the local minima related artifacts. 
- \cite{Xu},\cite{HWang},\cite{Zhou01092015},\cite{Zedong} show examples of this iterative process where 
-the separation of scale is performed and the background model is built together with the
-reflectivity. With a similar motivation, but with an objective function that resembles that of \cite{Luo91},
- \cite{MaWarping} propose to use the same scale separation scheme by driving 
-the traveltime residuals to zero, as opposed to direct waveform matching. 
- 
-\cite{GPR:GPR698} proposes a least-squares migration scheme for an extended perturbation, which
- is described by an extended image. By mapping the data into this extended reflectivity domain, 
- the full Born data can be explained since all the kinematic errors are captured by the image (or model)
-extensions. This modeling operator has been used by \cite{BiondiAli:2014} to construct
-an inversion framework where the data are always matched (because of the model extensions), 
- but the kinematic inaccuracies are captured by the curvature of the gathers. 
- \cite{FleuryPerrone} develop a framework where both focusing in the  extended images and data matching 
-goals are optimized simultaneously. Instead, \cite{diaz2013data} propose a cascaded 
-approach where the extended image is optimized in an initial stage followed by a second stage 
-that seeks to match the data. The idea of the method is to increase focusing in the initial stage
- (which translates into a reduced travel time misfit at the receiver locations). Once the
-initial traveltime requirements for FWI are met, the inversion continues in FWI mode. 
+of image-domain inversion with those of data-domain inversion.
+\cite{clement} pioneered this approach by proposing to separate the
+inversion into smooth components (the background model) and rough
+components (the reflectivity). In performing this separation, the
+background model is not contaminated by the local minima related
+artifacts. \cite{Xu},\cite{HWang},\cite{Zhou01092015},\cite{Zedong}
+show examples of this iterative process where the separation of
+scale is performed and the background model is built together with
+the reflectivity. With a similar motivation, but with an objective
+function that resembles that of \cite{Luo91}, \cite{MaWarping}
+propose to use the same scale separation scheme by driving the
+traveltime residuals to zero, as opposed to direct waveform matching.
+
+\cite{GPR:GPR698} proposes a least-squares migration scheme for an
+extended perturbation, which is described by an extended image.
+By mapping the data into this extended reflectivity domain, the
+full Born data can be explained since all the kinematic errors are
+captured by the image (or model) extensions. This modeling operator
+has been used by \cite{BiondiAli:2014} to construct an inversion
+framework where the data are always matched (because of the model
+extensions), but the kinematic inaccuracies are captured by the
+curvature of the gathers. \cite{FleuryPerrone} develop a framework
+where both focusing in the extended images and data matching goals
+are optimized simultaneously. Instead, \cite{diaz2013data} propose a
+cascaded approach where the extended image is optimized in an initial
+stage followed by a second stage that seeks to match the data. The
+idea of the method is to increase focusing in the initial stage
+(which translates into a reduced travel time misfit at the receiver
+locations). Once the initial traveltime requirements for FWI are met,
+the inversion continues in FWI mode.
 
 \subsection{Towards a more robust inversion}
 
-The approaches mentioned above increase complexity in order to avoid local minima
- and introduce more constraints into the tomographic problem.  
- Moreover, these approaches lack an accurate modeling operator
-(which is usually considered acoustic). Much development has been focused on the multi-parameter inversion
-problem which is of great importance for elastic anisotropic models \citep{barnes2008feasibility,guasch,Kamath,espen,yuting}. 
-The increasing cost  and algorithmic complexity of the solutions to problems with local minima opens
-the need for more robust and simple inversion schemes. Concepts from 
-other fields like mathematics and medical imaging contain solutions of interest 
-to the geophysical community. \cite{engquist2013application} for example propose using the 
-Wasserstein metric as a distance measure (instead of the $L_2$ metric) as a robust 
-way to solve the problem. This metric finds the optimum path required to
- transform (warp) one set into the other. This concept is borrowed from the problem of optimal mass transport
-which has applications within the image-registration community. 
+The approaches mentioned above increase complexity in order
+to avoid local minima and introduce more constraints into the
+tomographic problem. Moreover, these approaches lack an accurate
+modeling operator (which is usually considered acoustic). Much
+development has been focused on the multi-parameter inversion
+problem which is of great importance for elastic anisotropic
+models \citep{barnes2008feasibility,guasch,Kamath,espen,yuting}.
+The increasing cost and algorithmic complexity of the solutions to
+problems with local minima opens the need for more robust and simple
+inversion schemes. Concepts from other fields like mathematics and
+medical imaging contain solutions of interest to the geophysical
+community. \cite{engquist2013application} for example propose using
+the Wasserstein metric as a distance measure (instead of the $L_2$
+metric) as a robust way to solve the problem. This metric finds the
+optimum path required to transform (warp) one set into the other.
+This concept is borrowed from the problem of optimal mass transport
+which has applications within the image-registration community.
 
-Another possible solution for finding the global minimum is to explore 
-stochastic optimization approaches, which might be able to  
- find models that can fill the gap present in the seismic data (\rfg{Claerbout}). An additional benefit
-of such methods is that they also provide an estimate of the model uncertainty,
-which can be helpful for understanding
-the null space of the problem. On the computational side, a thousands of forward simulations
-must be calculated. Even though this could be done efficiently since 
-there is no need to store wavefields (as needed for deterministic 
-solutions) is still too costly for today's computers. \cite{Sen91} show applications to 
-1D stochastic inversion; more recently, \cite{stochasticPisa,SenWorkshop} show examples
-of 2D stochastic waveform inversion. In the context of seismic inversion, stochastic inversion
-is greatly employed for reservoir characterization \citep{boschReview}, which could 
-be also included in the full waveform inversion community. 
+Another possible solution for finding the global minimum is to
+explore stochastic optimization approaches, which might be able
+to find models that can fill the gap present in the seismic data
+(\rfg{Claerbout}). An additional benefit of such methods is that
+they also provide an estimate of the model uncertainty, which can
+be helpful for understanding the null space of the problem. On
+the computational side, a thousands of forward simulations must
+be calculated. Even though this could be done efficiently since
+there is no need to store wavefields (as needed for deterministic
+solutions) is still too costly for today's computers. \cite{Sen91}
+show applications to 1D stochastic inversion; more recently,
+\cite{stochasticPisa,SenWorkshop} show examples of 2D stochastic
+waveform inversion. In the context of seismic inversion, stochastic
+inversion is greatly employed for reservoir characterization
+\citep{boschReview}, which could be also included in the full
+waveform inversion community.
 
 \subsection{The role of the multiples}
-As mentioned in the previous section, imaging and tomography methods usually follow
-the leading term in the Born series (the single scattering). In order
-to consider models beyond Born, 
-several authors \citep{GuittonAreal,grion2007mirror,VerschuurMultiples,DanWhitmore,Mandy} have 
-proposed ideas to adapt more conventional technologies 
-to handle multiple-scattered waves (surface-related in most cases).
- The adaptation requires prior separation of primaries and surface-related multiples. 
-Once the multiples have been separated, during imaging the primaries can be 
-used as an areal injection source for the downgoing source wavefield, which 
-correlates at the reflector position with the backpropagated multiples.
 
-\cite{rose2002,rose2002single} propose an inverse scattering approach based
-on focusing and time reversal which retrieves a function  that focuses at 
-an arbitrarily point in an 
-unknown 1D medium. This approach is extended to 2D and introduced to 
-the geophysical community by \cite{Fil2012}. Their method properly handles
-primaries and internal multiples given a background velocity model with the 
-appropriate kinematics. It turns out the approach has direct links with 
-the inverse scattering framework proposed by Vladimir Marchenko \citep{marchenko2011sturm}. 
+As mentioned in the previous section, imaging and tomography methods
+usually follow the leading term in the Born series (the single
+scattering). In order to consider models beyond Born, several authors
+\citep{GuittonAreal,grion2007mirror,VerschuurMultiples,DanWhitmore,Ma
+ndy} have proposed ideas to adapt more conventional technologies to
+handle multiple-scattered waves (surface-related in most cases). The
+adaptation requires prior separation of primaries and surface-related
+multiples. Once the multiples have been separated, during imaging the
+primaries can be used as an areal injection source for the downgoing
+source wavefield, which correlates at the reflector position with the
+backpropagated multiples.
 
-The multiples within the Marchenko modeling framework are used 
-together with the primaries in a global prediction procedure \citep{Behura,Wapenaar,Singh2015}.
-The input information to the process are the surface recorded data and 
-a background velocity model. From the background model, the first arrival is 
-computed (e.g., by direct finite difference modeling or by using an Eikonal solver \citep{Behura}). Once 
-the travel time is computed, the iterative procedure retrieves the Green's function 
-from a point $\xx$ to the receivers $\xx_r$ at the surface. By 
-computing the Green's functions at every point in the subsurface grid and  by using 
-reciprocity, one can obtain the Green's functions from each point at the surface $\xx_r$ to 
-every point $\xx$ in the subsurface. The retrieved Green's functions are also separated 
-into upgoing and downgoing components. These components are used for imaging 
-in a way similar to the conventional one-way and RTM wavefield-based approaches. 
- The main difference between Marchenko wavefield and more conventional modeling approaches is that
-the multiples and primaries reflection occur at the right interface, regardless of the 
-accuracy of the background velocity model. However, the consistency between the observation 
-point $\xx_r$ still depends on the quality of the background velocity. 
+\cite{rose2002,rose2002single} propose an inverse scattering approach
+based on focusing and time reversal which retrieves a function
+that focuses at an arbitrarily point in an unknown 1D medium.
+This approach is extended to 2D and introduced to the geophysical
+community by \cite{Fil2012}. Their method properly handles primaries
+and internal multiples given a background velocity model with the
+appropriate kinematics. It turns out the approach has direct links
+with the inverse scattering framework proposed by Vladimir Marchenko
+\citep{marchenko2011sturm}.
+
+The multiples within the Marchenko modeling framework are used
+together with the primaries in a global prediction procedure
+\citep{Behura,Wapenaar,Singh2015}. The input information to the
+process are the surface recorded data and a background velocity
+model. From the background model, the first arrival is computed
+(e.g., by direct finite difference modeling or by using an Eikonal
+solver \citep{Behura}). Once the travel time is computed, the
+iterative procedure retrieves the Green's function from a point
+$\xx$ to the receivers $\xx_r$ at the surface. By computing the
+Green's functions at every point in the subsurface grid and by using
+reciprocity, one can obtain the Green's functions from each point
+at the surface $\xx_r$ to every point $\xx$ in the subsurface. The
+retrieved Green's functions are also separated into upgoing and
+downgoing components. These components are used for imaging in a
+way similar to the conventional one-way and RTM wavefield-based
+approaches. The main difference between Marchenko wavefield and more
+conventional modeling approaches is that the multiples and primaries
+reflection occur at the right interface, regardless of the accuracy
+of the background velocity model. However, the consistency between
+the observation point $\xx_r$ still depends on the quality of the
+background velocity.
 
 
 

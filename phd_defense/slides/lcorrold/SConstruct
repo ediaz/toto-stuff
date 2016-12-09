@@ -1,0 +1,402 @@
+from rsf.proj import *
+from rsf.recipes import fdmod
+import random
+import time
+from LBFGSB import lbfgs_b
+from slides_fig import slideFig 
+
+random.seed(time.time())
+
+
+java = WhereIs('java')+' -server -ea -Xmx12g '
+ediaz = ' ediaz.rsf.'
+lcorr = java+ediaz+'LocalCorrM '
+lcorr2 = java+ediaz+'LocalCorr2 '
+lrgf = java+ediaz+'RecursiveFilt '
+
+dt= 0.001
+nl = 281
+
+par = {'nt':1001,'ot':0.0,'dt':dt,
+       'nz':101 ,'oz':0.0,'dz':0.02,
+       'nx':nl*2+1  ,'dx':2*dt ,'ox':-nl*2*dt }
+
+fdmod.param(par)
+
+par2 = {'nt':nl*2+1,'ot':-nl*dt*2,'dt':2*dt,
+       'nz':101 ,'oz':0.0,'dz':0.02,
+       'nx':101 ,'ox':0.0,'dx':0.02,
+       'nl':nl*2+1  ,'dl':2*dt ,'ol':-nl*2*dt }
+
+fdmod.param(par2)
+
+
+
+class WRAPPER:
+    def __init__(self,
+                 G,
+                 d, eps):
+        self.G = G
+        self.d = d
+        self.eps = eps
+        
+    def of(self,OF,m):
+        self.folder = 'tmp/' + m
+        self.dmod = self.folder+'/data'
+        self.diff = self.folder+'/data_diff'
+        
+        self.G.FORW(m,self.dmod)
+        
+        Flow(self.diff,[self.dmod,self.d],
+             '''
+             add scale=1,-1 ${SOURCES[1]}
+             ''')
+
+        Flow(OF+'1',[self.diff],
+             '''
+             math output="input^2" |
+             stack axis=0 norm=n
+             ''')
+
+        Flow(OF+'2',[m],
+             '''
+             math output="%g*input^2" |
+             stack axis=0 norm=n
+             '''%self.eps)
+        Flow(OF,[OF+'1',OF+'2'],'add ${SOURCES[1:2]} ')
+
+
+    def gradient(self,
+                 grad,
+                 OF,
+                 m):
+
+        self.of(OF,m)
+        self.G.ADJT(grad+'1',self.diff)
+        Flow(grad,[grad+'1',m],'math m=${SOURCES[1]} output="input +%g*m"'%self.eps)
+
+
+
+def waveplot(custom,par):
+    return '''
+    graph title="" min1=%g 
+    plotfat=5 plotcol=5
+    label1=%s unit1=%s
+    label2="" unit2=""
+    parallel2=n screenratio=0.5  yll=1
+    %s
+    ''' % (par['ot'],par['lt'],par['ut'],
+           par['labelattr']+' '+custom)
+
+
+class LocalCorrelationI:
+  def __init__(self,g,nlag,s3,window='gaussian',ctype='sym'):
+    self.g = g
+    self.nlag = nlag
+    self.s3 = s3
+    self.append= 'type=%s window=%s'%(ctype,window)
+    
+  def ADJT(self,corr,f):
+    Flow(corr,[f,self.g],
+      lcorr+self.append+
+      ' g=${SOURCES[1]} s3=%g nlag=%d fwd=y|'%(self.s3,self.nlag)+
+      ' smooth rect3=4 repeat=1')
+
+  def FORW(self,corr,f):
+    Flow(f,[corr,self.g],
+      ' smooth rect3=5 repeat=1|'+
+      lcorr+self.append+
+      ' g=${SOURCES[1]} s3=%g nlag=%d fwd=n'%(self.s3,self.nlag))
+
+class LocalCorrelation2:
+  def __init__(self,g,nlag,s3,window='gaussian',ctype='sym'):
+    self.g = g
+    self.nlag = nlag
+    self.s3 = s3
+    self.append= 'type=%s window=%s'%(ctype,window)
+    
+  def FORW(self,f,corr):
+    Flow(corr,[f,self.g],
+      lcorr2+self.append+
+      ' g=${SOURCES[1]} s3=%g nlag=%d fwd=y'%(self.s3,self.nlag))
+  def ADJT(self,f,corr):
+    Flow(f,[corr,self.g],
+      lcorr2+self.append+
+      ' g=${SOURCES[1]} s3=%g nlag=%d fwd=n'%(self.s3,self.nlag))
+
+class LocalCorrelation:
+  def __init__(self,g,nlag,s3,window='gaussian',ctype='sym'):
+    self.g = g
+    self.nlag = nlag
+    self.s3 = s3
+    self.append= 'type=%s window=%s'%(ctype,window)
+    
+  def FORW(self,f,corr):
+    Flow(corr,[f,self.g],
+      lcorr+self.append+
+      ' g=${SOURCES[1]} s3=%g nlag=%d fwd=y'%(self.s3,self.nlag))
+  def ADJT(self,f,corr):
+    Flow(f,[corr,self.g],
+      lcorr+self.append+
+      ' g=${SOURCES[1]} s3=%g nlag=%d fwd=n'%(self.s3,self.nlag))
+      
+class corr2:
+  def __init__(self,f,nl=100):
+    self.f = f
+    self.nl = nl
+  def FORW(self,g,c):
+    Flow(c,[g,self.f],
+      'python test.py g=${SOURCES[1]}  nlag=%d adj=f'%self.nl)
+
+  def ADJT(self,g,c):
+    Flow(g,[c,self.f],
+      'python test.py g=${SOURCES[1]}  nlag=%d adj=y'%self.nl)
+
+class DPT:
+    def __init__(self,G,m,d):
+        self.G=G
+        self.m=m
+        self.d=d
+
+    # ------------------------------------------------------------
+    def DOT(self,d,i,o):
+        Flow(d,[i,o],
+             '''
+             add mode=p ${SOURCES[1]} |
+             stack axis=0 norm=n |
+             put o1=0 d1=1 o2=0 d2=1 o3=0 d3=1
+             ''')
+
+    # ------------------------------------------------------------
+    def TEST(self,name=''):
+        
+        prfx = '_DPT'+self.m+self.d 
+
+        mi = prfx + self.m + 'i' # input
+        mo = prfx + self.m + 'o' # output
+        md = prfx + self.m + 'd' # dot product
+        
+        di = prfx + self.d + 'i' # input
+        do = prfx + self.d + 'o' # output
+        dd = prfx + self.d + 'd' # dot product
+
+        Flow(mi,self.m,'noise rep=y seed=%d|scale rscale=1000'%random.randint(1,10001)) # random m
+        Flow(di,self.d,'noise rep=y seed=%d|scale rscale=1000'%random.randint(1, 20001)) # random d
+
+        self.G.FORW(mi,do) # do = G [mi]
+        self.G.ADJT(mo,di) # mo = G*[di]
+
+        self.DOT(md,mi,mo) # output name is md
+        self.DOT(dd,di,do) # output name is dd
+
+        # report
+        Flow( prfx ,[md,dd],
+            '''
+            math m=${SOURCES[0]} d=${SOURCES[1]} output="abs(d-m)" |
+            cat axis=1 space=n ${SOURCES[1]} ${SOURCES[0]} |
+            reverse which=1 |
+            scale axis=1 |
+            disfil format="DPTEST %9.6f" col=1
+            ''',stdin=0,stdout=-1)
+
+
+
+
+
+def plotLocalCorr(f,g,corr):
+  Plot(corr,
+    '''
+    transp| grey screenht=4 screenratio=0.3 pclip=100
+    title="" yll=5 unit1=s label1="\F10 t\F3"  
+parallel2=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 
+    ''')
+  Plot(f+g,[f,g],'cat axis=2 ${SOURCES[1]}|'+
+    '''
+    graph screenht=4 screenratio=0.3
+    title="" yll=1 unit1=s  label2="" unit2="" 
+parallel2=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 
+    plotfat=7
+    ''')
+  Result(corr,[corr,f+g],'Overlay')
+
+def plotGlobalCorr(f,g,corr):
+  Plot(corr,
+    '''
+    transp| grey screenht=4 screenratio=0.3
+    title="" yll=5 unit1=s label1="\F10 t\F3"  
+    ''')
+  Plot(f+g,[f,g],'cat axis=2 ${SOURCES[1]}|'+
+    '''
+    graph screenht=4 screenratio=0.3
+    title="" yll=1 unit1=s  label2="" unit2="" 
+    
+    ''')
+  Result(corr,[corr,f+g],'Overlay')
+
+nt = par['nt']
+
+Flow('f',None,
+  '''
+  math n1=%(nt)d o1=%(ot)g d1=%(dt)g n2=1 output="0"|'''%par+'''
+  spike nsp=3 k1=%d,%d,%d |
+  ricker2 frequency=40'''%(nt*1.1/4,2.1*nt/4,3.2*nt/4))
+
+Flow('g',None,
+  '''
+  math n1=%(nt)d o1=%(ot)g d1=%(dt)g n2=1 output="0"|'''%par+'''
+  spike nsp=3 k1=%d,%d,%d |
+  ricker2 frequency=40'''%(0.8*nt/4,2.0*nt/4,3.3*nt/4))
+
+
+
+
+test = LocalCorrelation('g',nl,s3=90,window='gaussian',ctype='sym')
+
+test.FORW('f','corr')
+test.ADJT('fadj','corr')
+Flow('pcorr','corr','math output="x2*input"')
+
+dpt = DPT(test,'f','corr')
+dpt.TEST()
+
+c = corr2('g',nl)
+
+c.FORW('f','c')
+c.ADJT('fca','c')
+
+dpt = DPT(c,'f','c')
+
+dpt.TEST()
+
+Flow('lag',None,'math n1=1001 d1=1 o1=-500 output="x1"')
+
+
+
+
+slide = slideFig(par,ratio='16:9',font=25)
+par2 = par.copy()
+par2['ratio'] = 0.4
+slide2 = slideFig(par2,ratio='16:9',font=25)
+
+
+# Limiting case
+test = LocalCorrelation('g',nl,s3=90000000)
+test.FORW('f','corr_lim')
+test.ADJT('fa_lim','corr_lim')
+
+test = corr2('g',nl)
+c.FORW('f','clim')
+c.ADJT('fa','clim')
+
+plotLocalCorr('f','g','corr_lim')
+
+
+Plot('corr_comp',['corr_lim','clim'],
+  '''
+    window n1=1 f1=500 | cat axis=2 ${SOURCES[1]}|  
+    graph screenht=4 screenratio=0.3
+    title="" yll=1 unit1=s  label2="" unit2="" 
+    parallel2=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 
+    plotfat=7  unit1=s label1="\F10 t\F3"  
+  ''')
+
+Plot('adj_comp',['fa','fa_lim'],
+  '''
+    cat axis=3 ${SOURCES[1]} |
+    graph screenht=4 screenratio=0.3
+    title="" yll=1 unit1=s  label2="" unit2="" 
+    parallel2=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 
+    plotfat=7  unit1=s label1="\F10 t\F3"    
+  ''')
+
+Result('f',slide2.waveplot('yll=1 ',scalar=1.0))
+Result('g',slide2.waveplot('plotcol=6 yll=1',scalar=1.0))
+
+Result('lcorr_lim','corr_lim',
+  'window n1=1 f1=500 |'+slide2.waveplot('plotcol=6 label1="\F10 t\F3" ',scalar=1.0))
+
+Result('corr',  slide2.dgrey(
+  '''
+   unit2=s xll=2 label2="\F10 t\F3"
+  transp=n grid2=n g2num=%g griddash=1.
+  ''',scalar=1.0))
+
+Result('fa_lcorr_lim','fa_lim','scale rscale=0.001|'+
+  slide2.waveplot('yll=1',scalar=1.0))
+
+Result('fa_lcorr'    ,'fadj'  ,slide2.waveplot('yll=1 ',scalar=1.0))
+Result('fa_gcorr'    ,'fa'    ,slide2.waveplot('yll=1 ',scalar=1.0))
+
+
+
+Result('gcorr','corr_lim',
+  slide2.dgrey(
+  '''
+   unit2=s xll=2 label2="\F10 t\F3"
+  transp=n grid2=n g2num=%g griddash=1.
+  ''',scalar=1.0))
+
+
+Result('lcorr','corr',
+  slide2.dgrey(
+  '''
+   unit2=s xll=2 label2="\F10 t\F3"
+  transp=n grid2=n g2num=%g griddash=1.
+  ''',scalar=1.0))
+
+
+
+
+test = LocalCorrelationI('g',nl,s3=100,window='gaussian',ctype='sym')
+
+test.ADJT('corr0','f')
+Flow('mo','corr0','math output="0"')
+Flow('lo','corr0','math output="-1e8"')
+Flow('hi','corr0','math output="+1e8"')
+#cg = LCGlsq(test,'mo','filt','f',name='test',nit=11)
+#cg.RUN()
+
+#test.FORW('filt','finv')
+
+wrap = WRAPPER(test,'f',0.05)
+
+lb = lbfgs_b(wrap,'cinv','mo',40,'lo','hi',name='',save=False)
+
+lb.RUN()
+
+test.FORW('cinv','finv')
+
+Result('lcorrinv','cinv',
+  slide2.dgrey(
+  '''
+   unit2=s xll=2 label2="\F10 t\F3"
+  transp=n grid2=n g2num=%g griddash=1.
+  ''',scalar=1.0))
+
+Result('finv',slide2.waveplot('yll=1',scalar=1.0))
+
+
+
+test = LocalCorrelationI('g',nl,s3=100000,window='gaussian',ctype='sym')
+
+
+wrap = WRAPPER(test,'f',0.05)
+
+lb = lbfgs_b(wrap,'cinv_glob','mo',40,'lo','hi',name='global',save=False)
+lb.RUN()
+
+test.FORW('cinv_glob','finv_glob')
+
+Result('gcorrinv','cinv_glob',
+  slide2.dgrey(
+  '''
+   unit2=s xll=2 label2="\F10 t\F3"
+  transp=n grid2=n g2num=%g griddash=1.
+  ''',scalar=1.0))
+
+Result('finv_glob',slide2.waveplot('yll=1 ',scalar=1.0))
+
+
+
+
+End()

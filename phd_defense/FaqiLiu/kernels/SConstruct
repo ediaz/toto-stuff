@@ -1,0 +1,160 @@
+from rsf.proj import *
+from rsf.recipes import fdmod
+from aweOP import aweop2d
+from slides_fig import *
+
+par = {'nx':401,'dx':0.02,'ox':0,
+       'nz':101,'dz':0.02,'oz':0,
+       'nt':3001,'dt':0.002,'ot':0,
+       'kt':110,'frq':14,'kdepth':81}
+
+fdmod.param(par)
+
+
+
+Flow('vel',None,
+  '''
+   makevel n1=%(nz)d o1=%(oz)g d1=%(dz)g 
+       n2=%(nx)d o2=%(ox)g d2=%(dx)g
+     v000=2.000 dvdx1=0.2 dvdx2=0.0 l1c=1.500 l2c=2.000 exc=1
+  '''%par) 
+
+Result('vel',fdmod.cgrey('color=j mean=y',par))
+
+Flow('den','vel',
+  '''
+  spike nsp=2 mag=1000,2000 k1=0,%(kdepth)d l1=50,101 
+  '''%par)
+
+
+
+wav = 'wav'
+Flow(wav,None,
+  '''
+  spike n1=%(nt)d d1=%(dt)g o1=%(ot)g k1=%(kt)d n2=1 |
+  ricker2 frequency=%(frq)g |
+  transp|scale rscale=1e8'''%par)
+
+
+fdmod.point('ss',1.0,0.0,par)
+fdmod.point('rr',7.0,0.0,par)
+fdmod.point('xx',4.0,(par['kdepth']-1)*par['dz']+par['oz'],par)
+
+
+
+
+L = aweop2d('vel',par,'ss','xx','den',custom='nb=101 fsrf=y order=27',
+              newop=True)
+L.FORW('wav','ss-xx_dat')
+
+L = aweop2d('vel',par,'ss','','den',custom='nb=101 fsrf=y  jsnap=4 order=27',
+              newop=True)
+L.FORW('wav','ss-x_wfl')
+
+
+L = aweop2d('vel',par,'','xx','den',custom='nb=101 fsrf=y jsnap=4 order=27',
+              newop=True)
+L.ADJT('ss-x_Twfl','ss-xx_dat')
+
+
+
+
+def faqiDecomp(iwfl,wflp,wflm):
+  
+  Flow([wflp],iwfl,
+    '''
+    rtoc |
+    fft3 axis=1 inv=n  |
+    math output="input*0.5*(1+x1/(abs(x1)+0.00000000000001))" |
+    fft3 axis=1 inv=y  
+    ''')
+
+  Flow([wflm],iwfl,
+    '''
+    rtoc |
+    fft3 axis=1 inv=n  |
+    math output="input*(-0.5)*(-1+x1/(abs(x1)+0.00000000000001))" |
+    fft3 axis=1 inv=y  
+    ''')
+
+faqiDecomp('ss-x_wfl' ,'ssp_s','ssn_s')
+faqiDecomp('ss-x_Twfl','ssp_x','ssn_x')
+
+
+Flow('ss-xx-kernel-f',['ssp_s','ssp_x','ssn_x','ssn_x'],
+  '''
+  math sp=$SOURCE rp=${SOURCES[1]} sn=${SOURCES[2]} rn=${SOURCES[3]} 
+       output="conj(sp)*rp+conj(sn)*rn"|
+  imag |
+  stack axis=3  > tmp.rsf &&
+  reverse which=2 opt=i <tmp.rsf |add tmp.rsf  
+  ''',stdin=0)
+
+Flow('ss-xx-kernel-fR',['ssp_s','ssp_x','ssn_x','ssn_x'],
+  '''
+  math sp=$SOURCE rp=${SOURCES[1]} sn=${SOURCES[2]} rn=${SOURCES[3]} 
+       output="conj(sp)*rn+conj(sn)*rp"|
+  imag |
+  stack axis=3  > tmp.rsf &&
+  reverse which=2 opt=i <tmp.rsf |add tmp.rsf  
+  ''',stdin=0)
+
+
+
+slide = slideFig(par,ratio='16:9',font=25)
+
+
+
+
+L = aweop2d('vel',par,'ss','xx','den',custom='nb=101 fsrf=n order=27',
+              newop=True)
+L.FORW('wav','ss-xx_datsm')
+
+L = aweop2d('vel',par,'ss','','den',custom='nb=101 fsrf=n  jsnap=4 order=27',
+              newop=True)
+L.FORW('wav','ss-x_wflsm')
+
+
+L = aweop2d('vel',par,'','xx','den',custom='nb=101 fsrf=n jsnap=4 order=27',
+              newop=True)
+L.ADJT('ss-x_Twflsm','ss-xx_datsm')
+
+
+
+
+
+faqiDecomp('ss-x_wflsm' ,'ssp_ssm','ssn_ssm')
+faqiDecomp('ss-x_Twflsm','ssp_xsm','ssn_xsm')
+
+
+Flow('ss-xx-kernel-fsm',['ssp_ssm','ssp_xsm','ssn_xsm','ssn_xsm'],
+  '''
+  math sp=$SOURCE rp=${SOURCES[1]} sn=${SOURCES[2]} rn=${SOURCES[3]} 
+       output="conj(sp)*rp+conj(sn)*rn"|
+  imag |
+  stack axis=3  > tmp.rsf &&
+  reverse which=2 opt=i <tmp.rsf |add tmp.rsf 
+  ''',stdin=0)
+
+
+Flow('kernel-full',['ss-x_wfl','ss-x_Twfl'],'add mode=p ${SOURCES[1]} |stack axis=3 > tmp.rsf && reverse which=2 opt=i <tmp.rsf |add tmp.rsf |scale rscale=-1 ')
+
+
+Flow('kernel-fullsm',['ss-x_wflsm','ss-x_Twflsm'],'add mode=p ${SOURCES[1]} |stack axis=3 > tmp.rsf && reverse which=2 opt=i <tmp.rsf |add tmp.rsf |scale rscale=-1 ')
+
+for kernel in ['kernel-full','kernel-fullsm','ss-xx-kernel-fsm','ss-xx-kernel-f','ss-xx-kernel-fR']:
+  Result(kernel,slide.cgrey('color=E pclip=99'))
+
+
+
+
+
+
+
+
+Result('den',slide.cgrey('color=j mean=y'))
+
+
+
+
+End()

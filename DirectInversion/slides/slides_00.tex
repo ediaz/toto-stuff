@@ -38,16 +38,17 @@
 \begin{frame}
   The forward problem:
 \[
-  {\bf m} \rightarrow {\bf u} 
+  {\bf m_0} \rightarrow {\bf u} 
 \]
-$\bf u$: acoustic wavefield\\
-$\bf m$: model parameter(s)
+
+$\bf u$: acoustic wavefield retrieved by Marchenko\\
+$\bf m_0$: input model
 \end{frame}
 
 \begin{frame}
   The inverse problem:
 \[
-  {\bf m} \leftarrow {\bf u} 
+  {\bf m} \leftarrow {\bf u} ?
 \]
 $\bf u$: acoustic wavefield\\
 $\bf m$: model parameter(s)
@@ -113,12 +114,6 @@ with
 \]
 \end{frame}
 
-\begin{frame} \frametitle{constant density acoustics}
-  Given that the same model $\bf m$ can be illuminated
-  from different places (source locations), and assuming
-  the model to be frequency independent (no attenuation), 
-  we can construct a least squares estimated model 
-\end{frame}
 
 \begin{frame} \frametitle{constant density acoustics}
   
@@ -148,13 +143,6 @@ Then, the least squares estimate solves:
   \end{pmatrix}
 \]
 \end{frame}
-
-\begin{frame} \frametitle{constant density acoustics}
-  The inverting matrix is block diagonal, which means
-that the inversion is actually a point-to-point division. Hence,
-we don't need to know much about the source $\bf f$.  
-\end{frame}
-
 
 
 
@@ -362,21 +350,6 @@ possible $\bf R$s:
     \end{pmatrix} =
     {\bf f}
   \]
-
-  \[  
-  {\bf A} \in \mathcal{R}^{Mx2M};
-  \]
-
-  \[
-  {\bf m} =      \begin{pmatrix}
-      {\bf m}_1 \\
-      {\bf m}_2
-    \end{pmatrix}  \in \mathcal{R}^{2Mx1};
-  \]
-
-  \[
-  {\bf f} \in  \mathcal{R}^{Mx1};
-  \]
 \end{frame}
 
 \begin{frame}
@@ -398,10 +371,10 @@ least squares setup:
   \]
 \end{frame}
 
-\begin{frame}
-  Maybe we should work with a impedance-density inversion pair
-  (as shown by Antoine in his CWP seminar).
+\begin{frame} \frametitle{next}
+\begin{itemize}
+  \item more sources, stable inversion?
+  \item 
+\end{itemize}
 \end{frame}
-
-
 \end{document}

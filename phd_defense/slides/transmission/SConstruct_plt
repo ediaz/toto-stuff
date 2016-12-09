@@ -1,0 +1,209 @@
+from rsf.cluster import *
+from rsf.recipes import fdmod
+from aweOP import aweop2d
+from injOP import injop2d 
+from corrFunc import  * 
+from LBFGSB_new import lbfgs_b
+from NSD import steepest_descent as sd
+from slides_fig import slideFig 
+
+Cluster(name='modeling',email='ediazpan@mines.edu',time=1,nodetype='psava',ppn=12)
+
+
+java = WhereIs('java')+' -server -ea -Xmx12g '
+ediaz = ' ediaz.rsf.'
+lcorr = java+ediaz+'LocalCorr '
+
+
+dx=0.01
+dt= 0.001
+nl=200
+par = {'nt':1501,'ot':0.0,'dt':dt,
+       'nz':301 ,'oz':0.0,'dz':dx,
+       'nx':201 ,'ox':0.0,'dx':dx,
+       'nl':nl  ,'dl':dt ,'ol':-nl*dt,
+       'kt':70,'frq':15}
+fdmod.param(par)
+slide = slideFig(par,ratio='16:9',font=25)
+scalar = 0.8
+
+par['ns'] = 15
+par['ds'] = (par['nz']-1)/(par['ns']-1.)*par['dz'] 
+par['os'] = par['oz']
+
+
+for isou in range(par['ns']):
+  stag = '-%03d'%isou
+  ss = 'ss'+stag  
+  dat ='rdat-veld'+stag
+  Plot(ss,slide.ssplot('plotcol=7 ',scalar=scalar))
+  Result(ss,slide.ssplot('plotcol=7 ',scalar=scalar))
+  Result(dat,slide.egrey('',scalar=scalar))
+
+rr = 'rr'
+Plot(rr,slide.rrplot('plotcol=7 ',scalar=scalar))
+Plot(rr+'a',rr,slide.rrplot('wantaxis=y plotcol=7 ',scalar=scalar))
+
+Result('veldc',map(lambda x:'ss-%03d'%x,range(par['ns']))+[rr+'a'],
+    'Overlay')
+
+
+
+
+
+
+for vel in ['veld']:
+  Plot(vel,slide.cgrey('bias=3 color=E ',scalar=scalar))
+  Result(vel,[vel]+map(lambda x:'ss-%03d'%x,range(par['ns']))+[rr],
+    'Overlay')
+
+
+vel = 'veld'
+
+
+
+local = 'movie_local'
+glob  = 'movie_global'
+
+mlocal = 'mlocal'
+mglobal = 'mglobal'
+
+Flow(mlocal,local,'window f3=-1')
+Flow(mglobal,glob,'window f3=-1')
+
+Plot('model_local',[mlocal]+[mglobal]+[vel],
+    'cat ${SOURCES[1:3]} axis=3 |'+
+    'byte gainpanel=a bias=3 pclip=98|window n3=1 |'+
+    slide.cgrey('color=E bias=3.',scalar=scalar))
+
+
+Plot('model_global',[mlocal]+[mglobal]+[vel],
+    'cat ${SOURCES[1:3]} axis=3 |'+
+    'byte gainpanel=a bias=3 pclip=98|window n3=1 f3=1|'+
+    slide.cgrey('color=E bias=3.',scalar=scalar))
+
+
+
+for vel in ['model_global','model_local']:
+  Result(vel,[vel]+map(lambda x:'ss-%03d'%x,range(par['ns']))+[rr],
+    'Overlay')
+
+
+
+
+
+
+
+
+Plot('OF_global','OF_movie_global','window |put o1=0 d1=1|scale axis=123|'+
+  '''
+  graph title=""  plotfat=4 plotcol=7
+   label1=iteration unit1= label2="J" unit2="" parallel2=n screenratio=0.5
+   
+   screenht=7 parallel2=n labelsz=6 max2=1 min2=0 labelfat=3 titlesz=12 titlefat=3 dash %s screenht=%g yll=1 plotcol=7 
+  '''%(slide.par['labelattr'],slide.height*scalar))
+
+
+Plot('OF_local','OF_movie_local',
+  'window f1=-1 |spray axis=1 n=2 o=0 d=1 >tmp.rsf && cat $SOURCE tmp.rsf axis=1 |put o1=0 d1=1 |scale axis=123|'+
+  '''
+  graph title=""  min2=0 max2=1 plotfat=4 plotcol=7
+   label1=iteration unit1= label2="J" unit2="" parallel2=n screenratio=0.5
+   
+   screenht=7 parallel2=n  labelsz=6 labelfat=3 titlesz=12 titlefat=3 
+%s screenht=%g  yll=1 plotcol=5
+  '''%(slide.par['labelattr'],slide.height*scalar))
+
+
+par2 = par.copy()
+par2['nx']=par['nx']*2
+fdmod.param(par2)
+
+
+#fdmod.horizontal('line',185*par['dz']*0.5,par2)
+
+#Plot('line','''
+#  sfwindow n1=2 |dd type=complex | 
+#  sfgraph labelrot=n wantaxis=n title=""
+#   yreverse=y wherexlabel=t min2=0 max2=3 
+#  label2=z unit2=km min1=0 max1=2 label1=x
+#   unit1=km screenratio=1.5 screenht=10 
+#  wantscalebar=n parallel2=n labelsz=6 
+#  labelfat=3 titlesz=12 titlefat=3 symbol=.
+#   plotcol=6 plotfat=4
+#pclip=100 min2=0 max2=1.5 label2=t unit2=s min1=0 max1=3 label1=z unit1=km screenratio=1.5 screenht=10 parallel2=n labelsz=6 labelfat=3 titlesz=12 titlefat=3
+# ''')
+
+
+Result('OF','OF_global OF_local','Overlay')
+
+for vel in [mlocal,mglobal,'veldc','veld']:
+  for isou in range(par['ns']):
+    stag = '-%03d'%isou
+    ss = 'ss'+stag
+    rr = 'rr'
+    wav = 'wav'  
+    rdat = 'rdat-'+vel+stag 
+    dat  =  'dat-'+vel+stag 
+
+    L =  aweop2d(vel,par,ss,rr,'',custom='nb=100  fsrf=n ')
+    L.FORW(wav,rdat)
+    Flow(dat,rdat,'costaper nw1=100 ')
+    Result(dat,slide.egrey('',scalar=scalar))
+    #Result(dat,[dat,'line'],'Overlay')
+
+
+
+
+datT = 'datT-veld-009'
+Flow(datT,datT.replace("T",""),'transp')
+
+stag = '-009'
+nl = 100
+lc = Lcorr(datT,nl,300.,
+                  par['ot'],par['dt'],par['nt'],
+                  par['ot'],par['dt'],int(par['nt']))
+gc = Lcorr(datT,nl,9000.,
+                  par['ot'],par['dt'],par['nt'],
+                  par['ot'],par['dt'],int(par['nt']))
+
+
+parc = {'nt':1501,'ot':0.0,'dt':dt,
+       'nz':101 ,'oz':0.0,'dz':0.02,
+       'nx':nl*2+1  ,'dx':2*dt ,'ox':-nl*2*dt,'ratio':0.4 }
+fdmod.param(parc)
+
+slide = slideFig(parc,ratio='16:9',font=25)
+scalar=1.0
+
+for vel in [mlocal,mglobal,'veldc','veld']:
+  mdat  =  'dat-'+vel+stag 
+  mdatT  =  'datT-'+vel+stag 
+  Flow(mdatT,mdat,'transp')
+  gcorr  =  'gcorr-'+mdat
+  lcorr  =  'lcorr-'+mdat
+
+  wgcorr = 'w'+gcorr
+  wlcorr = 'w'+lcorr
+
+  gc.FORW(mdatT,gcorr)
+  lc.FORW(mdatT,lcorr)
+
+
+  Flow(wgcorr,gcorr,'window n3=1 f3=185')
+  Flow(wlcorr,lcorr,'window n3=1 f3=185')
+
+  Result(wlcorr,wlcorr,slide.dgrey(
+  '''
+   unit2=s xll=2 label2="\F10 t\F3"
+  transp=n grid2=y g2num=%g griddash=1. gridcol=8
+
+  '''%(-parc['ox']),scalar=scalar))
+  Result(wgcorr,wgcorr,slide.dgrey(
+  '''
+   unit2=s xll=2 label2="\F10 t\F3"
+  transp=n grid2=y g2num=%g griddash=1. gridcol=8
+  '''%(-parc['ox']),scalar=scalar))
+
+
+End()

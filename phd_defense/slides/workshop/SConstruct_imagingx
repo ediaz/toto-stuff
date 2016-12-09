@@ -1,0 +1,160 @@
+try:
+  from rsf.cluster import *
+except:
+  from rsf.proj import *
+
+from rsf.recipes import fdmod, adcig
+import cggNWA as cgg
+from NSD import steepest_descent
+from wet import *
+from ciputils import *
+from solvers import solver 
+
+###################
+# Have to call Cluster first
+Cluster(name='imagingX',email='',time=5,nodetype='psava',ppn=12)
+###################
+cggpar = cgg.getpar()
+mt = 2.0
+### Migration grid: ######
+minx,maxx = 0.0,33.0 
+minz,maxz = 0.0, 3.0
+dx,dt = 0.015,0.0020
+#########################
+
+migpar = {'ox':minx,'dx':dx,'nx':int((maxx-minx)/dx),'mx':maxx,
+          'oz':cggpar['oz'],'dz':dx,'nz':int(maxz/dx),'mz':maxz,
+          'ot':cggpar['ot'],'dt':dt,'nt':int(mt/dt),'mt':mt,
+          'oh':0.169,'dh':0.0125,'nh':648,
+          'os':cggpar['ox'],'ds':0.075,'ns':200,
+          'aper':1.0,
+          'tdelay':0.100,
+          'fmax':18,
+          'migvel':'veldepth',
+          'jsnap':5,
+          'nb':100,
+          'nho':40,
+          'nhx':60,'nhz':0,'nhy':0,'nht':0,'gaus':'n'
+          }
+fdmod.param(migpar)
+migpar['maxh']= migpar['oh']+(migpar['nh']-1)*migpar['dh']
+migpar['maxsx'] = migpar['os'] +(migpar['ns']-1)*migpar['ds']
+migpar['kt'] = int(migpar['tdelay']/migpar['dt'])
+
+parcip=dict(
+     sigma1=4,sigma2=8, # local orient filter parms
+     hw1=4,hw2=12,      # structure smoothing halfwidths
+     szclip=0.60,       # sets semblance vals = zero that are <= zclip
+     lzclip=0.60,       # sets linearity vals = zero that are <= zclip
+     jmem='8g',         # java memory
+     r1=4,r2=4,        # grid aligned ellipses (z is 3x sampled vs. x,y)
+     nmax=5000,
+     exclusion='exclusion'
+     )
+
+jx = 50 
+dcig = jx*migpar['dx']
+ncig = int((20-minx)/(dcig))
+ocig = minx
+
+migpar['dcig'] = dcig
+migpar['ncig'] = ncig
+migpar['ocig'] = ocig
+
+fdmod.boxarray('gg',migpar['nz'],migpar['oz'],migpar['dz'],
+                    ncig,ocig,dcig,migpar)
+
+
+
+
+Plot('gg',fdmod.ssplot('',migpar))
+vel='veldepth'
+wb = 'wb.txt'
+wmask= 'wmask'
+rtm = 'RTM-'+vel
+xrtm = 'X'+rtm
+
+
+
+par = migpar.copy()
+adcig.xparam(2*par['nhx']+1,-par['nhx']*par['dx'],par['dx'],
+               par['nz'],par['oz'],par['dz'],par)
+
+convert = '''
+window |put n1=%d d1=%g o1=%g n2=%d d2=%g o2=%g n3=%d d3=%g o3=%g|transp
+'''%(par['nhx']*2+1,2*par['dx'],-par['nhx']*2*par['dx'],
+     par['nz'],par['dz'],par['oz'],
+     par['ncig'],par['dcig'],par['ocig'])
+
+Flow('dip',None,'math n1=%(nz)d o1=%(oz)d d1=%(dz)g n2=%(ncig)d d2=%(dcig)g o2=%(ocig)g output="0" '%par)
+Flow('vpvs','dip','math output="1"')
+nang=60
+dang=0.75
+
+
+ppar = {'ox':minx,'dx':dx,'nx':int((16-minx)/dx),'mx':16,
+          'oz':cggpar['oz'],'dz':dx,'nz':int(maxz/dx),'mz':maxz,
+          'ot':cggpar['ot'],'dt':dt,'nt':int(mt/dt),'mt':mt,
+          'oh':0.169,'dh':0.0125,'nh':648,
+          'os':cggpar['ox'],'ds':0.075,'ns':200,
+          'aper':1.0,
+          'tdelay':0.100,
+          'fmax':18,
+          'migvel':'veldepth',
+          'jsnap':5,
+          'nb':100,
+          'nho':40,
+          'nhx':60,'nhz':0,'nhy':0,'nht':0,'gaus':'n'
+          }
+fdmod.param(ppar)
+
+Flow('vbyte bar',['v-tomo_int.H','v-init_int.H','vel_fwi_May_int.H','vel_fwi_May_e_int.H'],'cat ${SOURCES[1:4]} |byte gainpanel=a color=a mean=y bar=${TARGETS[1]}')
+
+Flow('wmaske','wmask','smooth rect1=10| spray axis=3 n=4 o=0 d=1')
+
+Flow('ibyte ',['image-v-tomo.H','image-v-init.H','image-vel_fwi_May.H','image-vel_fwi_May_e.H','wmaske'],'cat ${SOURCES[1:4]} | add mode=p ${SOURCES[4]} |byte gainpanel=a pclip=99.5 color=a mean=y')
+
+i=0
+##
+for img in ['image-v-tomo','image-v-init','image-vel_fwi_May','image-vel_fwi_May_e']:
+  ximg = 'x'+img+'.H'
+  dip ='dip'
+  vpvs = 'vpvs'
+  angle = 'angle-'+img
+  anglex = 'anglex-'+img
+  vel = img.replace("image","vel")
+##
+  Flow(angle,[ximg,dip,vpvs],convert+'|reverse which=2 opt=i|'+
+                               adcig.cig2ssk(500,0,0.005)+'|'+ 
+                               adcig.xsk2ang(nang,0,dang) )
+  Flow(anglex,angle,'put n3=1 n2=%d d2=%g'%(par['ncig']*nang,20.0/(par['ncig']*nang)))
+  
+  Result(img,'ibyte','window f3=%d n3=1|'%i+fdmod.cgrey('',ppar))
+  Result(anglex,['wmask',anglex],'smooth rect1=10 |remap1 o1=0 d1=0.015 n1=200 |transp|remap1 o1=0 d1=0.0128205 n1=1560|transp|add mode=p ${SOURCES[1]}|'+fdmod.cgrey('pclip=98',ppar))
+  bar='bar=bar.rsf bartype=h wantscalebar=y yll=2 barmove=y barunit=km/s barlabel=velocity'
+  Result(vel,'vbyte','window f3=%d n3=1 |'%i+'window n2=%(nx)d |'%ppar+fdmod.cgrey('color=a mean=y '+bar,ppar))
+  i+=1
+
+Result('bar','vbyte bar','window f3=%d n3=1 |'%(1)+'window n2=%(nx)d |'%ppar+fdmod.cgrey('color=a mean=y wantscalebar=y barlabel="vel(km/s)" bar=${SOURCES[1]} ',ppar)+'|$RSFROOT/bin/vppen vpstyle=n xwmin=11.3')
+
+
+#pickcip('ggpck','image-wtomo','vpvs',parcip)
+
+Plot('ggpck','ggpckb','window  j2=2|'+fdmod.ssplot(' plotcol=7',ppar))
+Plot('image-wtomo',fdmod.cgrey('pclip=98',ppar))
+Result('image-wtomo-cip','image-wtomo ggpck','Overlay')
+
+for s in ['sources_01','sources_07']:
+  Result(s,s,'put o2=0 d2=0.09375 |window f2=4|'+fdmod.dgrey('min2=0.37  screenht=2.7 screenratio=0.25',ppar))
+  Result(s+'_stk',s,'stack |bandpass fhi=8|graph')
+
+
+
+Result('shot', 'bandpass fhi=50 |grey screenht=7 parallel2=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 label2="h" label1="t" unit2="km" title=""')
+
+Result('spectrum','shot', '''
+ spectra all=y  | scale axis=123| 
+graph title="" min1=0 min2=-1 max2=+1 plotfat=5 label1=f unit1=Hz label2="" unit2="" parallel2=n screenratio=2 plotfat=10 screenht=7 xll=2 parallel2=n labelfat=3 titlesz=12 titlefat=3 plotfat=5 screenratio=0.5 min2=0 max2=1 yll=1 symbolsz=1
+  ''')
+
+End()

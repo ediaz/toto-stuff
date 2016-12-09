@@ -1,0 +1,174 @@
+from rsf.cluster import *
+from rsf.recipes import fdmod
+from aweOP import aweop2d
+from injOP import injop2d 
+from corrFunc3 import  * 
+from LBFGSB_new import lbfgs_b
+from NSD import steepest_descent as sd
+
+Cluster(name='modeling',email='ediazpan@mines.edu',time=1,nodetype='psava',ppn=12)
+
+
+java = WhereIs('java')+' -server -ea -Xmx12g '
+ediaz = ' ediaz.rsf.'
+lcorr = java+ediaz+'LocalCorr '
+
+
+dx=0.01
+dt= 0.001
+nl=200
+par = {'nt':1501,'ot':0.0,'dt':dt,
+       'nz':301 ,'oz':0.0,'dz':dx,
+       'nx':201 ,'ox':0.0,'dx':dx,
+       'nl':nl  ,'dl':dt ,'ol':-nl*dt,
+       'kt':70,'frq':15}
+
+fdmod.param(par)
+
+
+
+wav = 'wav'
+Flow(wav,None,
+  '''
+  spike n1=%(nt)d d1=%(dt)g o1=%(ot)g k1=%(kt)d n2=1 |
+  ricker2 frequency=20|halfint inv=y |
+  transp|scale rscale=1e8'''%par)
+
+maxz = (par['nz']-1)*par['dz']+par['oz']
+maxx = (par['nx']-1)*par['dx']+par['ox']
+mx = 0.5*maxx
+mz = 0.5*maxz
+sz = 0.15
+sx = 0.15
+
+gpar = {'cx':mx,'sx':sx,'cz':mz,'sz':sz}
+gparn = {'cx':mx,'sx':sx,'cz':mz*1.25,'sz':sz}
+gparp = {'cx':mx,'sx':sx,'cz':mz*0.75,'sz':sz}
+gauss ='exp(-((x2-%(cx)g)^2/(2*%(sx)g)^2+(x1-%(cz)g)^2/(2*%(sz)g)^2)) '%gpar
+gauss1 ='exp(-((x2-%(cx)g)^2/(2*%(sx)g)^2+(x1-%(cz)g)^2/(2*%(sz)g)^2)) '%gparn
+gauss2 ='exp(-((x2-%(cx)g)^2/(2*%(sx)g)^2+(x1-%(cz)g)^2/(2*%(sz)g)^2)) '%gparp
+
+par['ns'] = 15
+par['ds'] = (par['nz']-1)/(par['ns']-1.)*par['dz'] 
+par['os'] = par['oz']
+
+for isou in range(par['ns']):
+  stag = '-%03d'%isou
+  ss = 'ss'+stag
+  sz = isou*par['ds']+par['os']
+  fdmod.point(ss,15*par['dx'],sz,par)
+  Plot(ss,fdmod.ssplot('',par))
+rr = 'rr'
+fdmod.vertical(rr,(par['nx']-15)*par['dx'],par)
+Plot(rr,fdmod.rrplot('',par))
+
+vg = 3.0 
+Flow('velp',None,
+  '''
+  math n1=%(nz)d d1=%(dz)g o1=%(oz)g
+       n2=%(nx)d d2=%(dx)g o2=%(ox)g '''%par+
+  '''
+       output="%g "|'''%vg+
+  '''
+  math output="1/input^2"|
+  math output="input*(1-0.4*%s)"|
+  math output="1/sqrt(input)"
+  '''%gauss)
+
+Flow('veln',None,
+  '''
+  math n1=%(nz)d d1=%(dz)g o1=%(oz)g
+       n2=%(nx)d d2=%(dx)g o2=%(ox)g '''%par+
+  '''
+       output="%g "|'''%vg+
+  '''
+  math output="1/input^2"|
+  math output="input*(1+1.0*%s)"|
+  math output="1/sqrt(input)"
+  '''%gauss)
+
+Flow('veld',None,
+  '''
+  math n1=%(nz)d d1=%(dz)g o1=%(oz)g
+       n2=%(nx)d d2=%(dx)g o2=%(ox)g '''%par+
+  '''
+       output="%g "|'''%vg+
+  '''
+  math output="1/input^2"|
+  math output="input*(1+1.*%s -0.3*%s)"|
+  math output="1/sqrt(input)"
+  '''%(gauss1,gauss2))
+
+
+
+
+
+for vel in ['velp','veld','veln']:
+  for isou in range(par['ns']):
+    stag = '-%03d'%isou
+    ss = 'ss'+stag
+    rr = 'rr'
+    wav = wav  
+    rdat = 'rdat-'+vel+stag 
+    dat  =  'dat-'+vel+stag 
+
+    L =  aweop2d(vel,par,ss,rr,'',custom='nb=100  fsrf=n ')
+    L.FORW(wav,rdat)
+    Flow(dat,rdat,'costaper nw1=1 ')
+
+
+
+
+
+
+
+
+#
+Flow('penaltyBP',wav, 
+  '''
+  window  >tmp.rsf &&
+   <tmp.rsf python test.py g=tmp.rsf nlag=%d |
+  envelope |
+  scale axis=123 |
+  math output="1/(input+.05)"|
+  scale axis=123 |
+  math output="input -1 "|
+  scale axis=123|
+  math output="input +1" |
+  scale rscale=1. | 
+  math output="(x1)"
+  '''%nl)
+#
+
+
+#for vel in ['velp','veln','veld']:
+#  ss = map(lambda x:'ss-%03d'%x,range(par['ns']))
+#  rr = ['rr']*par['ns']
+#  wav = [ 'wav']*par['ns']
+#  dat = map(lambda x:'dat-'+vel+'-%03d'%x,range(par['ns']))
+#  Flow(vel+'c',vel,'math output="%g"'%vg)
+#  m = vel+'c'
+#  GR = 'gr-'+vel
+#  OF = 'of-'+vel
+#
+#  lc = LocalNormCorr(wav,ss,dat,rr,nl,900.0,par,'penaltyBP',
+#                           customfd='nb=100 jsnap=5 fsrf=n')
+#  lc.gradient(GR,OF,m)
+vel = 'veld'
+ss = map(lambda x:'ss-%03d'%x,range(par['ns']))
+rr = ['rr']*par['ns']
+wav = [ 'wav']*par['ns']
+dat = map(lambda x:'dat-'+vel+'-%03d'%x,range(par['ns']))
+Flow(vel+'c',vel,'math output="%g"'%vg)
+m = vel+'c'
+GR = 'gr-'+vel
+OF = 'of-'+vel
+lc = LocalNormCorr(wav,ss,dat,rr,nl,170.0,par,'penaltyBP',
+                             customfd='nb=100 jsnap=5 fsrf=n')
+
+
+solver = sd(lc,'model_final_local',m,15,
+            alpha_step=0.05,name='double_gauss_local')
+solver.RUN()
+
+End()

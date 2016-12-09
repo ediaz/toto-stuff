@@ -1,0 +1,94 @@
+from rsf.proj import *
+from rsf.recipes import fdmod
+from nolWrap import WRAPPER
+from LCG import LCGspd,LCGlsq
+
+
+java = WhereIs('java')+' -server -ea -Xmx12g '
+ediaz = ' ediaz.rsf.'
+lcorr = java+ediaz+'LocalCorrM '
+lcorr2 = java+ediaz+'LocalCorr2 '
+lrgf = java+ediaz+'RecursiveFilt '
+
+dt= 0.001
+nl = 81
+par = {'nt':1001,'ot':0.0,'dt':dt,
+       'nz':101 ,'oz':0.0,'dz':0.02,
+       'nx':nl*2+1  ,'dx':2*dt ,'ox':-nl*2*dt }
+
+fdmod.param(par)
+
+par2 = {'nt':nl*2+1,'ot':-nl*dt*2,'dt':2*dt,
+       'nz':101 ,'oz':0.0,'dz':0.02,
+       'nx':101 ,'ox':0.0,'dx':0.02,
+       'nl':nl*2+1  ,'dl':2*dt ,'ol':-nl*2*dt }
+
+fdmod.param(par2)
+
+class LocalCorrelation:
+  def __init__(self,g,nlag,s3,window='gaussian',ctype='sym'):
+    self.g = g
+    self.nlag = nlag
+    self.s3 = s3
+    self.append= 'type=%s window=%s'%(ctype,window)
+    
+  def ADJT(self,corr,f):
+    Flow(corr,[f,self.g],
+      lcorr+self.append+
+      ' g=${SOURCES[1]} s3=%g nlag=%d fwd=y'%(self.s3,self.nlag))
+  def FORW(self,corr,f):
+    Flow(f,[corr,self.g],
+      lcorr+self.append+
+      ' g=${SOURCES[1]} s3=%g nlag=%d fwd=n'%(self.s3,self.nlag))
+
+
+nt = par['nt']
+
+Flow('f',None,
+  '''
+  math n1=%(nt)d o1=%(ot)g d1=%(dt)g n2=1 output="0"|'''%par+'''
+  spike nsp=3 k1=%d,%d,%d |
+  ricker2 frequency=40'''%(nt*1.1/4,1.2*nt/4,3.2*nt/4))
+
+
+Flow('g1',None,
+  '''
+  math n1=%(nt)d o1=%(ot)g d1=%(dt)g n2=1 output="0"|'''%par+'''
+  spike nsp=1 k1=%d mag=0.5| ricker2 frequency=40 |
+  envelope hilb=y phase=50
+  '''%(1.0*nt/4))
+
+Flow('g2',None,
+  '''
+  math n1=%(nt)d o1=%(ot)g d1=%(dt)g n2=1 output="0"|'''%par+'''
+  spike nsp=1 k1=%d mag=0.5| ricker2 frequency=40 |
+  envelope hilb=y phase=180
+  '''%(1.2*nt/4))
+
+Flow('g3',None,
+  '''
+  math n1=%(nt)d o1=%(ot)g d1=%(dt)g n2=1 output="0"|'''%par+'''
+  spike nsp=1 k1=%d mag=0.5| ricker2 frequency=40 |
+  envelope hilb=y phase=90
+  '''%(3.3*nt/4))
+
+Flow('g','g1 g2 ',
+  'add ${SOURCES[1:2]}')
+Flow('gn','g',
+  '''
+scale rscale=1000|noise|scale rscale=0.001|add $SOURCE''')
+
+
+
+
+test = LocalCorrelation('g',nl,s3=100,window='gaussian',ctype='sym')
+
+test.ADJT('corr','f')
+Flow('mo','corr','math output="0"')
+cg = LCGlsq(test,'mo','filt','f',name='test',nit=11)
+cg.RUN()
+
+test.FORW('filt','finv')
+
+
+End()

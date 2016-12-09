@@ -1,0 +1,109 @@
+from rsf.cluster import *
+from rsf.recipes import fdmod
+from aweOP import aweop2d
+from injOP import injop2d 
+from corrFunc import  * 
+from LBFGSB_new import lbfgs_b
+from NSD import steepest_descent as sd
+
+Cluster(name='modeling',email='ediazpan@mines.edu',time=1,nodetype='psava',ppn=12)
+
+
+java = WhereIs('java')+' -server -ea -Xmx12g '
+ediaz = ' ediaz.rsf.'
+lcorr = java+ediaz+'LocalCorr '
+
+
+dx=0.01
+dt= 0.001
+nl=200
+par = {'nt':1501,'ot':0.0,'dt':dt,
+       'nz':301 ,'oz':0.0,'dz':dx,
+       'nx':201 ,'ox':0.0,'dx':dx,
+       'nl':nl  ,'dl':dt ,'ol':-nl*dt,
+       'kt':70,'frq':15}
+fdmod.param(par)
+
+par['ns'] = 15
+par['ds'] = (par['nz']-1)/(par['ns']-1.)*par['dz'] 
+par['os'] = par['oz']
+
+
+for isou in range(par['ns']):
+  stag = '-%03d'%isou
+  ss = 'ss'+stag  
+  dat ='rdat-veld'+stag
+  Plot(ss,fdmod.ssplot('',par))
+  Result(dat,fdmod.egrey('',par))
+
+rr = 'rr'
+Plot(rr,fdmod.rrplot('',par))
+
+
+
+
+
+
+
+
+for vel in ['veld']:
+  Plot(vel,fdmod.cgrey('bias=3 color=E ',par))
+  Result(vel,[vel]+map(lambda x:'ss-%03d'%x,range(par['ns']))+[rr],
+    'Overlay')
+
+
+vel = 'veld'
+
+
+
+local = 'model_movie_local'
+glob  = 'model_movie_global'
+
+mlocal = 'mlocal'
+mglobal = 'mglobal'
+
+Flow(mlocal,local,'window n3=1 f3=10')
+Flow(mglobal,glob,'window n3=1 f3=5')
+
+Result('model_local',[mlocal]+[mglobal]+[vel],
+    'cat ${SOURCES[1:3]} axis=3 |'+
+    'byte gainpanel=a bias=3|window n3=1 |'+
+    fdmod.cgrey('color=E bias=3.',par))
+
+
+Result('model_global',[mlocal]+[mglobal]+[vel],
+    'cat ${SOURCES[1:3]} axis=3 |'+
+    'byte gainpanel=a bias=3|window n3=1 f3=1|'+
+    fdmod.cgrey('color=E bias=3.',par))
+
+Result('OF_global','window |put o1=0 d1=1|scale axis=123|'+
+  '''
+  graph title=""  plotfat=20 plotcol=5
+   label1=iter unit1= label2="" unit2="" parallel2=n screenratio=0.5
+   
+   screenht=7 parallel2=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 
+  ''')
+Result('OF_local','window n3=10 |put o1=0 d1=1|scale axis=123|'+
+  '''
+  graph title=""  plotfat=20 plotcol=5
+   label1=iter unit1= label2="" unit2="" parallel2=n screenratio=0.5
+   
+   screenht=7 parallel2=n labelsz=6 labelfat=3 titlesz=12 titlefat=3 
+  ''')
+
+for vel in [mlocal,mglobal,'veldc','veld']:
+  for isou in range(par['ns']):
+    stag = '-%03d'%isou
+    ss = 'ss'+stag
+    rr = 'rr'
+    wav = 'wav'  
+    rdat = 'rdat-'+vel+stag 
+    dat  =  'dat-'+vel+stag 
+
+    L =  aweop2d(vel,par,ss,rr,'',custom='nb=100  fsrf=n ')
+    L.FORW(wav,rdat)
+    Flow(dat,rdat,'costaper nw1=100 ')
+    Result(dat,fdmod.egrey('',par))
+
+
+End()

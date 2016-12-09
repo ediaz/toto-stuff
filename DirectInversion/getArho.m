@@ -18,7 +18,7 @@ function [A,S,M] = getArho(f,s2,b,h,n,freeSurface)
 
 switch nargin
     case 5
-        freeSurface = 0;
+        freeSurface = 1;
 end
 
 m1  = s2(:).*b(:);
