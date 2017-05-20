@@ -1,0 +1,103 @@
+%% start of file `template.tex'.
+%% Copyright 2006-2012 Xavier Danaux (xdanaux@gmail.com).
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License version 1.3c,
+% available at http://www.latex-project.org/lppl/.
+\documentclass[11pt,letter]{moderncv}
+\moderncvcolor{blue}   
+\usepackage[utf8]{inputenc}
+\usepackage[none]{hyphenat}
+\usepackage{listings}
+\newcommand{\mailt}[1]{\mail{^\textrm{\scriptsize#10}}}
+\hyphenpenalty 5000
+\exhyphenpenalty 500
+\usepackage[margin=0.8in]{geometry}
+
+\moderncvstyle{classic}                        % style options are 'casual' (default), 'classic', 'oldstyle' and 'banking'
+%\nopagenumbers{}           
+% the ConTeXt symbol
+\def\ConTeXt{%
+  C%
+  \kern-.0333emo%
+  \kern-.0333emn%
+  \kern-.0667em\TeX%
+  \kern-.0333emt}
+\definecolor{web}{rgb}{0.2,0.2,0.2}
+% adjust the page margins
+\setlength{\hintscolumnwidth}{0.17\textwidth}
+\setlength{\separatorcolumnwidth}{0.025\textwidth}
+
+\renewcommand{\listitemsymbol}{--}
+
+\firstname{Esteban F. Díaz Pantin}
+\familyname{ }
+\mobile{{720-343-92-32}}
+\email{ediazpantin@gmail.com}
+\newcommand{\up}[1]{\ensuremath{^\textrm{\scriptsize#1}}}
+
+\begin{document}
+\makecvtitle
+\thispagestyle{empty}
+\cvline{}{Exploration geophysicist focused in  seismic data processing, depth imaging, and wave equation velocity analysis.}
+\section{{Education}}
+\cventry{Aug. 2013--Dec 2016 }{\textbf{PhD in Geophysics}}{Colorado School of Mines}{Golden, CO, USA}{}{%
+Thesis title: Extended imaging and tomography under two-way operators, GPA 3.78/4}
+\cventry{Aug. 2011--Jan. 2014}{\textbf{M.Sc. in Geophysics}}{Colorado School of Mines}{Golden, CO, USA}{}{%
+  Thesis title: RTM backscattering, noise or signal? GPA 3.76/4}
+\cventry{Oct. 2002--Dec. 2007}{\textbf{Geophysical Engineering}}{Universidad Simón Bol\'{i}var}{Caracas, Venezuela}{}{GPA 3.94/5}
+
+\section{{Experience}}
+
+\cventry{Dec 2016-- }{\textbf{Geophysicist}}{Subsurface Technology, BP}{Houston, USA}{}{ Challenger Level J}
+
+\cventry{May 2014-- Aug. 2014}{\textbf{Summer intern}}{Imagerie Sismique, Total}{}{Pau, France}{%
+Constrained optimization applied to Full Waveform Inversion (FWI). His tasks involved the development, implementation,
+and testing of the optimization approach in the production code.}
+
+\cventry{ May 2013-- Aug. 2013}{\textbf{Summer intern}}{Subsurface Technology, BP}{}{Houston, USA}{%
+Data preconditioning for full waveform inversion. His tasks included a 
+successful test with a 3D field dataset.}
+
+\cventry{ Aug. 2011-- Present}{\textbf{Research Assistant}}{}{Center for Wave Phenomena, Colorado School of Mines}{}{%
+Wave equation migration velocity analysis using two-way operators. Esteban
+ also maintains cluster and inversion tools within Madagascar users at CWP.}
+
+\cventry{ Aug. 2009--Jul. 2011}{\textbf{Geophysicist}}{}{GeoImaging Soluções Tecnológicas LTDA, Rio de Janeiro, Brazil}{}{%
+   Participated in several projects including Full Waveform Inversion R\&D, depth imaging,
+   velocity model building under salt environments, and time processing.
+}
+
+\cventry{ Jan. 2009--Aug 2009}{\textbf{Geophysicist}}{}{Stratageo Soluções LTDA, Rio de Janeiro, Brazil}{}{%
+   Time processing, depth imaging and velocity model building.  Seismic data from Brazil (onshore and offshore) and West Africa basins (offshore).
+   Developed software to automatically process P1/90 navigation data. 
+}
+
+\cventry{ Mar. 2008--Dec. 2008}{\textbf{Junior Geophysicist}}{}{3DGeo South America, Buenos Aires, Argentina \& Rio de Janeiro, Brazil}{}{%
+   Seismic data processing from Argentinian basins.
+   Geometry QC and coordinates processing. 
+   Near Surface model building.
+}
+
+\section{{Languages}}
+\cvlanguage{Spanish}{Native}{}
+\cvlanguage{English}{Full professional proficiency}{}
+\cvlanguage{Portuguese}{Professional working proficiency}{}
+\cvlanguage{French}{Elementary proficiency}{}
+\section{{Computational Skills}}
+\cvlistitem{Contributor to the Madagascar open-source project: www.ahay.org}
+\cvlistitem{Programing: Fortran90, C, Python, Java, bash, Matlab, Javascript,among others.}
+\cvlistitem{Developing experience within SEPlib, MinesJTK, and Madagascar environments.}
+
+\section{{Scientific Interests}}
+\cvlistdoubleitem{Migration Velocity Analysis (MVA)}{Inverse problems}
+\cvlistdoubleitem{Imaging}{Noise reduction in seismic data}
+% One page resume, uncomment for publications
+\bibliographystyle{plain}
+\bibliography{Esteban2}
+\nocite{*}
+\thispagestyle{empty}
+\end{document}
+
+
+%% end of file `template.tex'.

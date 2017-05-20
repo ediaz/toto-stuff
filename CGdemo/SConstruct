@@ -1,0 +1,24 @@
+from rsf.proj import *
+
+'''
+CG solver demo with matrix multiplication
+'''
+
+
+
+
+
+
+Flow('A',None,'math n1=10 d1=1 o1=1 d2=1 o2=1 n2=5 output="1"|noise ')
+Flow('AtA','A','transp |matmult mat=$SOURCE adj=y')
+
+Flow('m',None,'math n1=10 d1=1 o1=1 n2=1 output="1"|noise')
+
+Flow('d',['m','A'],'matmult mat=${SOURCES[1]} ')
+
+Result('m','grey screenratio=10 screenht=6 color=j mean=y title="" xll=5 ')
+Result('A','grey transp=n screenratio=.5 color=j mean=y screenht=6 title= ')
+
+
+
+End()
